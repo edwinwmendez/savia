@@ -4,10 +4,14 @@ Sistema de seguridad ciudadana que permite a los vecinos de Atalaya reportar eme
 
 ## Estructura del Proyecto
 
-```
+```md
 savia/
 ├── savia-mobile/     # App móvil (React Native + Expo)
 ├── savia-admin/      # Panel web administrativo (Next.js)
+├── backend/          # Backend serverless (Firebase)
+│   ├── functions/    # Cloud Functions
+│   ├── firestore.rules
+│   └── storage.rules
 └── docs/             # Documentación del proyecto
     ├── PRD_SAVIA_COMPLETO.md
     ├── SAVIA_System_Design_COMPLETO.md
@@ -17,8 +21,10 @@ savia/
 ## Stack Tecnológico
 
 ### App Móvil (`savia-mobile`)
+
 | Tecnología | Versión | Propósito |
 |------------|---------|-----------|
+
 | React Native | 0.83+ | Framework de desarrollo móvil |
 | Expo | SDK 55 | Herramientas y servicios para RN |
 | TypeScript | 5.9+ | Tipado estático |
@@ -64,6 +70,13 @@ pnpm install
 pnpm dev
 ```
 
+### Backend (Firebase Functions)
+```bash
+cd backend/functions
+pnpm install
+pnpm build
+```
+
 ## Scripts Disponibles
 
 ### savia-mobile
@@ -76,6 +89,10 @@ pnpm dev
 - `pnpm dev` - Servidor de desarrollo
 - `pnpm build` - Build de producción
 - `pnpm start` - Inicia servidor de producción
+
+### backend
+- `firebase emulators:start` - Inicia emuladores locales
+- `firebase deploy` - Despliega a producción
 
 ## Autor
 

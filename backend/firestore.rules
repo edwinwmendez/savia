@@ -1,0 +1,147 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============ FUNCIONES AUXILIARES ============
+
+    // Verificar si el usuario está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Obtener datos del usuario actual
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Verificar rol del usuario
+    function hasRole(role) {
+      return isAuthenticated() && getUserData().role == role;
+    }
+
+    // Verificar si es el propietario del documento
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Verificar si es ciudadano
+    function isCitizen() {
+      return hasRole('citizen');
+    }
+
+    // Verificar si es operador
+    function isOperator() {
+      return hasRole('operator');
+    }
+
+    // Verificar si es administrador
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    // Verificar si es operador o admin
+    function isOperatorOrAdmin() {
+      return isOperator() || isAdmin();
+    }
+
+    // ============ COLECCIÓN: users ============
+    match /users/{userId} {
+      // Lectura: usuario propio, operadores y admins
+      allow read: if isOwner(userId) || isOperatorOrAdmin();
+
+      // Creación: solo mediante Cloud Functions (registro)
+      allow create: if false;
+
+      // Actualización: usuario propio (campos limitados) o admin
+      allow update: if isOwner(userId) && onlyUpdatingAllowedFields() || isAdmin();
+
+      // Eliminación: solo admin
+      allow delete: if isAdmin();
+
+      function onlyUpdatingAllowedFields() {
+        let allowedFields = ['phone', 'address', 'fcmToken', 'updatedAt'];
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
+      }
+    }
+
+    // ============ COLECCIÓN: alerts ============
+    match /alerts/{alertId} {
+      // Lectura: creador de la alerta, operadores y admins
+      allow read: if isOwner(resource.data.createdBy) || isOperatorOrAdmin();
+
+      // Creación: solo ciudadanos autenticados
+      allow create: if isCitizen() && validAlertData();
+
+      // Actualización: operadores (cambio de estado) o admin
+      allow update: if isOperatorOrAdmin() && validAlertUpdate();
+
+      // Eliminación: solo admin
+      allow delete: if isAdmin();
+
+      function validAlertData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['type', 'description', 'location', 'urgency', 'createdBy'])
+          && data.createdBy == request.auth.uid
+          && data.status == 'pending';
+      }
+
+      function validAlertUpdate() {
+        let validStatuses = ['pending', 'assigned', 'in_progress', 'resolved', 'cancelled'];
+        return request.resource.data.status in validStatuses;
+      }
+    }
+
+    // ============ COLECCIÓN: institutions ============
+    match /institutions/{institutionId} {
+      // Lectura: todos los usuarios autenticados
+      allow read: if isAuthenticated();
+
+      // Escritura: solo admin
+      allow write: if isAdmin();
+    }
+
+    // ============ COLECCIÓN: categories ============
+    match /categories/{categoryId} {
+      // Lectura: todos los usuarios autenticados
+      allow read: if isAuthenticated();
+
+      // Escritura: solo admin
+      allow write: if isAdmin();
+    }
+
+    // ============ COLECCIÓN: ratings ============
+    match /ratings/{ratingId} {
+      // Lectura: creador, operador asignado y admins
+      allow read: if isOwner(resource.data.ratedBy) || isOperatorOrAdmin();
+
+      // Creación: ciudadano que creó la alerta relacionada
+      allow create: if isCitizen() && validRatingData();
+
+      // Actualización y eliminación: no permitido
+      allow update, delete: if false;
+
+      function validRatingData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['alertId', 'rating', 'ratedBy'])
+          && data.rating >= 1 && data.rating <= 5
+          && data.ratedBy == request.auth.uid;
+      }
+    }
+
+    // ============ COLECCIÓN: notifications ============
+    match /notifications/{notificationId} {
+      // Lectura: solo el destinatario
+      allow read: if isOwner(resource.data.userId);
+
+      // Creación: solo mediante Cloud Functions
+      allow create: if false;
+
+      // Actualización: destinatario puede marcar como leída
+      allow update: if isOwner(resource.data.userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt']);
+
+      // Eliminación: destinatario o admin
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+  }
+}

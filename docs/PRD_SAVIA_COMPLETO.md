@@ -1693,7 +1693,7 @@ savia-mobile/
 
 ## 9.4 Arquitectura del Panel Web Admin
 
-### 9.4.1 Estructura de Carpetas (Next.js 14 App Router)
+### 9.4.1 Estructura de Carpetas (Next.js 16 App Router)
 
 ```
 savia-admin/
@@ -1856,10 +1856,26 @@ service cloud.firestore {
 }
 ```
 
-### 9.5.2 Cloud Functions
+### 9.5.2 Estructura de Carpetas Backend
+
+```
+backend/
+├── functions/              # Cloud Functions
+│   ├── src/
+│   │   └── index.ts       # Funciones principales
+│   ├── package.json
+│   └── tsconfig.json
+├── firebase.json          # Configuración de Firebase
+├── .firebaserc            # Proyecto de Firebase
+├── firestore.rules        # Reglas de seguridad Firestore
+├── firestore.indexes.json # Índices de Firestore
+└── storage.rules          # Reglas de seguridad Storage
+```
+
+### 9.5.3 Cloud Functions
 
 ```typescript
-// functions/src/index.ts
+// backend/functions/src/index.ts
 
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
