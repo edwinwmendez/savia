@@ -16,7 +16,7 @@ SAVIA es una plataforma de seguridad ciudadana que permite a los vecinos de Atal
 
 | Plataforma | Tecnología | Usuarios | Propósito |
 |------------|------------|----------|-----------|
-| **App Móvil** | React Native + Expo | Ciudadanos, Operadores | Reportar y atender alertas |
+| **App Móvil** | React Native + Expo | Ciudadanos, Agentes | Reportar y atender alertas |
 | **Panel Web** | Next.js 16 | Administradores COPROSEC | Gestión, monitoreo y reportes |
 
 ## 1.3 Stack Tecnológico
@@ -68,7 +68,7 @@ SAVIA es una plataforma de seguridad ciudadana que permite a los vecinos de Atal
 │  │   View     │  │    │  │   View     │  │ │ │  └────────────┘  │
 │  └────────────┘  │    │  └────────────┘  │ │ │  ┌────────────┐  │
 │  ┌────────────┐  │    │  ┌────────────┐  │ │ │  │ Firestore  │  │
-│  │ Operador   │  │    │  │  Reportes  │  │◄┼─┼─►│  Database  │  │
+│  │ Agente   │  │    │  │  Reportes  │  │◄┼─┼─►│  Database  │  │
 │  │   View     │  │    │  │   View     │  │ │ │  └────────────┘  │
 │  └────────────┘  │    │  └────────────┘  │ │ │  ┌────────────┐  │
 │                  │    │  ┌────────────┐  │ │ │  │  Storage   │  │
@@ -85,7 +85,7 @@ SAVIA es una plataforma de seguridad ciudadana que permite a los vecinos de Atal
 ## 2.2 Flujo de Datos Principal
 
 ```
-CIUDADANO                    FIREBASE                      OPERADOR/ADMIN
+CIUDADANO                    FIREBASE                      AGENTE/ADMIN
     │                            │                              │
     │  1. Crea Alerta           │                              │
     ├──────────────────────────►│                              │
@@ -95,7 +95,7 @@ CIUDADANO                    FIREBASE                      OPERADOR/ADMIN
     │                           │  4. Envía Push (FCM)         │
     │                           ├─────────────────────────────►│
     │                           │                              │
-    │                           │  5. Operador toma caso       │
+    │                           │  5. Agente toma caso       │
     │                           │◄─────────────────────────────┤
     │  6. Notificación cambio   │                              │
     │◄──────────────────────────┤                              │
@@ -232,12 +232,12 @@ SAVIA
 │   │   ├── Notificaciones
 │   │   └── Perfil/Configuración
 │   │
-│   └── 🛡️ MÓDULO OPERADOR
-│       ├── Home Operador
+│   └── 🛡️ MÓDULO AGENTE
+│       ├── Home Agente
 │       ├── Alertas Asignadas
 │       ├── Atender Alerta
 │       ├── Historial Atendidas
-│       └── Perfil Operador
+│       └── Perfil Agente
 │
 └── 💻 PANEL WEB
     └── 👔 MÓDULO ADMINISTRADOR
@@ -252,7 +252,7 @@ SAVIA
 
 ## 4.2 Permisos por Rol
 
-| Funcionalidad | Ciudadano | Operador | Admin |
+| Funcionalidad | Ciudadano | Agente | Admin |
 |---------------|:---------:|:--------:|:-----:|
 | Crear alertas | ✅ | ❌ | ❌ |
 | Ver mis alertas | ✅ | ❌ | ❌ |
@@ -521,7 +521,7 @@ Iniciales    Imagen
 **Tabs Ciudadano:**
 - Home, Mis Alertas, Mapa, Notificaciones, Perfil
 
-**Tabs Operador:**
+**Tabs Agente:**
 - Home, Asignadas, Historial, Perfil
 
 ---
@@ -806,7 +806,7 @@ Iniciales    Imagen
 | Módulo | Cantidad | Plataforma |
 |--------|----------|------------|
 | App Ciudadano | 14 | Móvil |
-| App Operador | 7 | Móvil |
+| App Agente | 7 | Móvil |
 | Panel Administrador | 10 | Web |
 | **TOTAL** | **31** | |
 
@@ -1379,7 +1379,7 @@ Iniciales    Imagen
 │  📊 Dashboard  │   GESTIÓN DE USUARIOS                       [+ Nuevo]     │
 │  🚨 Alertas    │                                                            │
 │  🏢 Instituc.  │   ┌─────────────────┐                                      │
-│  👥 Usuarios ◀ │   │ Todos │ Operadores │ Ciudadanos │ Admins │            │
+│  👥 Usuarios ◀ │   │ Todos │ Agentes │ Ciudadanos │ Admins │            │
 │  📁 Categorías │   └─────────────────┘                                      │
 │  📈 Reportes   │                                                            │
 │                │   ┌─────────────────────────────────────────────────────┐  │
@@ -1389,8 +1389,8 @@ Iniciales    Imagen
 │                │   ┌─────────────────────────────────────────────────────┐  │
 │                │   │☐│ Nombre           │ DNI      │ Rol      │ Estado  │  │
 │                │   ├─────────────────────────────────────────────────────┤  │
-│                │   │☐│ Juan Pérez       │ 45678912 │👮Operador│ 🟢 Act. │  │
-│                │   │☐│ María García     │ 78901234 │👮Operador│ 🟢 Act. │  │
+│                │   │☐│ Juan Pérez       │ 45678912 │👮Agente│ 🟢 Act. │  │
+│                │   │☐│ María García     │ 78901234 │👮Agente│ 🟢 Act. │  │
 │                │   │☐│ Edwin Méndez     │ 12345678 │👤Ciudadano│🟢 Act. │  │
 │                │   │☐│ Ana López        │ 34567890 │👤Ciudadano│🔴 Inac.│  │
 │                │   │☐│ Carlos Admin     │ 11111111 │👔 Admin  │ 🟢 Act. │  │
@@ -1403,12 +1403,12 @@ Iniciales    Imagen
 
 ---
 
-### W08 - Crear/Editar Usuario Operador (Modal)
+### W08 - Crear/Editar Usuario Agente (Modal)
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                                                             │
 │      ┌─────────────────────────────────────────────────────────────────┐   │
-│      │  ╳  Nuevo Usuario Operador                                      │   │
+│      │  ╳  Nuevo Usuario Agente                                      │   │
 │      ├─────────────────────────────────────────────────────────────────┤   │
 │      │                                                                 │   │
 │      │  DNI *                           Celular *                      │   │
@@ -1433,7 +1433,7 @@ Iniciales    Imagen
 │      │                                                                 │   │
 │      │  Rol *                           Estado                         │   │
 │      │  ┌──────────────────┐           ● Activo  ○ Inactivo           │   │
-│      │  │ 👮 Operador  ▼   │                                          │   │
+│      │  │ 👮 Agente  ▼   │                                          │   │
 │      │  └──────────────────┘                                          │   │
 │      │                                                                 │   │
 │      │  ☑️ Enviar credenciales por email                               │   │
@@ -1570,7 +1570,7 @@ Iniciales    Imagen
                                                     └──────────┘
 ```
 
-## 7.2 Flujo App Operador
+## 7.2 Flujo App Agente
 
 ```
               ┌─────────────┐
@@ -1581,7 +1581,7 @@ Iniciales    Imagen
                      ▼
               ┌─────────────┐
               │    HOME     │
-              │  OPERADOR   │
+              │  AGENTE   │
               │    (O01)    │
               └──────┬──────┘
                      │
@@ -1658,8 +1658,8 @@ firestore/
 │       ├── phone: string
 │       ├── email: string
 │       ├── address: string
-│       ├── role: "citizen" | "operator" | "admin"
-│       ├── institutionId: string (operators only)
+│       ├── role: "citizen" | "agent" | "admin"
+│       ├── institutionId: string (agents only)
 │       ├── isActive: boolean
 │       ├── fcmToken: string (for push notifications)
 │       ├── createdAt: timestamp
@@ -1679,7 +1679,7 @@ firestore/
 │       ├── geohash: string (for proximity queries)
 │       ├── imageUrls: array<string> (max 3)
 │       ├── citizenId: string (ref users)
-│       ├── operatorId: string (ref users)
+│       ├── agentId: string (ref users)
 │       ├── institutionId: string (ref institutions)
 │       ├── timeline: array<{ status, timestamp, userId, note? }>
 │       ├── rating: number (1-5)
@@ -1742,10 +1742,10 @@ alerts: geohash ASC, status ASC
 | Función | Método | Descripción |
 |---------|--------|-------------|
 | `createAlert` | POST | Crear alerta con validaciones |
-| `onAlertCreated` | Trigger | Notificar operadores al crear alerta |
+| `onAlertCreated` | Trigger | Notificar agentes al crear alerta |
 | `onAlertUpdated` | Trigger | Notificar ciudadano al cambiar estado |
 | `getNearbyAlerts` | GET | Obtener alertas por radio geográfico (geohash) |
-| `assignAlert` | POST | Asignar alerta a operador |
+| `assignAlert` | POST | Asignar alerta a agente |
 | `transferAlert` | POST | Derivar alerta a otra institución |
 
 ### Notificaciones
@@ -1955,13 +1955,13 @@ Style: Full-bleed map, floating controls, clean overlay
 
 ---
 
-## 10.3 PROMPTS APP MÓVIL - OPERADOR
+## 10.3 PROMPTS APP MÓVIL - AGENTE
 
-### O01 - Home Operador
+### O01 - Home Agente
 ```
-Create a mobile home screen for SAVIA operator module.
+Create a mobile home screen for SAVIA agent module.
 
-Header: SAVIA logo with "Operador" badge, notification bell (5), user avatar
+Header: SAVIA logo with "Agente" badge, notification bell (5), user avatar
 
 Welcome section:
 - "Bienvenido, Juan 👮"
@@ -1987,9 +1987,9 @@ Bottom navigation: Home, Alertas, Historial, Perfil
 Style: Professional, badge-heavy, action-oriented
 ```
 
-### O03 - Detalle Alerta Operador
+### O03 - Detalle Alerta Agente
 ```
-Create a mobile alert detail screen for SAVIA operator.
+Create a mobile alert detail screen for SAVIA agent.
 
 Header: Back arrow, "Alerta #0145", red urgency badge
 
@@ -2021,7 +2021,7 @@ Style: Information-dense, action buttons prominent
 
 ### O04 - Actualizar Estado
 ```
-Create a mobile screen for updating alert status in SAVIA operator app.
+Create a mobile screen for updating alert status in SAVIA agent app.
 
 Header: Back arrow, "Actualizar Estado"
 
@@ -2165,8 +2165,8 @@ Style: Data visualization focused, charts prominent, export options clear
 - [ ] Implementar mapa de alertas cercanas
 - [ ] Configurar notificaciones push
 
-## 11.3 Fase 3 - Módulo Operador (Sprint 3)
-- [ ] Implementar Home operador
+## 11.3 Fase 3 - Módulo Agente (Sprint 3)
+- [ ] Implementar Home agente
 - [ ] Implementar lista de alertas asignadas
 - [ ] Implementar detalle y tomar caso
 - [ ] Implementar actualizar estado

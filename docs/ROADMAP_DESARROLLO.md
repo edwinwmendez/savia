@@ -18,7 +18,7 @@ hotfix/[descripcion-corta]
 
 ## MVP 1: Flujo Básico
 
-**Objetivo:** Ciudadano puede reportar alerta y operador puede atenderla.
+**Objetivo:** Ciudadano puede reportar alerta y agente puede atenderla.
 **Duración:** 4 semanas (Sprints 1-4)
 **Fecha objetivo:** 02 Febrero 2026
 
@@ -28,14 +28,14 @@ hotfix/[descripcion-corta]
 |---------|-----------|-------------|
 | `feature/s1-setup-firebase` | - | Configurar Firebase en ambos proyectos móviles |
 | `feature/s1-auth-ciudadano` | HU-AUTH-001, HU-AUTH-002 | Registro y login de ciudadano |
-| `feature/s1-auth-operador` | HU-AUTH-004 | Login de operador |
+| `feature/s1-auth-agente` | HU-AUTH-004 | Login de agente |
 | `feature/s1-recuperar-password` | HU-AUTH-003 | Recuperación de contraseña |
 
 **Comandos:**
 ```bash
 git flow feature start s1-setup-firebase
 git flow feature start s1-auth-ciudadano
-git flow feature start s1-auth-operador
+git flow feature start s1-auth-agente
 git flow feature start s1-recuperar-password
 ```
 
@@ -43,7 +43,7 @@ git flow feature start s1-recuperar-password
 - [ ] Firebase Auth conectado
 - [ ] Ciudadano puede registrarse con DNI, email y contraseña
 - [ ] Ciudadano puede iniciar sesión
-- [ ] Operador puede iniciar sesión
+- [ ] Agente puede iniciar sesión
 - [ ] Usuario puede recuperar contraseña por email
 
 ---
@@ -80,24 +80,24 @@ git flow feature start s2-alerta-confirmacion
 | Feature | Historias | Descripción |
 |---------|-----------|-------------|
 | `feature/s3-ciudadano-mis-alertas` | HU-SEG-001, HU-SEG-002 | Lista y detalle de alertas del ciudadano |
-| `feature/s3-operador-alertas-pendientes` | HU-OPE-001 | Lista de alertas pendientes para operador |
-| `feature/s3-operador-tomar-caso` | HU-OPE-002, HU-OPE-003 | Operador toma un caso y ve detalle |
-| `feature/s3-operador-actualizar-estado` | HU-OPE-004 | Operador actualiza estado de la alerta |
+| `feature/s3-agente-alertas-pendientes` | HU-OPE-001 | Lista de alertas pendientes para agente |
+| `feature/s3-agente-tomar-caso` | HU-OPE-002, HU-OPE-003 | Agente toma un caso y ve detalle |
+| `feature/s3-agente-actualizar-estado` | HU-OPE-004 | Agente actualiza estado de la alerta |
 
 **Comandos:**
 ```bash
 git flow feature start s3-ciudadano-mis-alertas
-git flow feature start s3-operador-alertas-pendientes
-git flow feature start s3-operador-tomar-caso
-git flow feature start s3-operador-actualizar-estado
+git flow feature start s3-agente-alertas-pendientes
+git flow feature start s3-agente-tomar-caso
+git flow feature start s3-agente-actualizar-estado
 ```
 
 **Criterios de aceptación:**
 - [ ] Ciudadano ve lista de sus alertas con estados
 - [ ] Ciudadano puede ver detalle de cada alerta
-- [ ] Operador ve alertas pendientes ordenadas por urgencia
-- [ ] Operador puede tomar un caso
-- [ ] Operador puede cambiar estado: En camino → En el lugar → Resuelto
+- [ ] Agente ve alertas pendientes ordenadas por urgencia
+- [ ] Agente puede tomar un caso
+- [ ] Agente puede cambiar estado: En camino → En el lugar → Resuelto
 
 ---
 
@@ -124,7 +124,7 @@ git flow release finish v1.0.0
 ```
 
 **Criterios de aceptación:**
-- [ ] Ciudadano recibe notificación cuando operador toma su caso
+- [ ] Ciudadano recibe notificación cuando agente toma su caso
 - [ ] Ciudadano recibe notificación en cada cambio de estado
 - [ ] Timeline muestra historial de estados con fecha/hora
 - [ ] App desplegada en TestFlight/Play Console interno
@@ -155,7 +155,7 @@ git flow feature start s5-admin-dashboard
 **Criterios de aceptación:**
 - [ ] Panel web accesible en navegador
 - [ ] Admin puede iniciar sesión
-- [ ] Dashboard muestra: alertas hoy, pendientes, resueltas, operadores activos
+- [ ] Dashboard muestra: alertas hoy, pendientes, resueltas, agentes activos
 
 ---
 
@@ -163,7 +163,7 @@ git flow feature start s5-admin-dashboard
 
 | Feature | Historias | Descripción |
 |---------|-----------|-------------|
-| `feature/s6-admin-usuarios` | HU-ADM-002 | CRUD de usuarios (ciudadanos, operadores) |
+| `feature/s6-admin-usuarios` | HU-ADM-002 | CRUD de usuarios (ciudadanos, agentes) |
 | `feature/s6-admin-instituciones` | HU-ADM-003 | CRUD de instituciones |
 | `feature/s6-admin-alertas` | - | Gestión y visualización de alertas |
 
@@ -188,15 +188,15 @@ git flow feature start s6-admin-alertas
 |---------|-----------|-------------|
 | `feature/s7-ciudadano-calificar` | HU-SEG-004 | Calificación de atención (1-5 estrellas) |
 | `feature/s7-ciudadano-mapa` | - | Mapa de alertas cercanas |
-| `feature/s7-operador-derivar` | HU-OPE-006 | Derivar alerta a otra institución |
-| `feature/s7-operador-navegacion` | HU-OPE-005 | Navegación GPS a la ubicación |
+| `feature/s7-agente-derivar` | HU-OPE-006 | Derivar alerta a otra institución |
+| `feature/s7-agente-navegacion` | HU-OPE-005 | Navegación GPS a la ubicación |
 
 **Comandos:**
 ```bash
 git flow feature start s7-ciudadano-calificar
 git flow feature start s7-ciudadano-mapa
-git flow feature start s7-operador-derivar
-git flow feature start s7-operador-navegacion
+git flow feature start s7-agente-derivar
+git flow feature start s7-agente-navegacion
 ```
 
 **Release MVP 2:**
@@ -208,8 +208,8 @@ git flow release finish v2.0.0
 **Criterios de aceptación:**
 - [ ] Ciudadano puede calificar atención recibida
 - [ ] Ciudadano ve mapa con alertas cercanas en tiempo real
-- [ ] Operador puede derivar alerta a otra institución
-- [ ] Operador puede abrir navegación GPS al lugar
+- [ ] Agente puede derivar alerta a otra institución
+- [ ] Agente puede abrir navegación GPS al lugar
 
 ---
 

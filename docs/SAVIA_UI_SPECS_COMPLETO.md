@@ -4,7 +4,7 @@
 
 **Versión:** 2.0  
 **Fecha:** Enero 2026  
-**Total de pantallas:** 33 (16 Ciudadano + 7 Operador + 10 Admin Web)
+**Total de pantallas:** 33 (16 Ciudadano + 7 Agente + 10 Admin Web)
 
 ---
 
@@ -402,10 +402,10 @@ BOTTOM_NAV_CITIZEN:
     active: {color: "primary"}
 ```
 
-## 2.9 COMPONENT: BOTTOM_NAV_OPERATOR
+## 2.9 COMPONENT: BOTTOM_NAV_AGENT
 
 ```yaml
-BOTTOM_NAV_OPERATOR:
+BOTTOM_NAV_AGENT:
   # Same as BOTTOM_NAV_CITIZEN except:
   tabs:
     count: 4
@@ -2037,7 +2037,7 @@ LAYOUT:
           color: "use variable 'text-primary'"
       
       steps:
-        - "Un operador tomará tu caso"
+        - "Un agente tomará tu caso"
         - "Te notificaremos cuando esté en camino"
         - "Podrás ver el progreso en tiempo real"
 
@@ -2374,7 +2374,7 @@ LAYOUT:
             subtitle: ""
             time: ""
     
-    operator_card:
+    agent_card:
       background: "use variable 'surface'"
       margin_top: "use variable 'spacing-sm'"
       margin_horizontal: "use variable 'spacing-md'"
@@ -2387,7 +2387,7 @@ LAYOUT:
         font_size: "use variable 'font-caption'"
         color: "use variable 'text-secondary'"
       
-      operator_info:
+      agent_info:
         margin_top: "use variable 'spacing-md'"
         layout: row
         align: center
@@ -3291,7 +3291,7 @@ LAYOUT:
             icon: "bell"
             icon_color: "use variable 'primary'"
             title: "Alerta actualizada"
-            message: "Tu alerta #0145 ha sido tomada por un operador de PNP Atalaya."
+            message: "Tu alerta #0145 ha sido tomada por un agente de PNP Atalaya."
             time: "Hace 10 min"
             unread: true
           
@@ -3384,17 +3384,17 @@ LAYOUT:
 
 ---
 
-# 📱 PARTE 4: PANTALLAS APP OPERADOR (7 pantallas)
+# 📱 PARTE 4: PANTALLAS APP AGENTE (7 pantallas)
 
 ---
 
-## O01 - HOME OPERADOR
+## O01 - HOME AGENTE
 
 ```yaml
 SCREEN_ID: O01
-NAME: Home Operador
+NAME: Home Agente
 TYPE: Mobile
-PURPOSE: Pantalla principal del operador de emergencias
+PURPOSE: Pantalla principal del agente de emergencias
 
 DIMENSIONS:
   width: 375px
@@ -3433,13 +3433,13 @@ LAYOUT:
         color: "use variable 'primary'"
         margin_left: "use variable 'spacing-sm'"
       
-      operator_badge:
+      agent_badge:
         margin_left: "use variable 'spacing-sm'"
         background: "'success' at 15% opacity"
         border_radius: "use variable 'radius-sm'"
         padding_vertical: 2px
         padding_horizontal: "use variable 'spacing-sm'"
-        text: "Operador"
+        text: "Agente"
         font_size: "use variable 'font-caption'"
         font_weight: "use variable 'font-weight-medium'"
         color: "use variable 'success'"
@@ -3655,7 +3655,7 @@ LAYOUT:
             status_color: "use variable 'success'"
 
   3_BOTTOM_NAV:
-    component: "[USE COMPONENT: BOTTOM_NAV_OPERATOR]"
+    component: "[USE COMPONENT: BOTTOM_NAV_AGENT]"
     active_tab: "Inicio"
 ```
 
@@ -3667,7 +3667,7 @@ LAYOUT:
 SCREEN_ID: O02
 NAME: Alertas Asignadas
 TYPE: Mobile
-PURPOSE: Ver lista de alertas pendientes y asignadas al operador
+PURPOSE: Ver lista de alertas pendientes y asignadas al agente
 
 DIMENSIONS:
   width: 375px
@@ -3897,18 +3897,18 @@ LAYOUT:
             distance: "1.8 km"
 
   4_BOTTOM_NAV:
-    component: "[USE COMPONENT: BOTTOM_NAV_OPERATOR]"
+    component: "[USE COMPONENT: BOTTOM_NAV_AGENT]"
     active_tab: "Alertas"
 ```
 
 ---
 
 
-## O03 - DETALLE ALERTA (OPERADOR)
+## O03 - DETALLE ALERTA (AGENTE)
 
 ```yaml
 SCREEN_ID: O03
-NAME: Detalle Alerta - Vista Operador
+NAME: Detalle Alerta - Vista Agente
 TYPE: Mobile
 PURPOSE: Ver detalle completo de una alerta para tomar acción
 
@@ -4668,7 +4668,7 @@ LAYOUT:
 SCREEN_ID: O06
 NAME: Historial de Atenciones
 TYPE: Mobile
-PURPOSE: Ver historial de alertas atendidas por el operador
+PURPOSE: Ver historial de alertas atendidas por el agente
 
 DIMENSIONS:
   width: 375px
@@ -4862,19 +4862,19 @@ LAYOUT:
           margin_left: "use variable 'spacing-xs'"
 
   3_BOTTOM_NAV:
-    component: "[USE COMPONENT: BOTTOM_NAV_OPERATOR]"
+    component: "[USE COMPONENT: BOTTOM_NAV_AGENT]"
     active_tab: "Historial"
 ```
 
 ---
 
-## O07 - PERFIL OPERADOR
+## O07 - PERFIL AGENTE
 
 ```yaml
 SCREEN_ID: O07
-NAME: Perfil Operador
+NAME: Perfil Agente
 TYPE: Mobile
-PURPOSE: Ver y gestionar perfil del operador
+PURPOSE: Ver y gestionar perfil del agente
 
 DIMENSIONS:
   width: 375px
@@ -5101,12 +5101,12 @@ LAYOUT:
     padding_bottom: "use variable 'spacing-lg'"
     align: center
     
-    text: "SAVIA Operador v1.0.0"
+    text: "SAVIA Agente v1.0.0"
     font_size: "use variable 'font-caption'"
     color: "use variable 'text-secondary'"
 
   6_BOTTOM_NAV:
-    component: "[USE COMPONENT: BOTTOM_NAV_OPERATOR]"
+    component: "[USE COMPONENT: BOTTOM_NAV_AGENT]"
     active_tab: "Perfil"
 ```
 
@@ -6080,11 +6080,11 @@ LAYOUT:
           label:
             text: "ATENDIDO POR"
           
-          operator_info:
+          agent_info:
             avatar_emoji: "👮"
             name: "Juan Carlos Pérez"
             institution: "PNP Atalaya"
-            badge: "Operador"
+            badge: "Agente"
             assigned: "24 Ene 2026, 14:35"
           
           buttons:
@@ -6560,7 +6560,7 @@ LAYOUT:
 SCREEN_ID: W07
 NAME: Gestión de Usuarios
 TYPE: Web Desktop
-PURPOSE: Administrar usuarios del sistema (ciudadanos, operadores, admins)
+PURPOSE: Administrar usuarios del sistema (ciudadanos, agentes, admins)
 
 DIMENSIONS:
   width: 1440px
@@ -6627,7 +6627,7 @@ LAYOUT:
               badge: "234"
               state: ACTIVE
             
-            - text: "Operadores"
+            - text: "Agentes"
               badge: "12"
             
             - text: "Ciudadanos"
@@ -6706,7 +6706,7 @@ LAYOUT:
               registered: "Registrado: 15 Ene 2024"
               dni: "45678912"
               email: "juan.perez@pnp.gob.pe"
-              role: {text: "Operador", color: "primary"}
+              role: {text: "Agente", color: "primary"}
               institution: "PNP Atalaya"
               status: {dot_color: "success", text: "Activo"}
             
@@ -6714,7 +6714,7 @@ LAYOUT:
               name: "María Elena García"
               dni: "78901234"
               email: "maria.garcia@serenazgo.gob.pe"
-              role: "Operador"
+              role: "Agente"
               institution: "Serenazgo Atalaya"
               status: "Activo"
             
@@ -6742,7 +6742,7 @@ LAYOUT:
             
             - avatar: {emoji: "👮"}
               name: "Pedro Rodríguez"
-              role: "Operador"
+              role: "Agente"
               institution: "Bomberos Atalaya"
       
       pagination:
@@ -6752,13 +6752,13 @@ LAYOUT:
 
 ---
 
-## W08 - MODAL CREAR/EDITAR USUARIO OPERADOR
+## W08 - MODAL CREAR/EDITAR USUARIO AGENTE
 
 ```yaml
 SCREEN_ID: W08
-NAME: Modal Crear/Editar Usuario Operador
+NAME: Modal Crear/Editar Usuario Agente
 TYPE: Web Modal
-PURPOSE: Formulario para crear o editar un usuario operador
+PURPOSE: Formulario para crear o editar un usuario agente
 
 DIMENSIONS:
   modal_width: 520px
@@ -6790,7 +6790,7 @@ LAYOUT:
       margin_left: "use variable 'spacing-md'"
       
       title:
-        text: "Nuevo Usuario Operador"
+        text: "Nuevo Usuario Agente"
         font_size: "use variable 'font-h4'"
         font_weight: "use variable 'font-weight-semibold'"
       
@@ -6863,7 +6863,7 @@ LAYOUT:
       role_dropdown:
         flex: 1
         label: "Rol *"
-        selected: "👮 Operador"
+        selected: "👮 Agente"
       
       status_radios:
         flex: 1
@@ -7477,13 +7477,13 @@ LAYOUT:
 | | C14 | Mapa Alertas Cercanas | Mobile |
 | | C15 | Perfil Ciudadano | Mobile |
 | | C16 | Notificaciones | Mobile |
-| **OPERADOR** | O01 | Home Operador | Mobile |
+| **AGENTE** | O01 | Home Agente | Mobile |
 | | O02 | Alertas Asignadas | Mobile |
-| | O03 | Detalle Alerta (Operador) | Mobile |
+| | O03 | Detalle Alerta (Agente) | Mobile |
 | | O04 | Actualizar Estado | Mobile |
 | | O05 | Derivar Alerta | Mobile |
 | | O06 | Historial de Atenciones | Mobile |
-| | O07 | Perfil Operador | Mobile |
+| | O07 | Perfil Agente | Mobile |
 | **ADMIN WEB** | W01 | Login Admin | Desktop |
 | | W02 | Dashboard Principal | Desktop |
 | | W03 | Gestión de Alertas | Desktop |

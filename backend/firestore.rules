@@ -29,9 +29,9 @@ service cloud.firestore {
       return hasRole('citizen');
     }
 
-    // Verificar si es operador
-    function isOperator() {
-      return hasRole('operator');
+    // Verificar si es agente
+    function isAgent() {
+      return hasRole('agent');
     }
 
     // Verificar si es administrador
@@ -39,15 +39,15 @@ service cloud.firestore {
       return hasRole('admin');
     }
 
-    // Verificar si es operador o admin
-    function isOperatorOrAdmin() {
-      return isOperator() || isAdmin();
+    // Verificar si es agente o admin
+    function isAgentOrAdmin() {
+      return isAgent() || isAdmin();
     }
 
     // ============ COLECCIÓN: users ============
     match /users/{userId} {
-      // Lectura: usuario propio, operadores y admins
-      allow read: if isOwner(userId) || isOperatorOrAdmin();
+      // Lectura: usuario propio, agentes y admins
+      allow read: if isOwner(userId) || isAgentOrAdmin();
 
       // Creación: solo mediante Cloud Functions (registro)
       allow create: if false;
@@ -66,14 +66,14 @@ service cloud.firestore {
 
     // ============ COLECCIÓN: alerts ============
     match /alerts/{alertId} {
-      // Lectura: creador de la alerta, operadores y admins
-      allow read: if isOwner(resource.data.createdBy) || isOperatorOrAdmin();
+      // Lectura: creador de la alerta, agentes y admins
+      allow read: if isOwner(resource.data.createdBy) || isAgentOrAdmin();
 
       // Creación: solo ciudadanos autenticados
       allow create: if isCitizen() && validAlertData();
 
-      // Actualización: operadores (cambio de estado) o admin
-      allow update: if isOperatorOrAdmin() && validAlertUpdate();
+      // Actualización: agentes (cambio de estado) o admin
+      allow update: if isAgentOrAdmin() && validAlertUpdate();
 
       // Eliminación: solo admin
       allow delete: if isAdmin();
@@ -111,8 +111,8 @@ service cloud.firestore {
 
     // ============ COLECCIÓN: ratings ============
     match /ratings/{ratingId} {
-      // Lectura: creador, operador asignado y admins
-      allow read: if isOwner(resource.data.ratedBy) || isOperatorOrAdmin();
+      // Lectura: creador, agente asignado y admins
+      allow read: if isOwner(resource.data.ratedBy) || isAgentOrAdmin();
 
       // Creación: ciudadano que creó la alerta relacionada
       allow create: if isCitizen() && validRatingData();

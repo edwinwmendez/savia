@@ -32,7 +32,7 @@ backend/
 
 | Función | Tipo | Descripción |
 |---------|------|-------------|
-| `onAlertCreated` | Trigger Firestore | Notifica a operadores cuando se crea una alerta |
+| `onAlertCreated` | Trigger Firestore | Notifica a agentes cuando se crea una alerta |
 | `onAlertUpdated` | Trigger Firestore | Notifica al ciudadano cuando cambia el estado |
 | `registerCitizen` | HTTPS Callable | Registra nuevos ciudadanos |
 | `getDashboardStats` | HTTPS Callable | Obtiene estadísticas para el panel admin |
@@ -117,7 +117,7 @@ firebase deploy --only firestore:rules,storage:rules
 
 | Colección | Descripción |
 |-----------|-------------|
-| `users` | Usuarios del sistema (ciudadanos, operadores, admins) |
+| `users` | Usuarios del sistema (ciudadanos, agentes, admins) |
 | `alerts` | Alertas reportadas |
 | `institutions` | Instituciones (PNP, Serenazgo, etc.) |
 | `categories` | Categorías de alertas |
@@ -129,6 +129,6 @@ firebase deploy --only firestore:rules,storage:rules
 Las reglas están definidas en `firestore.rules` y `storage.rules`. Implementan:
 
 - Autenticación obligatoria para todas las operaciones
-- Control de acceso basado en roles (citizen, operator, admin)
+- Control de acceso basado en roles (citizen, agent, admin)
 - Validación de datos en escrituras
 - Protección de datos sensibles

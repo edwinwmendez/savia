@@ -24,7 +24,7 @@ service firebase.storage {
 
     // ============ EVIDENCIAS DE ALERTAS ============
     match /alerts/{alertId}/{fileName} {
-      // Lectura: usuarios autenticados (operadores necesitan ver evidencias)
+      // Lectura: usuarios autenticados (agentes necesitan ver evidencias)
       allow read: if isAuthenticated();
 
       // Escritura: solo el creador de la alerta, imágenes o videos válidos

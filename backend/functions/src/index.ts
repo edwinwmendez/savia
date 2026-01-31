@@ -37,7 +37,7 @@ interface UserData {
   email: string;
   phone?: string;
   dni: string;
-  role: "citizen" | "operator" | "admin";
+  role: "citizen" | "agent" | "admin";
   institutionId?: string;
   fcmToken?: string;
   isActive: boolean;
@@ -61,21 +61,21 @@ export const onAlertCreated = functions.firestore
     const alertId = context.params.alertId;
 
     try {
-      // Obtener operadores activos de la institución correspondiente
-      const operatorsSnapshot = await db
+      // Obtener agentes activos de la institución correspondiente
+      const agentsSnapshot = await db
         .collection("users")
-        .where("role", "==", "operator")
+        .where("role", "==", "agent")
         .where("isActive", "==", true)
         .get();
 
-      if (operatorsSnapshot.empty) {
-        console.log("No hay operadores activos disponibles");
+      if (agentsSnapshot.empty) {
+        console.log("No hay agentes activos disponibles");
         return;
       }
 
-      // Recopilar tokens FCM de operadores
+      // Recopilar tokens FCM de agentes
       const tokens: string[] = [];
-      operatorsSnapshot.forEach((doc) => {
+      agentsSnapshot.forEach((doc) => {
         const userData = doc.data() as UserData;
         if (userData.fcmToken) {
           tokens.push(userData.fcmToken);
@@ -83,7 +83,7 @@ export const onAlertCreated = functions.firestore
       });
 
       if (tokens.length === 0) {
-        console.log("Ningún operador tiene token FCM registrado");
+        console.log("Ningún agente tiene token FCM registrado");
         return;
       }
 
@@ -100,7 +100,7 @@ export const onAlertCreated = functions.firestore
         body: `${alertData.type}: ${alertData.description.substring(0, 100)}...`,
       };
 
-      // Enviar notificación a todos los operadores
+      // Enviar notificación a todos los agentes
       const message: admin.messaging.MulticastMessage = {
         tokens,
         notification,
@@ -132,9 +132,9 @@ export const onAlertCreated = functions.firestore
         `Notificaciones enviadas: ${response.successCount} exitosas, ${response.failureCount} fallidas`
       );
 
-      // Crear registro de notificación en Firestore para cada operador
+      // Crear registro de notificación en Firestore para cada agente
       const batch = db.batch();
-      operatorsSnapshot.forEach((doc) => {
+      agentsSnapshot.forEach((doc) => {
         const notificationRef = db.collection("notifications").doc();
         batch.set(notificationRef, {
           userId: doc.id,
@@ -184,7 +184,7 @@ export const onAlertUpdated = functions.firestore
       const statusMessages: Record<string, { title: string; body: string }> = {
         assigned: {
           title: "Alerta Asignada",
-          body: "Un operador ha tomado tu caso y está en camino.",
+          body: "Un agente ha tomado tu caso y está en camino.",
         },
         in_progress: {
           title: "Alerta en Progreso",
@@ -393,11 +393,11 @@ export const getDashboardStats = functions.https.onCall(
       ]);
 
       // Contar usuarios
-      const [totalUsers, activeOperators] = await Promise.all([
+      const [totalUsers, activeAgents] = await Promise.all([
         db.collection("users").where("role", "==", "citizen").count().get(),
         db
           .collection("users")
-          .where("role", "==", "operator")
+          .where("role", "==", "agent")
           .where("isActive", "==", true)
           .count()
           .get(),
@@ -414,7 +414,7 @@ export const getDashboardStats = functions.https.onCall(
         },
         users: {
           totalCitizens: totalUsers.data().count,
-          activeOperators: activeOperators.data().count,
+          activeAgents: activeAgents.data().count,
         },
       };
     } catch (error) {

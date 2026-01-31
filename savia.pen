@@ -8950,7 +8950,7 @@
                       "id": "Rewwc",
                       "name": "step1Text",
                       "fill": "$text-primary",
-                      "content": "Un operador tomará tu caso",
+                      "content": "Un agente tomará tu caso",
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -9633,7 +9633,7 @@
             {
               "type": "frame",
               "id": "3077D",
-              "name": "operatorCard",
+              "name": "agentCard",
               "width": "fill_container",
               "fill": "$surface",
               "cornerRadius": 12,
@@ -9644,9 +9644,9 @@
                 {
                   "type": "text",
                   "id": "lKRHg",
-                  "name": "operatorTitle",
+                  "name": "agentTitle",
                   "fill": "$text-secondary",
-                  "content": "OPERADOR ASIGNADO",
+                  "content": "AGENTE ASIGNADO",
                   "fontFamily": "Inter",
                   "fontSize": 14,
                   "fontWeight": "700"
@@ -9654,7 +9654,7 @@
                 {
                   "type": "frame",
                   "id": "Suxpa",
-                  "name": "operatorInfo",
+                  "name": "agentInfo",
                   "width": "fill_container",
                   "gap": 12,
                   "alignItems": "center",
@@ -9663,7 +9663,7 @@
                       "id": "25hms",
                       "type": "ref",
                       "ref": "GzVcu",
-                      "name": "operatorAvatar",
+                      "name": "agentAvatar",
                       "descendants": {
                         "l98pO": {
                           "content": "CR"
@@ -9673,7 +9673,7 @@
                     {
                       "type": "frame",
                       "id": "x9wub",
-                      "name": "operatorContent",
+                      "name": "agentContent",
                       "width": "fill_container",
                       "layout": "vertical",
                       "gap": 4,
@@ -9681,7 +9681,7 @@
                         {
                           "type": "text",
                           "id": "Hhqut",
-                          "name": "operatorName",
+                          "name": "agentName",
                           "fill": "$text-primary",
                           "content": "Carlos Rodríguez",
                           "fontFamily": "Inter",
@@ -9691,7 +9691,7 @@
                         {
                           "type": "text",
                           "id": "O7wRw",
-                          "name": "operatorRole",
+                          "name": "agentRole",
                           "fill": "$text-secondary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
@@ -10889,7 +10889,7 @@
                           "id": "1hdTK",
                           "name": "notif4Title",
                           "fill": "$text-primary",
-                          "content": "Operador te ha enviado un mensaje",
+                          "content": "Agente te ha enviado un mensaje",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "600"
@@ -12093,7 +12093,7 @@
                           "fill": "$text-secondary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Tu alerta #0145 ha sido tomada por un operador de PNP Atalaya.",
+                          "content": "Tu alerta #0145 ha sido tomada por un agente de PNP Atalaya.",
                           "lineHeight": 1.4,
                           "fontFamily": "Inter",
                           "fontSize": 13,
@@ -13761,7 +13761,7 @@
       "id": "EOb2x",
       "x": -407,
       "y": 4800,
-      "name": "bottomNavOperator",
+      "name": "bottomNavAgent",
       "reusable": true,
       "width": 375,
       "height": 84,
@@ -13945,7 +13945,7 @@
       "id": "ObDax",
       "x": 500,
       "y": 4800,
-      "name": "O01 - Home Operador",
+      "name": "O01 - Home Agente",
       "clip": true,
       "width": 375,
       "fill": "$background",
@@ -14006,7 +14006,7 @@
                 {
                   "type": "frame",
                   "id": "LIXl9",
-                  "name": "operatorBadge",
+                  "name": "agentBadge",
                   "fill": "#4CAF5026",
                   "cornerRadius": 4,
                   "padding": [
@@ -14017,9 +14017,9 @@
                     {
                       "type": "text",
                       "id": "pS2TO",
-                      "name": "operatorText",
+                      "name": "agentText",
                       "fill": "$success",
-                      "content": "Operador",
+                      "content": "Agente",
                       "fontFamily": "Inter",
                       "fontSize": 12,
                       "fontWeight": "500"
@@ -15860,7 +15860,7 @@
       "id": "kTkAR",
       "x": 1350,
       "y": 4800,
-      "name": "O03 - Detalle Alerta Op",
+      "name": "O03 - Detalle Alerta Ag",
       "clip": true,
       "width": 375,
       "fill": "$background",
@@ -18748,7 +18748,7 @@
       "id": "n5tLM",
       "x": 3050,
       "y": 4800,
-      "name": "O07 - Perfil Operador",
+      "name": "O07 - Perfil Agente",
       "clip": true,
       "width": 375,
       "fill": "$background",
@@ -18897,7 +18897,7 @@
                           "id": "fUT20",
                           "name": "roleLabel",
                           "fill": "$primary",
-                          "content": "Operador",
+                          "content": "Agente",
                           "fontFamily": "Inter",
                           "fontSize": 12,
                           "fontWeight": "600"
@@ -19822,7 +19822,7 @@
       "id": "t1ibV",
       "x": 3475,
       "y": 4800,
-      "name": "O07 - Perfil Operador V2",
+      "name": "O07 - Perfil Agente V2",
       "clip": true,
       "width": 375,
       "fill": "$background",
@@ -19913,7 +19913,7 @@
                   "id": "Gfpkr",
                   "name": "roleText",
                   "fill": "#FFFFFF",
-                  "content": "Operador",
+                  "content": "Agente",
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "500"
@@ -19927,7 +19927,8 @@
               "fill": "#FFFFFFCC",
               "content": "Municipalidad de Atalaya",
               "fontFamily": "Inter",
-              "fontSize": 14
+              "fontSize": 14,
+              "fontWeight": "normal"
             }
           ]
         },
@@ -20165,7 +20166,7 @@
                           "id": "zPRDF",
                           "name": "label4",
                           "fill": "$text-secondary",
-                          "content": "ID Operador",
+                          "content": "ID Agente",
                           "fontFamily": "Inter",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -25200,9 +25201,9 @@
                                         {
                                           "type": "text",
                                           "id": "0ieZJ",
-                                          "name": "opBadgeText",
+                                          "name": "agBadgeText",
                                           "fill": "$primary",
-                                          "content": "Operador",
+                                          "content": "Agente",
                                           "fontFamily": "Inter",
                                           "fontSize": 11,
                                           "fontWeight": "500"
@@ -27980,7 +27981,7 @@
                     {
                       "type": "frame",
                       "id": "dlqcG",
-                      "name": "tabOp",
+                      "name": "tabAg",
                       "gap": 8,
                       "padding": [
                         16,
@@ -27991,9 +27992,9 @@
                         {
                           "type": "text",
                           "id": "LMHjO",
-                          "name": "tabOpText",
+                          "name": "tabAgText",
                           "fill": "$text-secondary",
-                          "content": "Operadores",
+                          "content": "Agentes",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "500"
@@ -28001,7 +28002,7 @@
                         {
                           "type": "frame",
                           "id": "zKkYY",
-                          "name": "tabOpBadge",
+                          "name": "tabAgBadge",
                           "fill": "$background",
                           "cornerRadius": 10,
                           "padding": [
@@ -28012,7 +28013,7 @@
                             {
                               "type": "text",
                               "id": "xrrMb",
-                              "name": "tabOpCount",
+                              "name": "tabAgCount",
                               "fill": "$text-secondary",
                               "content": "12",
                               "fontFamily": "Inter",
@@ -28682,7 +28683,7 @@
                                   "id": "WgPLn",
                                   "name": "r1RoleText",
                                   "fill": "$primary",
-                                  "content": "Operador",
+                                  "content": "Agente",
                                   "fontFamily": "Inter",
                                   "fontSize": 11,
                                   "fontWeight": "600"
@@ -29789,7 +29790,7 @@
                       "id": "8gyvE",
                       "name": "headerTitle",
                       "fill": "$text-primary",
-                      "content": "Nuevo Usuario Operador",
+                      "content": "Nuevo Usuario Agente",
                       "fontFamily": "Inter",
                       "fontSize": 18,
                       "fontWeight": "600"
@@ -30280,7 +30281,7 @@
                               "id": "yWeFt",
                               "name": "rolText",
                               "fill": "$text-primary",
-                              "content": "👮 Operador",
+                              "content": "👮 Agente",
                               "fontFamily": "Inter",
                               "fontSize": 14,
                               "fontWeight": "normal"
@@ -34779,7 +34780,7 @@
                                       "type": "text",
                                       "id": "Q9BQd",
                                       "fill": "$text-secondary",
-                                      "content": "Enviar resumen diario a operadores",
+                                      "content": "Enviar resumen diario a agentes",
                                       "fontFamily": "Inter",
                                       "fontSize": 12,
                                       "fontWeight": "normal"
@@ -35585,7 +35586,7 @@
                                       "type": "text",
                                       "id": "AWQeG",
                                       "fill": "$text-secondary",
-                                      "content": "Requerir verificación adicional para operadores",
+                                      "content": "Requerir verificación adicional para agentes",
                                       "fontFamily": "Inter",
                                       "fontSize": 12,
                                       "fontWeight": "normal"

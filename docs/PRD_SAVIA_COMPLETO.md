@@ -84,7 +84,7 @@ SAVIA propone un ecosistema de tres componentes integrados:
 │                        ECOSISTEMA SAVIA                         │
 ├─────────────────┬─────────────────────┬─────────────────────────┤
 │   📱 APP MÓVIL  │   📱 APP MÓVIL      │   💻 PANEL WEB          │
-│   CIUDADANO     │   OPERADOR          │   ADMINISTRADOR         │
+│   CIUDADANO     │   AGENTE          │   ADMINISTRADOR         │
 ├─────────────────┼─────────────────────┼─────────────────────────┤
 │ • Reportar      │ • Ver alertas       │ • Dashboard             │
 │   emergencias   │   asignadas         │ • Gestión completa      │
@@ -125,7 +125,7 @@ Desarrollar un sistema integral de gestión de alertas vecinales que permita a l
 - Seguimiento en tiempo real de su caso
 - Transparencia en la atención recibida
 
-### Para Operadores
+### Para Agentes
 - Información completa del incidente al momento
 - Navegación integrada al lugar
 - Comunicación directa con el ciudadano
@@ -274,7 +274,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 | Calificar atención recibida | Media | 2 |
 | Perfil de usuario | Baja | 2 |
 
-### 4.1.2 Aplicación Móvil Operador
+### 4.1.2 Aplicación Móvil Agente
 | Funcionalidad | Prioridad | MVP |
 |---------------|-----------|-----|
 | Login con credenciales institucionales | Alta | 1 |
@@ -313,7 +313,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 | Funcionalidad | Razón de Exclusión |
 |---------------|-------------------|
 | Llamadas de emergencia VoIP | Complejidad técnica, requiere infraestructura |
-| Chat en tiempo real ciudadano-operador | Complejidad, requiere moderación |
+| Chat en tiempo real ciudadano-agente | Complejidad, requiere moderación |
 | Integración con CAD policial | No existe sistema CAD en Atalaya |
 | Botón de pánico por hardware | Requiere dispositivos físicos |
 | Análisis predictivo con IA | Fuera del alcance académico |
@@ -370,7 +370,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
            │                 │                 │
      BAJO  ├─────────────────┼─────────────────┤ ALTO
      PODER │                 │                 │ PODER
-           │   UNIVERSIDAD   │   OPERADORES    │
+           │   UNIVERSIDAD   │   AGENTES    │
            │   (Académico)   │   (Usuarios)    │
            │                 │                 │
            └─────────────────┼─────────────────┘
@@ -384,7 +384,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 |-------------|-----|---------|-------|------------|
 | COPROSEC Atalaya | Sponsor, beneficiario principal | Alto | Alto | Involucrar en decisiones clave |
 | Ciudadanos de Atalaya | Usuarios finales (reportan) | Alto | Medio | Diseño centrado en usuario |
-| Operadores (PNP, Serenazgo) | Usuarios finales (atienden) | Medio | Alto | Capacitación y soporte |
+| Agentes (PNP, Serenazgo) | Usuarios finales (atienden) | Medio | Alto | Capacitación y soporte |
 | Universidad Continental | Evaluación académica | Medio | Bajo | Cumplir requisitos del curso |
 | Municipalidad de Atalaya | Posible adopción futura | Bajo | Alto | Informar avances |
 
@@ -426,11 +426,11 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 5.2.2 Persona: Operador
+### 5.2.2 Persona: Agente
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  👮 PERSONA: OPERADOR                                       │
+│  👮 PERSONA: AGENTE                                       │
 ├─────────────────────────────────────────────────────────────┤
 │  Nombre: Juan Carlos Pérez Ríos                             │
 │  Edad: 42 años                                              │
@@ -495,7 +495,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 
 ## 5.3 Matriz de Roles y Permisos
 
-| Funcionalidad | Ciudadano | Operador | Admin |
+| Funcionalidad | Ciudadano | Agente | Admin |
 |---------------|:---------:|:--------:|:-----:|
 | Crear alerta | ✅ | ❌ | ❌ |
 | Ver sus propias alertas | ✅ | ✅ | ✅ |
@@ -545,15 +545,15 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 | **MVP** | 1 |
 | **Validaciones** | - Email/celular existente<br>- Contraseña correcta<br>- Cuenta activa |
 
-### RF-AUTH-003: Login de Operador
+### RF-AUTH-003: Login de Agente
 | Campo | Descripción |
 |-------|-------------|
 | **ID** | RF-AUTH-003 |
-| **Nombre** | Inicio de sesión operador |
-| **Descripción** | El sistema debe permitir a operadores iniciar sesión con credenciales institucionales asignadas por administrador |
+| **Nombre** | Inicio de sesión agente |
+| **Descripción** | El sistema debe permitir a agentes iniciar sesión con credenciales institucionales asignadas por administrador |
 | **Prioridad** | Alta |
 | **MVP** | 1 |
-| **Validaciones** | - Credenciales válidas<br>- Cuenta activa<br>- Rol = Operador |
+| **Validaciones** | - Credenciales válidas<br>- Cuenta activa<br>- Rol = Agente |
 
 ### RF-AUTH-004: Login de Administrador
 | Campo | Descripción |
@@ -596,7 +596,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 | **MVP** | 1 |
 | **Actor** | Ciudadano autenticado |
 | **Precondición** | Usuario logueado |
-| **Flujo Principal** | **Paso 1 - Tipo:**<br>1. Usuario presiona "Reportar Emergencia"<br>2. Selecciona tipo de incidente (8 categorías)<br>3. Presiona "Siguiente"<br><br>**Paso 2 - Descripción:**<br>4. Escribe descripción (máx 500 caracteres)<br>5. Selecciona nivel de urgencia (4 niveles)<br>6. Presiona "Siguiente"<br><br>**Paso 3 - Ubicación:**<br>7. Sistema obtiene ubicación GPS automáticamente<br>8. Usuario puede ajustar pin en mapa<br>9. Usuario puede buscar dirección<br>10. Presiona "Siguiente"<br><br>**Paso 4 - Confirmación:**<br>11. Opcionalmente adjunta fotos (máx 3)<br>12. Revisa resumen de alerta<br>13. Presiona "Enviar Alerta"<br>14. Sistema crea alerta<br>15. Sistema notifica a operadores<br>16. Muestra pantalla de éxito con ID |
+| **Flujo Principal** | **Paso 1 - Tipo:**<br>1. Usuario presiona "Reportar Emergencia"<br>2. Selecciona tipo de incidente (8 categorías)<br>3. Presiona "Siguiente"<br><br>**Paso 2 - Descripción:**<br>4. Escribe descripción (máx 500 caracteres)<br>5. Selecciona nivel de urgencia (4 niveles)<br>6. Presiona "Siguiente"<br><br>**Paso 3 - Ubicación:**<br>7. Sistema obtiene ubicación GPS automáticamente<br>8. Usuario puede ajustar pin en mapa<br>9. Usuario puede buscar dirección<br>10. Presiona "Siguiente"<br><br>**Paso 4 - Confirmación:**<br>11. Opcionalmente adjunta fotos (máx 3)<br>12. Revisa resumen de alerta<br>13. Presiona "Enviar Alerta"<br>14. Sistema crea alerta<br>15. Sistema notifica a agentes<br>16. Muestra pantalla de éxito con ID |
 | **Postcondición** | Alerta creada con estado "Reportada" |
 | **Datos Capturados** | - Tipo de incidente<br>- Descripción<br>- Nivel de urgencia<br>- Coordenadas GPS<br>- Dirección aproximada<br>- Fotos (0-3)<br>- Fecha/hora automática<br>- ID de ciudadano |
 
@@ -619,7 +619,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 | **Descripción** | El sistema debe mostrar el detalle completo de una alerta del ciudadano, incluyendo historial de estados |
 | **Prioridad** | Alta |
 | **MVP** | 1 |
-| **Información Mostrada** | - Todos los datos de la alerta<br>- Mapa con ubicación<br>- Fotos adjuntas<br>- Timeline de estados<br>- Operador asignado (si hay)<br>- Institución que atiende |
+| **Información Mostrada** | - Todos los datos de la alerta<br>- Mapa con ubicación<br>- Fotos adjuntas<br>- Timeline de estados<br>- Agente asignado (si hay)<br>- Institución que atiende |
 
 ### RF-ALC-004: Ver Alertas Cercanas
 | Campo | Descripción |
@@ -645,25 +645,25 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 
 ---
 
-## 6.3 Módulo: Gestión de Alertas - Operador (ALO)
+## 6.3 Módulo: Gestión de Alertas - Agente (ALO)
 
 ### RF-ALO-001: Ver Alertas Pendientes
 | Campo | Descripción |
 |-------|-------------|
 | **ID** | RF-ALO-001 |
 | **Nombre** | Listar alertas pendientes |
-| **Descripción** | El sistema debe mostrar al operador todas las alertas pendientes (estado "Reportada") ordenadas por urgencia y tiempo |
+| **Descripción** | El sistema debe mostrar al agente todas las alertas pendientes (estado "Reportada") ordenadas por urgencia y tiempo |
 | **Prioridad** | Alta |
 | **MVP** | 1 |
 | **Ordenamiento** | 1. Por urgencia (Crítica > Alta > Media > Baja)<br>2. Por antigüedad (más antigua primero) |
-| **Información** | - ID, Tipo, Ubicación<br>- Urgencia (badge color)<br>- Tiempo desde reporte<br>- Distancia desde operador |
+| **Información** | - ID, Tipo, Ubicación<br>- Urgencia (badge color)<br>- Tiempo desde reporte<br>- Distancia desde agente |
 
 ### RF-ALO-002: Ver Mis Casos Activos
 | Campo | Descripción |
 |-------|-------------|
 | **ID** | RF-ALO-002 |
 | **Nombre** | Listar casos asignados |
-| **Descripción** | El sistema debe mostrar las alertas que el operador ha tomado y están en proceso |
+| **Descripción** | El sistema debe mostrar las alertas que el agente ha tomado y están en proceso |
 | **Prioridad** | Alta |
 | **MVP** | 1 |
 
@@ -672,11 +672,11 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 |-------|-------------|
 | **ID** | RF-ALO-003 |
 | **Nombre** | Asignarse una alerta |
-| **Descripción** | El sistema debe permitir al operador tomar un caso pendiente, asignándose como responsable |
+| **Descripción** | El sistema debe permitir al agente tomar un caso pendiente, asignándose como responsable |
 | **Prioridad** | Alta |
 | **MVP** | 1 |
-| **Flujo** | 1. Operador ve alerta pendiente<br>2. Presiona "Tomar Caso"<br>3. Sistema verifica que no esté tomada<br>4. Sistema asigna operador<br>5. Cambia estado a "En Atención"<br>6. Notifica al ciudadano<br>7. Registra en historial |
-| **Postcondición** | - Alerta estado = "En Atención"<br>- operatorId = ID del operador<br>- Timestamp de asignación |
+| **Flujo** | 1. Agente ve alerta pendiente<br>2. Presiona "Tomar Caso"<br>3. Sistema verifica que no esté tomada<br>4. Sistema asigna agente<br>5. Cambia estado a "En Atención"<br>6. Notifica al ciudadano<br>7. Registra en historial |
+| **Postcondición** | - Alerta estado = "En Atención"<br>- agentId = ID del agente<br>- Timestamp de asignación |
 
 ### RF-ALO-004: Ver Detalle de Alerta
 | Campo | Descripción |
@@ -693,7 +693,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 |-------|-------------|
 | **ID** | RF-ALO-005 |
 | **Nombre** | Cambiar estado de alerta |
-| **Descripción** | El sistema debe permitir al operador actualizar el estado de una alerta asignada |
+| **Descripción** | El sistema debe permitir al agente actualizar el estado de una alerta asignada |
 | **Prioridad** | Alta |
 | **MVP** | 1 |
 | **Estados Permitidos** | - En camino (on_the_way)<br>- En el lugar (on_site)<br>- Resuelto (resolved) |
@@ -708,7 +708,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 | **Descripción** | El sistema debe permitir derivar una alerta a otra institución competente |
 | **Prioridad** | Media |
 | **MVP** | 2 |
-| **Flujo** | 1. Operador selecciona "Derivar"<br>2. Selecciona institución destino<br>3. Escribe motivo de derivación<br>4. Confirma derivación<br>5. Sistema notifica a institución destino<br>6. Alerta aparece en pendientes de esa institución |
+| **Flujo** | 1. Agente selecciona "Derivar"<br>2. Selecciona institución destino<br>3. Escribe motivo de derivación<br>4. Confirma derivación<br>5. Sistema notifica a institución destino<br>6. Alerta aparece en pendientes de esa institución |
 
 ### RF-ALO-007: Navegar a Ubicación
 | Campo | Descripción |
@@ -724,7 +724,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 |-------|-------------|
 | **ID** | RF-ALO-008 |
 | **Nombre** | Ver casos atendidos |
-| **Descripción** | El sistema debe mostrar el historial de alertas atendidas por el operador |
+| **Descripción** | El sistema debe mostrar el historial de alertas atendidas por el agente |
 | **Prioridad** | Media |
 | **MVP** | 2 |
 | **Información** | - Lista de alertas cerradas<br>- Filtro por mes<br>- Estadísticas personales (total atendidos, rating promedio) |
@@ -752,17 +752,17 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 | **Descripción** | El sistema debe permitir ver, filtrar, editar y cerrar cualquier alerta |
 | **Prioridad** | Alta |
 | **MVP** | 2 |
-| **Funcionalidades** | - Listado paginado<br>- Filtros (tipo, estado, fecha, urgencia, institución)<br>- Búsqueda por ID o ubicación<br>- Ver detalle completo<br>- Reasignar operador<br>- Cerrar manualmente |
+| **Funcionalidades** | - Listado paginado<br>- Filtros (tipo, estado, fecha, urgencia, institución)<br>- Búsqueda por ID o ubicación<br>- Ver detalle completo<br>- Reasignar agente<br>- Cerrar manualmente |
 
 ### RF-ADM-003: Gestión de Usuarios
 | Campo | Descripción |
 |-------|-------------|
 | **ID** | RF-ADM-003 |
 | **Nombre** | Administrar usuarios |
-| **Descripción** | El sistema debe permitir crear, editar, activar/desactivar usuarios (ciudadanos, operadores, admins) |
+| **Descripción** | El sistema debe permitir crear, editar, activar/desactivar usuarios (ciudadanos, agentes, admins) |
 | **Prioridad** | Alta |
 | **MVP** | 2 |
-| **Funcionalidades** | - Listar todos los usuarios<br>- Filtrar por rol<br>- Crear operador/admin<br>- Asignar institución a operador<br>- Activar/desactivar cuenta<br>- Reset de contraseña |
+| **Funcionalidades** | - Listar todos los usuarios<br>- Filtrar por rol<br>- Crear agente/admin<br>- Asignar institución a agente<br>- Activar/desactivar cuenta<br>- Reset de contraseña |
 
 ### RF-ADM-004: Gestión de Instituciones
 | Campo | Descripción |
@@ -799,12 +799,12 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 
 ## 6.5 Módulo: Notificaciones (NOT)
 
-### RF-NOT-001: Notificación a Operadores
+### RF-NOT-001: Notificación a Agentes
 | Campo | Descripción |
 |-------|-------------|
 | **ID** | RF-NOT-001 |
-| **Nombre** | Push a operadores por nueva alerta |
-| **Descripción** | El sistema debe enviar notificación push a operadores de la institución correspondiente cuando se crea una alerta |
+| **Nombre** | Push a agentes por nueva alerta |
+| **Descripción** | El sistema debe enviar notificación push a agentes de la institución correspondiente cuando se crea una alerta |
 | **Prioridad** | Alta |
 | **MVP** | 1 |
 | **Contenido** | - Título: "🚨 Nueva alerta [TIPO]"<br>- Cuerpo: "Urgencia: [NIVEL] - [DIRECCIÓN_CORTA]"<br>- Acción: Abrir detalle |
@@ -817,7 +817,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 | **Descripción** | El sistema debe notificar al ciudadano cada vez que su alerta cambia de estado |
 | **Prioridad** | Alta |
 | **MVP** | 1 |
-| **Eventos** | - Alerta tomada por operador<br>- Operador en camino<br>- Operador en el lugar<br>- Alerta resuelta<br>- Alerta derivada |
+| **Eventos** | - Alerta tomada por agente<br>- Agente en camino<br>- Agente en el lugar<br>- Alerta resuelta<br>- Alerta derivada |
 
 ### RF-NOT-003: Notificación de Alertas Cercanas
 | Campo | Descripción |
@@ -983,16 +983,16 @@ PRIORIDAD: Media
 MVP: 1
 ```
 
-### HU-AUTH-004: Login de Operador
+### HU-AUTH-004: Login de Agente
 ```
-COMO operador de una institución de emergencias
+COMO agente de una institución de emergencias
 QUIERO iniciar sesión con mis credenciales institucionales
 PARA poder atender alertas ciudadanas
 
 CRITERIOS DE ACEPTACIÓN:
 ✅ Puedo ingresar email institucional
 ✅ Puedo ingresar contraseña asignada
-✅ Si credenciales son válidas, accedo al Home de Operador
+✅ Si credenciales son válidas, accedo al Home de Agente
 ✅ Veo mi nombre e institución en la app
 ✅ Solo puedo acceder si mi cuenta está activa
 
@@ -1038,7 +1038,7 @@ MVP: 1
 ```
 COMO ciudadano creando una alerta
 QUIERO describir la situación y su nivel de urgencia
-PARA que los operadores entiendan la gravedad
+PARA que los agentes entiendan la gravedad
 
 CRITERIOS DE ACEPTACIÓN:
 ✅ Veo el tipo seleccionado en el paso anterior
@@ -1064,7 +1064,7 @@ MVP: 1
 ```
 COMO ciudadano creando una alerta
 QUIERO indicar la ubicación exacta de la emergencia
-PARA que los operadores sepan dónde acudir
+PARA que los agentes sepan dónde acudir
 
 CRITERIOS DE ACEPTACIÓN:
 ✅ El mapa se centra automáticamente en mi ubicación GPS
@@ -1164,7 +1164,7 @@ CRITERIOS DE ACEPTACIÓN:
 ✅ Veo mapa con la ubicación marcada
 ✅ Veo las fotos que adjunté
 ✅ Veo timeline con historial de estados
-✅ Si está siendo atendida, veo nombre del operador e institución
+✅ Si está siendo atendida, veo nombre del agente e institución
 ✅ Si fue resuelta, veo opción de calificar
 
 ESTIMACIÓN: 3 Story Points
@@ -1179,9 +1179,9 @@ QUIERO recibir notificaciones cuando cambie el estado
 PARA estar informado del progreso
 
 CRITERIOS DE ACEPTACIÓN:
-✅ Recibo push cuando operador toma mi caso
-✅ Recibo push cuando operador está en camino
-✅ Recibo push cuando operador llegó al lugar
+✅ Recibo push cuando agente toma mi caso
+✅ Recibo push cuando agente está en camino
+✅ Recibo push cuando agente llegó al lugar
 ✅ Recibo push cuando mi alerta fue resuelta
 ✅ Al tocar notificación, abro el detalle de la alerta
 ✅ La notificación muestra icono y texto descriptivo
@@ -1213,11 +1213,11 @@ MVP: 2
 
 ---
 
-## 8.4 Épica 4: Atención de Alertas - Operador (EP-OPE)
+## 8.4 Épica 4: Atención de Alertas - Agente (EP-OPE)
 
 ### HU-OPE-001: Ver Alertas Pendientes
 ```
-COMO operador de una institución de emergencias
+COMO agente de una institución de emergencias
 QUIERO ver las alertas pendientes de atención
 PARA poder tomar casos y atenderlos
 
@@ -1237,7 +1237,7 @@ MVP: 1
 
 ### HU-OPE-002: Tomar un Caso
 ```
-COMO operador
+COMO agente
 QUIERO tomar un caso pendiente
 PARA asignarme como responsable de atenderlo
 
@@ -1257,7 +1257,7 @@ MVP: 1
 
 ### HU-OPE-003: Ver Detalle de Alerta
 ```
-COMO operador
+COMO agente
 QUIERO ver toda la información de una alerta
 PARA entender la situación antes de atender
 
@@ -1278,7 +1278,7 @@ MVP: 1
 
 ### HU-OPE-004: Actualizar Estado de Alerta
 ```
-COMO operador atendiendo una alerta
+COMO agente atendiendo una alerta
 QUIERO actualizar el estado
 PARA que el ciudadano sepa el progreso
 
@@ -1298,7 +1298,7 @@ MVP: 1
 
 ### HU-OPE-005: Navegar a la Ubicación
 ```
-COMO operador que tomó un caso
+COMO agente que tomó un caso
 QUIERO navegar hasta la ubicación de la emergencia
 PARA llegar lo más rápido posible
 
@@ -1315,7 +1315,7 @@ MVP: 2
 
 ### HU-OPE-006: Derivar Alerta
 ```
-COMO operador
+COMO agente
 QUIERO derivar una alerta a otra institución
 PARA que sea atendida por quien corresponde
 
@@ -1364,10 +1364,10 @@ PARA controlar quién puede acceder al sistema
 
 CRITERIOS DE ACEPTACIÓN:
 ✅ Veo lista de todos los usuarios
-✅ Puedo filtrar por rol (Ciudadano, Operador, Admin)
+✅ Puedo filtrar por rol (Ciudadano, Agente, Admin)
 ✅ Puedo buscar por nombre, DNI o email
-✅ Puedo crear nuevo operador/admin
-✅ Puedo asignar institución a operador
+✅ Puedo crear nuevo agente/admin
+✅ Puedo asignar institución a agente
 ✅ Puedo activar/desactivar cuenta
 ✅ Puedo resetear contraseña
 
@@ -1388,7 +1388,7 @@ CRITERIOS DE ACEPTACIÓN:
 ✅ Puedo editar datos de institución existente
 ✅ Puedo asignar tipos de alerta que atiende
 ✅ Puedo activar/desactivar institución
-✅ Veo cuántos operadores tiene cada institución
+✅ Veo cuántos agentes tiene cada institución
 
 ESTIMACIÓN: 3 Story Points
 PRIORIDAD: Alta
@@ -1424,7 +1424,7 @@ MVP: 3
 | AUTH | HU-AUTH-001 | Registro de ciudadano | 5 | 1 |
 | AUTH | HU-AUTH-002 | Login de ciudadano | 3 | 1 |
 | AUTH | HU-AUTH-003 | Recuperar contraseña | 3 | 1 |
-| AUTH | HU-AUTH-004 | Login de operador | 3 | 1 |
+| AUTH | HU-AUTH-004 | Login de agente | 3 | 1 |
 | ALC | HU-ALC-001 | Crear alerta - Tipo | 3 | 1 |
 | ALC | HU-ALC-002 | Crear alerta - Descripción | 3 | 1 |
 | ALC | HU-ALC-003 | Crear alerta - Ubicación | 5 | 1 |
@@ -1436,7 +1436,7 @@ MVP: 3
 | SEG | HU-SEG-004 | Calificar atención | 3 | 2 |
 | OPE | HU-OPE-001 | Ver alertas pendientes | 3 | 1 |
 | OPE | HU-OPE-002 | Tomar caso | 3 | 1 |
-| OPE | HU-OPE-003 | Ver detalle (operador) | 3 | 1 |
+| OPE | HU-OPE-003 | Ver detalle (agente) | 3 | 1 |
 | OPE | HU-OPE-004 | Actualizar estado | 3 | 1 |
 | OPE | HU-OPE-005 | Navegar a ubicación | 2 | 2 |
 | OPE | HU-OPE-006 | Derivar alerta | 3 | 2 |
@@ -1464,7 +1464,7 @@ MVP: 3
 │                                                                              │
 │    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐                 │
 │    │  📱 App      │    │  📱 App      │    │  💻 Panel    │                 │
-│    │  Ciudadano   │    │  Operador    │    │  Admin Web   │                 │
+│    │  Ciudadano   │    │  Agente    │    │  Admin Web   │                 │
 │    │              │    │              │    │              │                 │
 │    │ React Native │    │ React Native │    │   Next.js    │                 │
 │    │   + Expo     │    │   + Expo     │    │   + React    │                 │
@@ -1490,7 +1490,7 @@ MVP: 3
 │    ┌─────────────────────────────────────────────────────────────────┐      │
 │    │                    CLOUD FUNCTIONS                               │      │
 │    │                                                                  │      │
-│    │  • onAlertCreated → Notificar operadores                        │      │
+│    │  • onAlertCreated → Notificar agentes                        │      │
 │    │  • onAlertUpdated → Notificar ciudadano                         │      │
 │    │  • onUserCreated → Welcome email                                │      │
 │    │  • scheduledCleanup → Limpieza de datos antiguos                │      │
@@ -1579,9 +1579,9 @@ savia-mobile/
 │   │   │   └── [id].tsx          # Detalle alerta
 │   │   ├── notifications.tsx
 │   │   └── profile.tsx
-│   ├── (operator)/               # Grupo operador (tabs)
+│   ├── (agent)/               # Grupo agente (tabs)
 │   │   ├── _layout.tsx
-│   │   ├── index.tsx             # Home operador
+│   │   ├── index.tsx             # Home agente
 │   │   ├── alerts/
 │   │   │   ├── index.tsx         # Alertas asignadas
 │   │   │   └── [id].tsx          # Detalle con acciones
@@ -1684,9 +1684,9 @@ savia-mobile/
 │       ▼                                                          │
 │   Firebase Cloud Messaging                                       │
 │       │                                                          │
-│       │ 7. Push a operadores                                     │
+│       │ 7. Push a agentes                                     │
 │       ▼                                                          │
-│   App Operador recibe notificación                               │
+│   App Agente recibe notificación                               │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -1789,7 +1789,7 @@ service cloud.firestore {
         !request.resource.data.diff(resource.data).affectedKeys()
           .hasAny(['role', 'institutionId', 'isActive']);
       
-      // Solo admins pueden crear usuarios operadores/admins
+      // Solo admins pueden crear usuarios agentes/admins
       allow create: if hasRole('admin');
       
       // Ciudadanos se pueden auto-registrar (vía Cloud Function)
@@ -1809,15 +1809,15 @@ service cloud.firestore {
       allow read: if isAuthenticated() && 
         resource.data.citizenId == request.auth.uid;
       
-      // Operadores pueden leer alertas de su institución o pendientes
-      allow read: if hasRole('operator') && (
+      // Agentes pueden leer alertas de su institución o pendientes
+      allow read: if hasRole('agent') && (
         resource.data.status == 'reported' ||
         resource.data.institutionId == getUserData().institutionId
       );
       
-      // Operadores pueden actualizar alertas asignadas
-      allow update: if hasRole('operator') && (
-        resource.data.operatorId == request.auth.uid ||
+      // Agentes pueden actualizar alertas asignadas
+      allow update: if hasRole('agent') && (
+        resource.data.agentId == request.auth.uid ||
         resource.data.status == 'reported'
       );
       
@@ -1899,15 +1899,15 @@ export const onAlertCreated = functions.firestore
     
     const institutionIds = categoryDoc.data()?.institutionIds || [];
     
-    // Obtener tokens de operadores de esas instituciones
-    const operatorsSnapshot = await db.collection('users')
-      .where('role', '==', 'operator')
+    // Obtener tokens de agentes de esas instituciones
+    const agentsSnapshot = await db.collection('users')
+      .where('role', '==', 'agent')
       .where('institutionId', 'in', institutionIds)
       .where('isActive', '==', true)
       .get();
     
     const tokens: string[] = [];
-    operatorsSnapshot.forEach(doc => {
+    agentsSnapshot.forEach(doc => {
       const userData = doc.data();
       if (userData.fcmToken) {
         tokens.push(userData.fcmToken);
@@ -1963,9 +1963,9 @@ export const onAlertUpdated = functions.firestore
     
     // Mapear estado a mensaje
     const statusMessages: Record<string, string> = {
-      'in_progress': 'Un operador ha tomado tu alerta',
-      'on_the_way': 'El operador va en camino',
-      'on_site': 'El operador llegó al lugar',
+      'in_progress': 'Un agente ha tomado tu alerta',
+      'on_the_way': 'El agente va en camino',
+      'on_site': 'El agente llegó al lugar',
       'resolved': '¡Tu alerta ha sido resuelta!',
     };
     
@@ -2076,7 +2076,7 @@ export const registerCitizen = functions.https.onCall(async (data, context) => {
     │ address          │         │ institutionId(FK)│
     │ imageUrls[]      │         │ isActive         │
     │ citizenId (FK)   │────────►│ fcmToken         │
-    │ operatorId (FK)  │────────►│ createdAt        │
+    │ agentId (FK)  │────────►│ createdAt        │
     │ institutionId(FK)│         └──────────────────┘
     │ timeline[]       │
     │ createdAt        │
@@ -2091,7 +2091,7 @@ export const registerCitizen = functions.https.onCall(async (data, context) => {
     │ id (PK)          │
     │ alertId (FK)     │
     │ citizenId (FK)   │
-    │ operatorId (FK)  │
+    │ agentId (FK)  │
     │ rating           │
     │ comment          │
     │ createdAt        │
@@ -2115,9 +2115,9 @@ interface User {
   email: string;                  // Requerido para todos los usuarios
   
   // Rol y permisos
-  role: 'citizen' | 'operator' | 'admin';
+  role: 'citizen' | 'agent' | 'admin';
   
-  // Solo para operadores
+  // Solo para agentes
   institutionId?: string;         // FK a institutions
   
   // Estado
@@ -2181,7 +2181,7 @@ interface Alert {
   
   // Relaciones
   citizenId: string;              // FK a users (quien reportó)
-  operatorId?: string;            // FK a users (quien atiende)
+  agentId?: string;            // FK a users (quien atiende)
   institutionId?: string;         // FK a institutions
   
   // Timeline (historial de estados)
@@ -2218,7 +2218,7 @@ interface Alert {
   ],
   "status": "in_progress",
   "citizenId": "user_abc123",
-  "operatorId": "user_operator_456",
+  "agentId": "user_agent_456",
   "institutionId": "inst_pnp_atalaya",
   "timeline": [
     {
@@ -2229,7 +2229,7 @@ interface Alert {
     {
       "status": "in_progress",
       "timestamp": "2026-01-24T14:35:00Z",
-      "userId": "user_operator_456",
+      "userId": "user_agent_456",
       "note": "Tomando el caso"
     }
   ],
@@ -2310,7 +2310,7 @@ interface Rating {
   id: string;
   alertId: string;                // FK a alerts
   citizenId: string;              // FK a users
-  operatorId: string;             // FK a users
+  agentId: string;             // FK a users
   institutionId: string;          // FK a institutions
   
   rating: number;                 // 1-5 estrellas
@@ -2346,7 +2346,7 @@ Se desarrollará una sola aplicación móvil con routing basado en roles:
 - Al autenticarse, se obtiene el rol del usuario desde Firestore
 - El sistema de navegación (React Navigation) muestra el stack correspondiente al rol
 - Los ciudadanos ven el módulo de reporte de alertas
-- Los operadores ven el módulo de gestión y atención de alertas
+- Los agentes ven el módulo de gestión y atención de alertas
 
 ## 10.4 Índices de Firestore
 
@@ -2375,7 +2375,7 @@ Se desarrollará una sola aplicación móvil con routing basado en roles:
       "collectionGroup": "alerts",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "operatorId", "order": "ASCENDING" },
+        { "fieldPath": "agentId", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
@@ -2490,7 +2490,7 @@ const rateAlert = async (alertId: string, rating: number, comment?: string) => {
   await firestore().collection('ratings').add({
     alertId,
     citizenId: auth().currentUser!.uid,
-    operatorId: alertData?.operatorId,
+    agentId: alertData?.agentId,
     institutionId: alertData?.institutionId,
     rating,
     comment: comment || null,
@@ -2504,7 +2504,7 @@ const rateAlert = async (alertId: string, rating: number, comment?: string) => {
 };
 ```
 
-### 11.1.3 Alertas - Operador
+### 11.1.3 Alertas - Agente
 
 ```typescript
 // Obtener alertas pendientes
@@ -2520,7 +2520,7 @@ const getPendingAlerts = () => {
 const getMyActiveCases = () => {
   return firestore()
     .collection('alerts')
-    .where('operatorId', '==', auth().currentUser!.uid)
+    .where('agentId', '==', auth().currentUser!.uid)
     .where('status', 'in', ['in_progress', 'on_the_way', 'on_site'])
     .orderBy('createdAt', 'desc');
 };
@@ -2531,7 +2531,7 @@ const takeCase = async (alertId: string) => {
   
   await firestore().collection('alerts').doc(alertId).update({
     status: 'in_progress',
-    operatorId: auth().currentUser!.uid,
+    agentId: auth().currentUser!.uid,
     institutionId: userData.institutionId,
     updatedAt: firestore.FieldValue.serverTimestamp(),
     timeline: firestore.FieldValue.arrayUnion({
@@ -2569,7 +2569,7 @@ const transferAlert = async (
 ) => {
   await firestore().collection('alerts').doc(alertId).update({
     status: 'reported', // Vuelve a pendiente
-    operatorId: null,
+    agentId: null,
     institutionId: null,
     updatedAt: firestore.FieldValue.serverTimestamp(),
     timeline: firestore.FieldValue.arrayUnion({
@@ -2618,9 +2618,9 @@ const getUsers = (filters?: UserFilters) => {
   return query;
 };
 
-const createOperator = async (data: CreateOperatorInput) => {
+const createAgent = async (data: CreateAgentInput) => {
   // Usar Cloud Function para crear con Auth + Firestore
-  const result = await functions().httpsCallable('createOperator')(data);
+  const result = await functions().httpsCallable('createAgent')(data);
   return result.data;
 };
 
@@ -2733,7 +2733,7 @@ El catálogo completo de pantallas (33 total) está documentado en:
 | Módulo | Cantidad | Pantallas |
 |--------|----------|-----------|
 | **App Ciudadano** | 16 | Splash, Login, Registro, Recuperar, Home, Nueva Alerta (4 pasos), Confirmación, Mis Alertas, Detalle, Calificar, Mapa, Perfil, Notificaciones |
-| **App Operador** | 7 | Home, Alertas Asignadas, Detalle, Actualizar Estado, Derivar, Historial, Perfil |
+| **App Agente** | 7 | Home, Alertas Asignadas, Detalle, Actualizar Estado, Derivar, Historial, Perfil |
 | **Panel Web Admin** | 10 | Login, Dashboard, Gestión Alertas, Detalle Alerta, Instituciones, Modal Institución, Usuarios, Modal Usuario, Categorías, Reportes |
 
 ---
@@ -2751,13 +2751,13 @@ El catálogo completo de pantallas (33 total) está documentado en:
 
 ### 13.2.1 MVP 1: Flujo Básico (4 semanas)
 
-**Objetivo**: Ciudadano puede reportar alerta y operador puede atenderla.
+**Objetivo**: Ciudadano puede reportar alerta y agente puede atenderla.
 
 | Semana | Sprint | Entregables |
 |--------|--------|-------------|
-| 1 | Sprint 1 | - Setup proyecto (Expo + Firebase)<br>- Autenticación ciudadano<br>- Autenticación operador |
+| 1 | Sprint 1 | - Setup proyecto (Expo + Firebase)<br>- Autenticación ciudadano<br>- Autenticación agente |
 | 2 | Sprint 2 | - Flujo crear alerta (4 pasos)<br>- Geolocalización<br>- Subida de imágenes |
-| 3 | Sprint 3 | - Lista mis alertas (ciudadano)<br>- Lista alertas pendientes (operador)<br>- Tomar caso + actualizar estado |
+| 3 | Sprint 3 | - Lista mis alertas (ciudadano)<br>- Lista alertas pendientes (agente)<br>- Tomar caso + actualizar estado |
 | 4 | Sprint 4 | - Notificaciones push<br>- Timeline de estados<br>- Testing e2e<br>- Deploy beta |
 
 **Historias Incluidas**: HU-AUTH-001 a 004, HU-ALC-001 a 005, HU-SEG-001 a 003, HU-OPE-001 a 004
@@ -2812,7 +2812,7 @@ Sem 9 (3-9)    │██████████│ Sprint 9: Optimización + La
 | # | Hito | Fecha Objetivo | Criterio de Cumplimiento |
 |---|------|----------------|--------------------------|
 | H1 | Proyecto configurado | 12 Ene 2026 | Expo + Firebase conectados, builds funcionando |
-| H2 | Auth completo | 12 Ene 2026 | Login/Registro ciudadano y operador funcional |
+| H2 | Auth completo | 12 Ene 2026 | Login/Registro ciudadano y agente funcional |
 | H3 | Crear alerta funcional | 19 Ene 2026 | Flujo de 4 pasos completo con GPS e imágenes |
 | H4 | MVP 1 desplegado | 02 Feb 2026 | App en TestFlight/Play Console interno |
 | H5 | Panel admin básico | 16 Feb 2026 | Dashboard + CRUD funcionando |
@@ -2827,7 +2827,7 @@ Sem 9 (3-9)    │██████████│ Sprint 9: Optimización + La
 | 1 | Setup Expo + Firebase | Alta | 3 | 1 | 🔴 Pendiente |
 | 2 | HU-AUTH-001: Registro ciudadano | Alta | 5 | 1 | 🔴 Pendiente |
 | 3 | HU-AUTH-002: Login ciudadano | Alta | 3 | 1 | 🔴 Pendiente |
-| 4 | HU-AUTH-004: Login operador | Alta | 3 | 1 | 🔴 Pendiente |
+| 4 | HU-AUTH-004: Login agente | Alta | 3 | 1 | 🔴 Pendiente |
 | 5 | HU-ALC-001: Crear alerta - Tipo | Alta | 3 | 1 | 🔴 Pendiente |
 | 6 | HU-ALC-002: Crear alerta - Descripción | Alta | 3 | 1 | 🔴 Pendiente |
 | 7 | HU-ALC-003: Crear alerta - Ubicación | Alta | 5 | 1 | 🔴 Pendiente |
@@ -2865,8 +2865,8 @@ Una historia de usuario se considera **DONE** cuando:
 - [ ] Ciudadano puede registrarse y loguearse
 - [ ] Ciudadano puede crear alerta con GPS e imágenes
 - [ ] Ciudadano recibe notificación cuando su alerta es tomada
-- [ ] Operador puede ver alertas pendientes
-- [ ] Operador puede tomar caso y actualizar estado
+- [ ] Agente puede ver alertas pendientes
+- [ ] Agente puede tomar caso y actualizar estado
 - [ ] Ciudadano ve cambios de estado en tiempo real
 - [ ] App funciona en Android 8+
 
@@ -2876,7 +2876,7 @@ Una historia de usuario se considera **DONE** cuando:
 - [ ] Admin puede gestionar usuarios y instituciones
 - [ ] Ciudadano puede calificar atención
 - [ ] Ciudadano ve mapa de alertas cercanas
-- [ ] Operador puede derivar alertas
+- [ ] Agente puede derivar alertas
 
 ### MVP 3
 - [ ] Admin puede generar reportes con rango de fechas
@@ -2893,7 +2893,7 @@ Una historia de usuario se considera **DONE** cuando:
 | ID | Riesgo | Probabilidad | Impacto | Nivel | Mitigación |
 |----|--------|--------------|---------|-------|------------|
 | R1 | Baja adopción ciudadana | Media | Alto | 🔴 Alto | Campaña de lanzamiento con COPROSEC, capacitación |
-| R2 | Operadores no usan la app | Media | Alto | 🔴 Alto | Interfaz simple, capacitación, gamificación |
+| R2 | Agentes no usan la app | Media | Alto | 🔴 Alto | Interfaz simple, capacitación, gamificación |
 | R3 | Problemas de conectividad | Alta | Medio | 🟠 Medio | Mensajes claros, retry automático |
 | R4 | Costos Firebase exceden presupuesto | Baja | Alto | 🟠 Medio | Monitoreo de uso, optimizar queries |
 | R5 | Retraso en desarrollo | Media | Medio | 🟠 Medio | Buffer en cronograma, priorización estricta |
@@ -2906,7 +2906,7 @@ Una historia de usuario se considera **DONE** cuando:
 | Riesgo | Acción de Contingencia |
 |--------|------------------------|
 | R1: Baja adopción | Pilotar con grupo pequeño, iterar según feedback |
-| R2: Operadores no usan | Hacer app obligatoria institucionalmente |
+| R2: Agentes no usan | Hacer app obligatoria institucionalmente |
 | R4: Costos altos | Migrar a plan Blaze con alertas de presupuesto |
 | R5: Retrasos | Reducir alcance de MVP3, entregar funcionalidades core |
 
@@ -2923,7 +2923,7 @@ Una historia de usuario se considera **DONE** cuando:
 | Tiempo promedio de respuesta | N/A | < 20 min | < 15 min | < 10 min |
 | Tasa de resolución | N/A | 60% | 80% | 90% |
 | Satisfacción (rating promedio) | N/A | 3.5/5 | 4.0/5 | 4.5/5 |
-| Operadores activos | 0 | 5 | 10 | 15 |
+| Agentes activos | 0 | 5 | 10 | 15 |
 | Instituciones integradas | 0 | 2 | 4 | 5 |
 
 ## 16.2 KPIs Técnicos
@@ -2955,7 +2955,7 @@ Una historia de usuario se considera **DONE** cuando:
 |---------|------------|
 | **Alerta** | Reporte de emergencia o incidente creado por un ciudadano |
 | **Ciudadano** | Usuario que reporta emergencias (rol en el sistema) |
-| **Operador** | Personal de institución que atiende alertas |
+| **Agente** | Personal de institución que atiende alertas |
 | **Administrador** | Usuario con acceso total al panel de gestión |
 | **COPROSEC** | Comité Provincial de Seguridad Ciudadana |
 | **Institución** | Entidad que atiende emergencias (PNP, Serenazgo, etc.) |
