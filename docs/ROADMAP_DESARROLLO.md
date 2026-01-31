@@ -40,11 +40,11 @@ git flow feature start s1-recuperar-password
 ```
 
 **Criterios de aceptación:**
-- [ ] Firebase Auth conectado
-- [ ] Ciudadano puede registrarse con DNI, email y contraseña
-- [ ] Ciudadano puede iniciar sesión
+- [*] Firebase Auth conectado
+- [*] Ciudadano puede registrarse con DNI, email y contraseña
+- [*] Ciudadano puede iniciar sesión
 - [ ] Agente puede iniciar sesión
-- [ ] Usuario puede recuperar contraseña por email
+- [*] Usuario puede recuperar contraseña por email
 
 ---
 

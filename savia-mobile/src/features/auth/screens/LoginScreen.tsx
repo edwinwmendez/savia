@@ -143,13 +143,7 @@ export function LoginScreen({ navigation, route }: Props) {
           {/* Forgot Password — .pen: right-aligned */}
           <TouchableOpacity
             style={styles.forgotPassword}
-            onPress={() => {
-              if (navigation.getState().routeNames.includes('ForgotPassword')) {
-                navigation.navigate('ForgotPassword');
-              } else {
-                Alert.alert('Próximamente', 'Esta funcionalidad estará disponible pronto.');
-              }
-            }}
+            onPress={() => navigation.navigate('ForgotPassword')}
           >
             <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
           </TouchableOpacity>
