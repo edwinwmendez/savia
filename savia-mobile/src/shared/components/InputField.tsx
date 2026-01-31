@@ -30,7 +30,9 @@ export function InputField({
   iconRight: IconRight,
   onPressIconRight,
   disabled = false,
-  ...inputProps
+  onFocus: onFocusProp,
+  onBlur: onBlurProp,
+  ...restProps
 }: InputFieldProps) {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -47,7 +49,7 @@ export function InputField({
         style={[
           styles.container,
           { borderColor },
-          isFocused && !error && styles.focusShadow,
+          isFocused && !error && styles.focusBorder,
         ]}
       >
         {IconLeft && (
@@ -58,6 +60,7 @@ export function InputField({
           />
         )}
         <TextInput
+          {...restProps}
           style={[
             styles.input,
             IconLeft ? { paddingLeft: 0 } : null,
@@ -67,13 +70,12 @@ export function InputField({
           editable={!disabled}
           onFocus={(e) => {
             setIsFocused(true);
-            inputProps.onFocus?.(e);
+            onFocusProp?.(e);
           }}
           onBlur={(e) => {
             setIsFocused(false);
-            inputProps.onBlur?.(e);
+            onBlurProp?.(e);
           }}
-          {...inputProps}
         />
         {IconRight && (
           <Pressable
@@ -122,12 +124,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     gap: spacing.sm,
   },
-  focusShadow: {
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 2,
+  focusBorder: {
+    borderWidth: 2,
+    // Compensar el 1px extra en cada lado para evitar layout shift
+    paddingHorizontal: spacing.md - 1,
   },
   iconLeft: {
     flexShrink: 0,
