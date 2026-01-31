@@ -43,7 +43,7 @@ git flow feature start s1-recuperar-password
 - [*] Firebase Auth conectado
 - [*] Ciudadano puede registrarse con DNI, email y contraseña
 - [*] Ciudadano puede iniciar sesión
-- [ ] Agente puede iniciar sesión
+- [*] Agente puede iniciar sesión
 - [*] Usuario puede recuperar contraseña por email
 
 ---

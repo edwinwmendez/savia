@@ -11,4 +11,7 @@ export type CitizenTabParamList = {
 
 export type AgentTabParamList = {
   Home: undefined;
+  Alerts: undefined;
+  History: undefined;
+  Profile: undefined;
 };

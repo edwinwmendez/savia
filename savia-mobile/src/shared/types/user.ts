@@ -14,3 +14,15 @@ export interface UserData {
   updatedAt: Timestamp;
   lastLoginAt?: Timestamp;
 }
+
+export interface InstitutionData {
+  name: string;
+  type: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  categoryIds?: string[];
+  isActive: boolean;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+}

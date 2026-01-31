@@ -2,11 +2,14 @@ import { create } from 'zustand';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/shared/config/firebase';
-import type { UserData } from '@/shared/types/user';
+import type { UserData, InstitutionData } from '@/shared/types/user';
+import { signOut } from '@/features/auth/services/authService';
 
 interface AuthState {
   user: User | null;
   userData: UserData | null;
+  institutionData: InstitutionData | null;
+  inactiveAccountError: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   initialize: () => () => void;
@@ -17,6 +20,8 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   userData: null,
+  institutionData: null,
+  inactiveAccountError: null,
   isLoading: true,
   isAuthenticated: false,
 
@@ -26,13 +31,50 @@ export const useAuthStore = create<AuthState>((set) => ({
         try {
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
           const userData = userDoc.exists() ? (userDoc.data() as UserData) : null;
-          set({ user: firebaseUser, userData, isLoading: false, isAuthenticated: true });
+
+          // Validar cuenta de agente inactiva
+          if (userData?.role === 'agent' && !userData.isActive) {
+            console.log('[Auth] Agente inactivo detectado, cerrando sesión');
+            set({
+              inactiveAccountError: 'Tu cuenta de agente ha sido desactivada. Contacta al administrador.',
+              isLoading: false,
+            });
+            await signOut();
+            return;
+          }
+
+          // Obtener datos de institución para agentes
+          let institutionData: InstitutionData | null = null;
+          if (userData?.role === 'agent' && userData.institutionId) {
+            try {
+              const instDoc = await getDoc(doc(db, 'institutions', userData.institutionId));
+              institutionData = instDoc.exists() ? (instDoc.data() as InstitutionData) : null;
+              console.log('[Auth] Datos de institución cargados:', institutionData?.name);
+            } catch (instError) {
+              console.error('[Auth] Error al obtener institución:', instError);
+            }
+          }
+
+          set({
+            user: firebaseUser,
+            userData,
+            institutionData,
+            inactiveAccountError: null,
+            isLoading: false,
+            isAuthenticated: true,
+          });
         } catch (error) {
-          console.error('Error al obtener datos del usuario:', error);
+          console.error('[Auth] Error al obtener datos del usuario:', error);
           set({ user: firebaseUser, userData: null, isLoading: false, isAuthenticated: true });
         }
       } else {
-        set({ user: null, userData: null, isLoading: false, isAuthenticated: false });
+        set({
+          user: null,
+          userData: null,
+          institutionData: null,
+          isLoading: false,
+          isAuthenticated: false,
+        });
       }
     });
 
@@ -41,5 +83,12 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setUserData: (data) => set({ userData: data }),
 
-  reset: () => set({ user: null, userData: null, isLoading: false, isAuthenticated: false }),
+  reset: () => set({
+    user: null,
+    userData: null,
+    institutionData: null,
+    inactiveAccountError: null,
+    isLoading: false,
+    isAuthenticated: false,
+  }),
 }));
