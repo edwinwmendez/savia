@@ -860,7 +860,7 @@ LAYOUT:
     
     email_field:
       component: "[USE COMPONENT: INPUT_FIELD]"
-      label: "Email (opcional)"
+      label: "Email"
       icon_left: "envelope"
       placeholder: "correo@ejemplo.com"
       helper: "Helper text"
@@ -1440,7 +1440,7 @@ LAYOUT:
       
       counter:
         margin_top: "use variable 'spacing-xs'"
-        text: "0/200"
+        text: "0/500"
         font_size: "use variable 'font-caption'"
         color: "use variable 'text-secondary'"
         align: right
@@ -4339,12 +4339,6 @@ LAYOUT:
             title: "En el lugar"
             subtitle: "He llegado al sitio"
             color: "use variable 'info'"
-            state: default
-          
-          - emoji: "🔧"
-            title: "Atendiendo"
-            subtitle: "Resolviendo la situación"
-            color: "use variable 'primary'"
             state: default
           
           - emoji: "✅"

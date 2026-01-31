@@ -497,13 +497,13 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 
 | Funcionalidad | Ciudadano | Operador | Admin |
 |---------------|:---------:|:--------:|:-----:|
-| Crear alerta | ✅ | ❌ | ✅ |
+| Crear alerta | ✅ | ❌ | ❌ |
 | Ver sus propias alertas | ✅ | ✅ | ✅ |
 | Ver todas las alertas | ❌ | ✅ (asignadas) | ✅ |
-| Tomar caso | ❌ | ✅ | ✅ |
-| Actualizar estado | ❌ | ✅ | ✅ |
-| Derivar alerta | ❌ | ✅ | ✅ |
-| Cerrar alerta | ❌ | ✅ | ✅ |
+| Tomar caso | ❌ | ✅ | ❌ |
+| Actualizar estado | ❌ | ✅ | ❌ |
+| Derivar alerta | ❌ | ✅ | ❌ |
+| Cerrar alerta | ❌ | ✅ | ❌ |
 | Calificar atención | ✅ | ❌ | ❌ |
 | Ver dashboard | ❌ | ❌ | ✅ |
 | Gestionar usuarios | ❌ | ❌ | ✅ |
@@ -525,12 +525,12 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 |-------|-------------|
 | **ID** | RF-AUTH-001 |
 | **Nombre** | Registro de ciudadano |
-| **Descripción** | El sistema debe permitir a los ciudadanos crear una cuenta proporcionando DNI, nombres, apellidos, celular, email (opcional) y contraseña |
+| **Descripción** | El sistema debe permitir a los ciudadanos crear una cuenta proporcionando DNI, nombres, apellidos, celular, email y contraseña |
 | **Prioridad** | Alta |
 | **MVP** | 1 |
 | **Actor** | Ciudadano |
 | **Precondición** | Usuario no registrado previamente |
-| **Flujo Principal** | 1. Usuario accede a pantalla de registro<br>2. Ingresa DNI (8 dígitos)<br>3. Ingresa nombres y apellidos<br>4. Ingresa número de celular (9 dígitos)<br>5. Ingresa email (opcional)<br>6. Crea contraseña (mínimo 8 caracteres)<br>7. Confirma contraseña<br>8. Acepta términos y condiciones<br>9. Sistema valida datos<br>10. Sistema crea cuenta<br>11. Sistema envía a pantalla de login |
+| **Flujo Principal** | 1. Usuario accede a pantalla de registro<br>2. Ingresa DNI (8 dígitos)<br>3. Ingresa nombres y apellidos<br>4. Ingresa número de celular (9 dígitos)<br>5. Ingresa email<br>6. Crea contraseña (mínimo 8 caracteres)<br>7. Confirma contraseña<br>8. Acepta términos y condiciones<br>9. Sistema valida datos<br>10. Sistema crea cuenta<br>11. Sistema envía a pantalla de login |
 | **Flujo Alternativo** | 9a. Si DNI ya registrado → Mostrar error "DNI ya existe"<br>9b. Si celular ya registrado → Mostrar error<br>9c. Si contraseñas no coinciden → Mostrar error |
 | **Postcondición** | Usuario registrado en el sistema |
 | **Reglas de Negocio** | RN-001: DNI debe ser único<br>RN-002: Celular debe ser único<br>RN-003: Contraseña mínimo 8 caracteres |
@@ -596,7 +596,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 | **MVP** | 1 |
 | **Actor** | Ciudadano autenticado |
 | **Precondición** | Usuario logueado |
-| **Flujo Principal** | **Paso 1 - Tipo:**<br>1. Usuario presiona "Reportar Emergencia"<br>2. Selecciona tipo de incidente (8 categorías)<br>3. Presiona "Siguiente"<br><br>**Paso 2 - Descripción:**<br>4. Escribe descripción (máx 200 caracteres)<br>5. Selecciona nivel de urgencia (4 niveles)<br>6. Presiona "Siguiente"<br><br>**Paso 3 - Ubicación:**<br>7. Sistema obtiene ubicación GPS automáticamente<br>8. Usuario puede ajustar pin en mapa<br>9. Usuario puede buscar dirección<br>10. Presiona "Siguiente"<br><br>**Paso 4 - Confirmación:**<br>11. Opcionalmente adjunta fotos (máx 3)<br>12. Revisa resumen de alerta<br>13. Presiona "Enviar Alerta"<br>14. Sistema crea alerta<br>15. Sistema notifica a operadores<br>16. Muestra pantalla de éxito con ID |
+| **Flujo Principal** | **Paso 1 - Tipo:**<br>1. Usuario presiona "Reportar Emergencia"<br>2. Selecciona tipo de incidente (8 categorías)<br>3. Presiona "Siguiente"<br><br>**Paso 2 - Descripción:**<br>4. Escribe descripción (máx 500 caracteres)<br>5. Selecciona nivel de urgencia (4 niveles)<br>6. Presiona "Siguiente"<br><br>**Paso 3 - Ubicación:**<br>7. Sistema obtiene ubicación GPS automáticamente<br>8. Usuario puede ajustar pin en mapa<br>9. Usuario puede buscar dirección<br>10. Presiona "Siguiente"<br><br>**Paso 4 - Confirmación:**<br>11. Opcionalmente adjunta fotos (máx 3)<br>12. Revisa resumen de alerta<br>13. Presiona "Enviar Alerta"<br>14. Sistema crea alerta<br>15. Sistema notifica a operadores<br>16. Muestra pantalla de éxito con ID |
 | **Postcondición** | Alerta creada con estado "Reportada" |
 | **Datos Capturados** | - Tipo de incidente<br>- Descripción<br>- Nivel de urgencia<br>- Coordenadas GPS<br>- Dirección aproximada<br>- Fotos (0-3)<br>- Fecha/hora automática<br>- ID de ciudadano |
 
@@ -696,7 +696,7 @@ SOSAFE es la referencia principal por similitud de contexto latinoamericano:
 | **Descripción** | El sistema debe permitir al operador actualizar el estado de una alerta asignada |
 | **Prioridad** | Alta |
 | **MVP** | 1 |
-| **Estados Permitidos** | - En camino<br>- En el lugar<br>- Atendiendo<br>- Resuelto |
+| **Estados Permitidos** | - En camino (on_the_way)<br>- En el lugar (on_site)<br>- Resuelto (resolved) |
 | **Datos Adicionales** | - Nota de actualización (opcional)<br>- Foto de evidencia (opcional) |
 | **Notificación** | Cada cambio notifica al ciudadano |
 
@@ -932,7 +932,7 @@ CRITERIOS DE ACEPTACIÓN:
 ✅ Puedo ingresar mi DNI (8 dígitos, validación de formato)
 ✅ Puedo ingresar mis nombres y apellidos
 ✅ Puedo ingresar mi número de celular (9 dígitos)
-✅ Puedo ingresar mi email (opcional)
+✅ Puedo ingresar mi email
 ✅ Puedo crear una contraseña (mínimo 8 caracteres)
 ✅ Debo aceptar términos y condiciones para continuar
 ✅ Si mi DNI ya está registrado, veo mensaje de error
@@ -1042,7 +1042,7 @@ PARA que los operadores entiendan la gravedad
 
 CRITERIOS DE ACEPTACIÓN:
 ✅ Veo el tipo seleccionado en el paso anterior
-✅ Puedo escribir descripción (máximo 200 caracteres)
+✅ Puedo escribir descripción (máximo 500 caracteres)
 ✅ Veo contador de caracteres restantes
 ✅ Debo seleccionar nivel de urgencia obligatoriamente
 ✅ Cada nivel tiene descripción de cuándo usarlo
@@ -1284,7 +1284,7 @@ PARA que el ciudadano sepa el progreso
 
 CRITERIOS DE ACEPTACIÓN:
 ✅ Veo opciones de estado disponibles
-✅ Puedo seleccionar: En camino, En el lugar, Atendiendo, Resuelto
+✅ Puedo seleccionar: En camino (on_the_way), En el lugar (on_site), Resuelto (resolved)
 ✅ Puedo agregar nota de actualización (opcional)
 ✅ Puedo adjuntar foto de evidencia (opcional)
 ✅ Al guardar, el estado se actualiza
@@ -1994,7 +1994,7 @@ export const registerCitizen = functions.https.onCall(async (data, context) => {
   // Validar datos
   const { dni, firstName, lastName, phone, email, password } = data;
   
-  if (!dni || !firstName || !lastName || !phone || !password) {
+  if (!dni || !firstName || !lastName || !phone || !email || !password) {
     throw new functions.https.HttpsError(
       'invalid-argument',
       'Faltan campos requeridos'
@@ -2015,7 +2015,7 @@ export const registerCitizen = functions.https.onCall(async (data, context) => {
   
   // Crear usuario en Auth
   const userRecord = await admin.auth().createUser({
-    email: email || `${phone}@savia.temp`,
+    email,
     password,
     displayName: `${firstName} ${lastName}`,
   });
@@ -2026,7 +2026,7 @@ export const registerCitizen = functions.https.onCall(async (data, context) => {
     firstName,
     lastName,
     phone,
-    email: email || null,
+    email,
     role: 'citizen',
     isActive: true,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -2112,7 +2112,7 @@ interface User {
   firstName: string;              // Nombres
   lastName: string;               // Apellidos
   phone: string;                  // 9 dígitos, único
-  email: string | null;           // Opcional para ciudadanos
+  email: string;                  // Requerido para todos los usuarios
   
   // Rol y permisos
   role: 'citizen' | 'operator' | 'admin';
@@ -2161,7 +2161,7 @@ interface Alert {
   categoryEmoji: string;          // Denormalizado
   
   // Descripción
-  description: string;            // Máximo 200 caracteres
+  description: string;            // Máximo 500 caracteres
   
   // Urgencia
   urgencyLevel: 'low' | 'medium' | 'high' | 'critical';
@@ -2320,7 +2320,35 @@ interface Rating {
 }
 ```
 
-## 10.3 Índices de Firestore
+---
+
+## 10.3 Notas Técnicas
+
+### Consultas Geoespaciales
+Firestore no soporta consultas geoespaciales nativas. Para implementar búsqueda por proximidad se utilizará la librería **geofirestore** o un sistema de **geohash** manual:
+- Cada alerta almacenará un campo `geohash` calculado a partir de sus coordenadas
+- Las consultas por proximidad usarán rangos de geohash para filtrar eficientemente
+- Referencia: https://firebase.google.com/docs/firestore/solutions/geoqueries
+
+### Persistencia Offline
+Se aprovechará la persistencia offline integrada de Firestore en React Native:
+- Firestore mantiene una caché local automática de los datos consultados
+- Las escrituras se encolan cuando no hay conexión y se sincronizan al reconectarse
+- No se requiere implementación adicional para el MVP
+
+### Rate Limiting
+Para el MVP, se implementará rate limiting en dos niveles:
+- **Security Rules**: Validación de escrituras por tiempo (evitar spam de alertas)
+- **Cloud Functions**: Control de frecuencia en endpoints sensibles (registro, creación de alertas)
+
+### Aplicación Móvil Única
+Se desarrollará una sola aplicación móvil con routing basado en roles:
+- Al autenticarse, se obtiene el rol del usuario desde Firestore
+- El sistema de navegación (React Navigation) muestra el stack correspondiente al rol
+- Los ciudadanos ven el módulo de reporte de alertas
+- Los operadores ven el módulo de gestión y atención de alertas
+
+## 10.4 Índices de Firestore
 
 ```javascript
 // firestore.indexes.json

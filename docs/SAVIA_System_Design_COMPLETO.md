@@ -895,7 +895,7 @@ Iniciales    Imagen
 │   │ 📱 Celular (9 dígitos)  │   │
 │   └─────────────────────────┘   │
 │   ┌─────────────────────────┐   │
-│   │ 📧 Email (opcional)     │   │
+│   │ 📧 Email               │   │
 │   └─────────────────────────┘   │
 │   ┌─────────────────────────┐   │
 │   │ 🔒 Contraseña       👁️  │   │
@@ -918,7 +918,7 @@ Iniciales    Imagen
 - DNI: 8 dígitos, único
 - Nombres/Apellidos: 2-50 chars alfabéticos
 - Celular: 9 dígitos, inicia con 9
-- Email: formato válido (opcional)
+- Email: formato válido (requerido)
 - Contraseña: min 8 chars, 1 mayúscula, 1 número
 - Dirección: max 200 chars
 
@@ -1650,80 +1650,80 @@ Iniciales    Imagen
 
 ```
 firestore/
-├── usuarios/
+├── users/
 │   └── {userId}/
 │       ├── dni: string
-│       ├── nombres: string
-│       ├── apellidos: string
-│       ├── celular: string
+│       ├── firstName: string
+│       ├── lastName: string
+│       ├── phone: string
 │       ├── email: string
-│       ├── direccion: string
-│       ├── rol: "ciudadano" | "operador" | "admin"
-│       ├── institucionId: string (si es operador)
-│       ├── estado: "activo" | "inactivo"
-│       ├── fcmToken: string (para push)
-│       └── fechaRegistro: timestamp
+│       ├── address: string
+│       ├── role: "citizen" | "operator" | "admin"
+│       ├── institutionId: string (operators only)
+│       ├── isActive: boolean
+│       ├── fcmToken: string (for push notifications)
+│       ├── createdAt: timestamp
+│       ├── updatedAt: timestamp
+│       └── lastLoginAt: timestamp
 │
-├── alertas/
-│   └── {alertaId}/
-│       ├── numero: string (ALT-2026-0001)
-│       ├── ciudadanoId: string (ref usuarios)
-│       ├── categoriaId: string (ref categorias)
-│       ├── descripcion: string
-│       ├── ubicacion: geopoint
-│       ├── direccionTexto: string
-│       ├── urgencia: "baja" | "media" | "alta" | "critica"
-│       ├── estado: "reportada" | "en_atencion" | "resuelta" | "cerrada"
-│       ├── operadorId: string (ref usuarios)
-│       ├── institucionId: string (ref instituciones)
-│       ├── mediaUrls: array<string>
-│       ├── calificacion: number (1-5)
-│       ├── comentarioCalificacion: string
-│       ├── fechaCreacion: timestamp
-│       ├── fechaActualizacion: timestamp
-│       └── historial/
-│           └── {historialId}/
-│               ├── estadoAnterior: string
-│               ├── estadoNuevo: string
-│               ├── operadorId: string
-│               ├── nota: string
-│               ├── mediaUrl: string
-│               └── fecha: timestamp
+├── alerts/
+│   └── {alertId}/
+│       ├── categoryId: string (ref categories)
+│       ├── categoryName: string (denormalized)
+│       ├── categoryEmoji: string (denormalized)
+│       ├── description: string (max 500 chars)
+│       ├── urgencyLevel: "low" | "medium" | "high" | "critical"
+│       ├── status: "reported" | "in_progress" | "on_the_way" | "on_site" | "resolved" | "closed"
+│       ├── location: { latitude: number, longitude: number }
+│       ├── address: string
+│       ├── geohash: string (for proximity queries)
+│       ├── imageUrls: array<string> (max 3)
+│       ├── citizenId: string (ref users)
+│       ├── operatorId: string (ref users)
+│       ├── institutionId: string (ref institutions)
+│       ├── timeline: array<{ status, timestamp, userId, note? }>
+│       ├── rating: number (1-5)
+│       ├── createdAt: timestamp
+│       └── updatedAt: timestamp
 │
-├── instituciones/
-│   └── {institucionId}/
-│       ├── nombre: string
-│       ├── tipo: "pnp" | "serenazgo" | "bomberos" | "salud" | "otro"
-│       ├── telefono: string
-│       ├── direccion: string
-│       ├── horario: string
-│       ├── tiposAlertaAtendidos: array<string>
-│       └── estado: "activo" | "inactivo"
+├── institutions/
+│   └── {institutionId}/
+│       ├── name: string
+│       ├── type: "pnp" | "serenazgo" | "bomberos" | "salud" | "defensa_civil" | "otro"
+│       ├── phone: string
+│       ├── email: string
+│       ├── address: string
+│       ├── categoryIds: array<string>
+│       ├── isActive: boolean
+│       ├── createdAt: timestamp
+│       └── updatedAt: timestamp
 │
-└── categorias_alerta/
-    └── {categoriaId}/
-        ├── nombre: string
-        ├── nombreCorto: string
-        ├── icono: string (emoji)
+└── categories/
+    └── {categoryId}/
+        ├── name: string
+        ├── shortName: string
+        ├── emoji: string
         ├── color: string (hex)
-        ├── orden: number
-        └── estado: "activo" | "inactivo"
+        ├── order: number
+        ├── isActive: boolean
+        ├── institutionIds: array<string>
+        └── createdAt: timestamp
 ```
 
 ## 8.2 Índices Requeridos
 
 ```javascript
-// Alertas por ciudadano ordenadas por fecha
-alertas: ciudadanoId ASC, fechaCreacion DESC
+// Alerts by citizen ordered by date
+alerts: citizenId ASC, createdAt DESC
 
-// Alertas por estado y urgencia
-alertas: estado ASC, urgencia DESC, fechaCreacion DESC
+// Alerts by status and urgency
+alerts: status ASC, urgencyLevel DESC, createdAt DESC
 
-// Alertas por institución
-alertas: institucionId ASC, estado ASC, fechaCreacion DESC
+// Alerts by institution
+alerts: institutionId ASC, status ASC, createdAt DESC
 
-// Alertas geoespaciales (requiere extensión)
-alertas: ubicacion GEOPOINT
+// Geospatial queries (using geohash)
+alerts: geohash ASC, status ASC
 ```
 
 ---
@@ -1741,12 +1741,12 @@ alertas: ubicacion GEOPOINT
 ### Alertas
 | Función | Método | Descripción |
 |---------|--------|-------------|
-| `createAlerta` | POST | Crear alerta con validaciones |
-| `onAlertaCreate` | Trigger | Notificar operadores al crear alerta |
-| `onAlertaUpdate` | Trigger | Notificar ciudadano al cambiar estado |
-| `getAlertasCercanas` | GET | Obtener alertas por radio geográfico |
-| `asignarAlerta` | POST | Asignar alerta a operador |
-| `derivarAlerta` | POST | Derivar alerta a otra institución |
+| `createAlert` | POST | Crear alerta con validaciones |
+| `onAlertCreated` | Trigger | Notificar operadores al crear alerta |
+| `onAlertUpdated` | Trigger | Notificar ciudadano al cambiar estado |
+| `getNearbyAlerts` | GET | Obtener alertas por radio geográfico (geohash) |
+| `assignAlert` | POST | Asignar alerta a operador |
+| `transferAlert` | POST | Derivar alerta a otra institución |
 
 ### Notificaciones
 | Función | Método | Descripción |
@@ -1757,9 +1757,9 @@ alertas: ubicacion GEOPOINT
 ### Reportes
 | Función | Método | Descripción |
 |---------|--------|-------------|
-| `getEstadisticas` | GET | Obtener métricas por rango de fechas |
-| `getMapaCalor` | GET | Datos para mapa de calor |
-| `exportarReporte` | POST | Generar PDF/Excel de reporte |
+| `getStatistics` | GET | Obtener métricas por rango de fechas |
+| `getHeatmapData` | GET | Datos para mapa de calor |
+| `exportReport` | POST | Generar PDF/Excel de reporte |
 
 ## 9.2 Estructura de Respuestas
 
@@ -1831,7 +1831,7 @@ Form fields (all with appropriate icons):
 - Nombres - person icon
 - Apellidos - person icon  
 - Celular (9 digits) - phone icon
-- Email (optional) - envelope icon
+- Email (required) - envelope icon
 - Contraseña - lock icon with show/hide
 - Confirmar contraseña - lock icon with show/hide
 - Dirección referencia - location icon
@@ -2029,10 +2029,9 @@ Current status: "Alerta #0145 - Robo/Asalto"
 "Estado actual: 🟡 En camino"
 
 Radio button list "Selecciona el nuevo estado":
-- 🚗 En camino - "Estoy dirigiéndome"
-- 📍 En el lugar - "Llegué al punto"
-- 🔧 Atendiendo - "Estoy atendiendo el caso"
-- ✅ Resuelto - "Caso atendido y cerrado" (selected)
+- 🚗 En camino (on_the_way) - "Estoy dirigiéndome"
+- 📍 En el lugar (on_site) - "Llegué al punto"
+- ✅ Resuelto (resolved) - "Caso atendido exitosamente"
 
 Textarea: "Agregar nota (opcional)"
 Sample text inside

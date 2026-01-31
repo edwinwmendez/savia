@@ -264,11 +264,11 @@ export const registerCitizen = functions.https.onCall(
       );
     }
 
-    // Validar contraseña (mínimo 6 caracteres)
-    if (password.length < 6) {
+    // Validar contraseña (mínimo 8 caracteres - RN-003)
+    if (password.length < 8) {
       throw new functions.https.HttpsError(
         "invalid-argument",
-        "La contraseña debe tener al menos 6 caracteres"
+        "La contraseña debe tener al menos 8 caracteres"
       );
     }
 
