@@ -1,26 +1,53 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Primary */
+  --color-primary: #1976D2;
+  --color-primary-dark: #1565C0;
+  --color-primary-light: #BBDEFB;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Status */
+  --color-success: #4CAF50;
+  --color-warning: #FF9800;
+  --color-error: #F44336;
+  --color-info: #2196F3;
+
+  /* Surfaces */
+  --color-bg: #F5F5F5;
+  --color-surface: #FFFFFF;
+  --color-border: #E0E0E0;
+
+  /* Text */
+  --color-text-primary: #212121;
+  --color-text-secondary: #757575;
+
+  /* Urgency */
+  --color-urgency-critical: #D32F2F;
+  --color-urgency-high: #F57C00;
+  --color-urgency-medium: #FBC02D;
+  --color-urgency-low: #388E3C;
+
+  /* Alert Categories */
+  --color-alert-robbery: #D32F2F;
+  --color-alert-accident: #F57C00;
+  --color-alert-medical: #E91E63;
+  --color-alert-fire: #FF5722;
+  --color-alert-electrical: #FFC107;
+  --color-alert-water: #2196F3;
+  --color-alert-lost: #9C27B0;
+  --color-alert-other: #607D8B;
+
+  /* Font */
+  --font-sans: "Inter", sans-serif;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
 }
