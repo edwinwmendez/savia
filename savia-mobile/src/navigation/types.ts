@@ -16,6 +16,10 @@ export type CitizenTabParamList = {
 export type CitizenStackParamList = {
   CitizenTabs: undefined;
   SelectAlertType: undefined;
+  DescribeAlert: undefined;
+  LocateAlert: undefined;
+  ConfirmAlert: undefined;
+  AlertSuccess: { alertCode: string };
 };
 
 export type AgentTabParamList = {

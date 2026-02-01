@@ -1,7 +1,6 @@
 import { useCreateAlertStore } from '@/features/alerts/store/createAlertStore';
-import type { AlertCategory } from '@/shared/types/alert';
 
-const mockCategory: AlertCategory = {
+const mockCategory = {
   id: 'robbery',
   name: 'Robo/Asalto',
   icon: 'Siren',
@@ -14,39 +13,82 @@ beforeEach(() => {
 });
 
 describe('createAlertStore', () => {
-  it('inicia con selectedCategory null', () => {
+  it('inicia con estado vacío', () => {
     const state = useCreateAlertStore.getState();
     expect(state.selectedCategory).toBeNull();
+    expect(state.description).toBe('');
+    expect(state.urgency).toBeNull();
+    expect(state.location).toBeNull();
+    expect(state.address).toBe('');
+    expect(state.imageUris).toEqual([]);
   });
 
-  it('setCategory actualiza la categoría seleccionada', () => {
+  it('setCategory actualiza la categoría', () => {
     useCreateAlertStore.getState().setCategory(mockCategory);
-
-    const state = useCreateAlertStore.getState();
-    expect(state.selectedCategory).toEqual(mockCategory);
+    expect(useCreateAlertStore.getState().selectedCategory).toEqual(mockCategory);
   });
 
-  it('setCategory reemplaza la categoría anterior', () => {
-    const otherCategory: AlertCategory = {
-      id: 'fire',
-      name: 'Incendio',
-      icon: 'Flame',
-      color: '#FF5722',
-      order: 4,
-    };
-
-    useCreateAlertStore.getState().setCategory(mockCategory);
-    useCreateAlertStore.getState().setCategory(otherCategory);
-
-    const state = useCreateAlertStore.getState();
-    expect(state.selectedCategory?.id).toBe('fire');
+  it('setDescription actualiza la descripción', () => {
+    useCreateAlertStore.getState().setDescription('Robo en la esquina');
+    expect(useCreateAlertStore.getState().description).toBe('Robo en la esquina');
   });
 
-  it('reset limpia la categoría seleccionada', () => {
-    useCreateAlertStore.getState().setCategory(mockCategory);
+  it('setUrgency actualiza el nivel de urgencia', () => {
+    useCreateAlertStore.getState().setUrgency('high');
+    expect(useCreateAlertStore.getState().urgency).toBe('high');
+  });
+
+  it('setLocation actualiza las coordenadas', () => {
+    const coords = { latitude: -10.7312, longitude: -73.7565 };
+    useCreateAlertStore.getState().setLocation(coords);
+    expect(useCreateAlertStore.getState().location).toEqual(coords);
+  });
+
+  it('setAddress actualiza la dirección', () => {
+    useCreateAlertStore.getState().setAddress('Av. Atalaya 234');
+    expect(useCreateAlertStore.getState().address).toBe('Av. Atalaya 234');
+  });
+
+  it('addImage agrega una imagen', () => {
+    useCreateAlertStore.getState().addImage('file://foto1.jpg');
+    expect(useCreateAlertStore.getState().imageUris).toEqual(['file://foto1.jpg']);
+  });
+
+  it('addImage no excede el límite de 3', () => {
+    const store = useCreateAlertStore.getState();
+    store.addImage('file://1.jpg');
+    store.addImage('file://2.jpg');
+    store.addImage('file://3.jpg');
+    store.addImage('file://4.jpg');
+    expect(useCreateAlertStore.getState().imageUris).toHaveLength(3);
+  });
+
+  it('removeImage elimina por índice', () => {
+    const store = useCreateAlertStore.getState();
+    store.addImage('file://1.jpg');
+    store.addImage('file://2.jpg');
+    store.addImage('file://3.jpg');
+    useCreateAlertStore.getState().removeImage(1);
+    expect(useCreateAlertStore.getState().imageUris).toEqual(['file://1.jpg', 'file://3.jpg']);
+  });
+
+  it('reset limpia todo el estado', () => {
+    const store = useCreateAlertStore.getState();
+    store.setCategory(mockCategory);
+    store.setDescription('Descripción de prueba');
+    store.setUrgency('critical');
+    store.setLocation({ latitude: -10, longitude: -73 });
+    store.setAddress('Dirección');
+    store.addImage('file://test.jpg');
+
     useCreateAlertStore.getState().reset();
-
     const state = useCreateAlertStore.getState();
+
     expect(state.selectedCategory).toBeNull();
+    expect(state.description).toBe('');
+    expect(state.urgency).toBeNull();
+    expect(state.location).toBeNull();
+    expect(state.address).toBe('');
+    expect(state.imageUris).toEqual([]);
   });
 });

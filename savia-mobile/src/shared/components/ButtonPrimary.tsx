@@ -16,6 +16,7 @@ interface ButtonPrimaryProps {
   loading?: boolean;
   disabled?: boolean;
   icon?: LucideIcon;
+  color?: string;
   style?: ViewStyle;
 }
 
@@ -25,9 +26,11 @@ export function ButtonPrimary({
   loading = false,
   disabled = false,
   icon: Icon,
+  color,
   style,
 }: ButtonPrimaryProps) {
   const isDisabled = disabled || loading;
+  const bgColor = color ?? colors.primary;
 
   return (
     <Pressable
@@ -35,7 +38,8 @@ export function ButtonPrimary({
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.container,
-        pressed && styles.pressed,
+        { backgroundColor: bgColor, shadowColor: bgColor },
+        pressed && [styles.pressed, { backgroundColor: color ? bgColor : colors.primaryDark }],
         isDisabled && styles.disabled,
         style,
       ]}
@@ -58,20 +62,17 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: componentHeight.button,
-    backgroundColor: colors.primary,
     borderRadius: radius.lg,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: spacing.sm,
-    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 4,
   },
   pressed: {
-    backgroundColor: colors.primaryDark,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 2,

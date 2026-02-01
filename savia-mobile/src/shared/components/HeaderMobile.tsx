@@ -13,6 +13,8 @@ interface HeaderMobileProps {
   onLeftPress?: () => void;
   rightIcon?: LucideIcon;
   onRightPress?: () => void;
+  rightText?: string;
+  onRightTextPress?: () => void;
 }
 
 export function HeaderMobile({
@@ -21,12 +23,14 @@ export function HeaderMobile({
   onLeftPress,
   rightIcon: RightIcon,
   onRightPress,
+  rightText,
+  onRightTextPress,
 }: HeaderMobileProps) {
   const LeftIcon = leftSlot === 'back' ? ArrowLeft : leftSlot === 'close' ? X : null;
 
   return (
     <View style={styles.container}>
-      <View style={styles.slot}>
+      <View style={styles.leftSlot}>
         {LeftIcon && (
           <Pressable onPress={onLeftPress} hitSlop={8}>
             <LeftIcon size={iconSize.lg} color={colors.textPrimary} />
@@ -38,8 +42,12 @@ export function HeaderMobile({
         {title}
       </Text>
 
-      <View style={styles.slot}>
-        {RightIcon ? (
+      <View style={styles.rightSlot}>
+        {rightText ? (
+          <Pressable onPress={onRightTextPress} hitSlop={8}>
+            <Text style={styles.rightTextLabel}>{rightText}</Text>
+          </Pressable>
+        ) : RightIcon ? (
           <Pressable onPress={onRightPress} hitSlop={8}>
             <RightIcon size={iconSize.lg} color={colors.textPrimary} />
           </Pressable>
@@ -61,8 +69,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     ...shadows.sm,
   },
-  slot: {
-    width: iconSize.lg,
+  leftSlot: {
+    minWidth: iconSize.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -74,6 +82,17 @@ const styles = StyleSheet.create({
     fontWeight: fontWeight.semibold,
     color: colors.textPrimary,
     marginHorizontal: spacing.sm,
+  },
+  rightSlot: {
+    minWidth: iconSize.lg,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  rightTextLabel: {
+    fontSize: fontSize.bodySmall,
+    fontFamily: fontFamily.medium,
+    fontWeight: fontWeight.medium,
+    color: colors.primary,
   },
   spacer: {
     width: iconSize.lg,

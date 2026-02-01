@@ -5,6 +5,7 @@ jest.mock('@/shared/config/firebase', () => ({
   auth: { currentUser: null },
   db: {},
   functions: {},
+  storage: {},
 }));
 
 jest.mock('firebase/app', () => ({
@@ -32,16 +33,18 @@ jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(() => ({})),
   doc: jest.fn(),
   getDoc: jest.fn(),
+  getDocs: jest.fn(() => Promise.resolve({ docs: [] })),
   setDoc: jest.fn(),
   updateDoc: jest.fn(),
   collection: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
-  onSnapshot: jest.fn(),
+  limit: jest.fn(),
+  onSnapshot: jest.fn(() => jest.fn()),
   Timestamp: {
-    now: jest.fn(() => ({ seconds: 0, nanoseconds: 0 })),
-    fromDate: jest.fn((d) => ({ seconds: Math.floor(d.getTime() / 1000), nanoseconds: 0 })),
+    now: jest.fn(() => ({ seconds: 0, nanoseconds: 0, toDate: () => new Date() })),
+    fromDate: jest.fn((d) => ({ seconds: Math.floor(d.getTime() / 1000), nanoseconds: 0, toDate: () => d })),
   },
 }));
 
@@ -113,6 +116,51 @@ jest.mock('expo-status-bar', () => ({
 jest.mock('expo-splash-screen', () => ({
   preventAutoHideAsync: jest.fn(() => Promise.resolve()),
   hideAsync: jest.fn(() => Promise.resolve()),
+}));
+
+jest.mock('expo-location', () => ({
+  requestForegroundPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'granted' })
+  ),
+  getCurrentPositionAsync: jest.fn(() =>
+    Promise.resolve({
+      coords: { latitude: -10.7249, longitude: -73.7519, accuracy: 10 },
+    })
+  ),
+  reverseGeocodeAsync: jest.fn(() =>
+    Promise.resolve([{
+      street: 'Jr. Example 123',
+      city: 'Atalaya',
+      region: 'Ucayali',
+      country: 'Peru',
+    }])
+  ),
+  geocodeAsync: jest.fn(() =>
+    Promise.resolve([{ latitude: -10.7249, longitude: -73.7519 }])
+  ),
+  Accuracy: { High: 4 },
+}));
+
+jest.mock('expo-image-picker', () => ({
+  requestCameraPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'granted' })
+  ),
+  requestMediaLibraryPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'granted' })
+  ),
+  launchCameraAsync: jest.fn(() =>
+    Promise.resolve({ canceled: false, assets: [{ uri: 'file://mock-camera.jpg' }] })
+  ),
+  launchImageLibraryAsync: jest.fn(() =>
+    Promise.resolve({ canceled: false, assets: [{ uri: 'file://mock-gallery.jpg' }] })
+  ),
+}));
+
+jest.mock('firebase/storage', () => ({
+  getStorage: jest.fn(() => ({})),
+  ref: jest.fn(),
+  uploadBytesResumable: jest.fn(),
+  getDownloadURL: jest.fn(() => Promise.resolve('https://mock-url.com/image.jpg')),
 }));
 
 jest.mock('expo-linear-gradient', () => {

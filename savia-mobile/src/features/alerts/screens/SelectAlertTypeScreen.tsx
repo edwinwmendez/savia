@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ArrowRight } from 'lucide-react-native';
 import { HeaderMobile } from '@/shared/components/HeaderMobile';
 import { ProgressBar } from '@/shared/components/ProgressBar';
@@ -11,9 +12,12 @@ import { useCreateAlertStore } from '@/features/alerts/store/createAlertStore';
 import { colors } from '@/shared/theme/colors';
 import { fontSize, fontFamily, fontWeight } from '@/shared/theme/typography';
 import { spacing } from '@/shared/theme/spacing';
+import type { CitizenStackParamList } from '@/navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<CitizenStackParamList>;
 
 export function SelectAlertTypeScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const selectedCategory = useCreateAlertStore((s) => s.selectedCategory);
   const setCategory = useCreateAlertStore((s) => s.setCategory);
   const reset = useCreateAlertStore((s) => s.reset);
@@ -23,17 +27,23 @@ export function SelectAlertTypeScreen() {
     navigation.goBack();
   };
 
-  const handleNext = () => {
-    if (!selectedCategory) return;
-    console.log('[Alerts] Categoría seleccionada:', selectedCategory.name);
-    // Paso 2 se implementará en feature/s2-alerta-descripcion
+  const handleCancel = () => {
     Alert.alert(
-      'Categoría seleccionada',
-      `${selectedCategory.name}\n\nEl siguiente paso se implementará en la próxima feature.`,
+      'Cancelar alerta',
+      '¿Estás seguro de que deseas cancelar? Se perderá el progreso.',
+      [
+        { text: 'Continuar', style: 'cancel' },
+        { text: 'Cancelar', style: 'destructive', onPress: () => { reset(); navigation.goBack(); } },
+      ],
     );
   };
 
-  // Dividir categorías en 2 columnas (impares izquierda, pares derecha)
+  const handleNext = () => {
+    if (!selectedCategory) return;
+    console.log('[Alerts] Categoría seleccionada:', selectedCategory.name);
+    navigation.navigate('DescribeAlert');
+  };
+
   const col1 = ALERT_CATEGORIES.filter((_, i) => i % 2 === 0);
   const col2 = ALERT_CATEGORIES.filter((_, i) => i % 2 === 1);
 
@@ -43,6 +53,8 @@ export function SelectAlertTypeScreen() {
         title="Nueva Alerta"
         leftSlot="close"
         onLeftPress={handleClose}
+        rightText="Cancelar"
+        onRightTextPress={handleCancel}
       />
       <ProgressBar currentStep={1} totalSteps={4} />
 

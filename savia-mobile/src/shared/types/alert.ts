@@ -11,31 +11,43 @@ export interface AlertCategory {
 export type UrgencyLevel = 'low' | 'medium' | 'high' | 'critical';
 
 export type AlertStatus =
-  | 'reported'
+  | 'pending'
+  | 'assigned'
   | 'in_progress'
-  | 'on_the_way'
-  | 'on_site'
   | 'resolved'
-  | 'closed';
+  | 'cancelled';
+
+export interface AlertLocation {
+  latitude: number;
+  longitude: number;
+}
 
 export interface AlertData {
-  categoryId: string;
+  id?: string;
+  type: string;
   categoryName: string;
-  categoryEmoji: string;
   description: string;
-  urgencyLevel: UrgencyLevel;
+  urgency: UrgencyLevel;
   status: AlertStatus;
-  location: {
-    latitude: number;
-    longitude: number;
-  };
+  location: AlertLocation;
   address: string;
   geohash?: string;
   imageUrls: string[];
-  citizenId: string;
+  createdBy: string;
   agentId: string | null;
-  institutionId: string | null;
+  assignedInstitution: string | null;
+  alertCode?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   resolvedAt?: Timestamp;
+}
+
+export interface CreateAlertPayload {
+  type: string;
+  categoryName: string;
+  description: string;
+  urgency: UrgencyLevel;
+  location: AlertLocation;
+  address: string;
+  imageUrls: string[];
 }

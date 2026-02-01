@@ -3,6 +3,10 @@ import { Alert } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '@/shared/store/authStore';
 import { SelectAlertTypeScreen } from '@/features/alerts/screens/SelectAlertTypeScreen';
+import { DescribeAlertScreen } from '@/features/alerts/screens/DescribeAlertScreen';
+import { LocateAlertScreen } from '@/features/alerts/screens/LocateAlertScreen';
+import { ConfirmAlertScreen } from '@/features/alerts/screens/ConfirmAlertScreen';
+import { AlertSuccessScreen } from '@/features/alerts/screens/AlertSuccessScreen';
 import { AuthNavigator } from './AuthNavigator';
 import { CitizenTabNavigator } from './CitizenTabNavigator';
 import { AgentTabNavigator } from './AgentTabNavigator';
@@ -34,6 +38,10 @@ export function RootNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="CitizenTabs" component={CitizenTabNavigator} />
       <Stack.Screen name="SelectAlertType" component={SelectAlertTypeScreen} />
+      <Stack.Screen name="DescribeAlert" component={DescribeAlertScreen} />
+      <Stack.Screen name="LocateAlert" component={LocateAlertScreen} />
+      <Stack.Screen name="ConfirmAlert" component={ConfirmAlertScreen} />
+      <Stack.Screen name="AlertSuccess" component={AlertSuccessScreen} options={{ gestureEnabled: false }} />
     </Stack.Navigator>
   );
 }

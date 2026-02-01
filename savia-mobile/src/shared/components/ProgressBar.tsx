@@ -6,9 +6,10 @@ import { spacing, radius } from '@/shared/theme/spacing';
 interface ProgressBarProps {
   currentStep: number;
   totalSteps: number;
+  fillColor?: string;
 }
 
-export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
+export function ProgressBar({ currentStep, totalSteps, fillColor }: ProgressBarProps) {
   const percentage = Math.round((currentStep / totalSteps) * 100);
 
   return (
@@ -18,7 +19,7 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
         <Text style={styles.percentText}>{percentage}%</Text>
       </View>
       <View style={styles.barBg}>
-        <View style={[styles.barFill, { width: `${percentage}%` }]} />
+        <View style={[styles.barFill, { width: `${percentage}%`, backgroundColor: fillColor ?? colors.primary }]} />
       </View>
     </View>
   );
@@ -54,6 +55,5 @@ const styles = StyleSheet.create({
   barFill: {
     height: 4,
     borderRadius: radius.sm,
-    backgroundColor: colors.primary,
   },
 });

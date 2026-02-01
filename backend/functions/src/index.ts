@@ -342,6 +342,99 @@ export const registerCitizen = onCall<RegisterCitizenData>(
   }
 });
 
+// ============ FUNCIÓN: Crear Alerta ============
+
+interface CreateAlertInput {
+  type: string;
+  categoryName: string;
+  description: string;
+  urgency: "critical" | "high" | "medium" | "low";
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+  address: string;
+  imageUrls: string[];
+}
+
+export const createAlert = onCall<CreateAlertInput>(
+  { invoker: "public" },
+  async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debe estar autenticado");
+  }
+
+  const userDoc = await db.collection("users").doc(request.auth.uid).get();
+  const userData = userDoc.data() as UserData;
+
+  if (userData?.role !== "citizen") {
+    throw new HttpsError("permission-denied", "Solo ciudadanos pueden crear alertas");
+  }
+
+  const { type, categoryName, description, urgency, location, address, imageUrls } = request.data;
+
+  if (!type || !description || !urgency || !location?.latitude || !location?.longitude) {
+    throw new HttpsError("invalid-argument", "Datos incompletos para crear la alerta");
+  }
+
+  if (description.length > 500) {
+    throw new HttpsError("invalid-argument", "La descripción no puede exceder 500 caracteres");
+  }
+
+  const validUrgencies = ["low", "medium", "high", "critical"];
+  if (!validUrgencies.includes(urgency)) {
+    throw new HttpsError("invalid-argument", "Nivel de urgencia inválido");
+  }
+
+  try {
+    // Generar código de alerta ALT-YYYY-NNNN con transacción
+    const year = new Date().getFullYear();
+    const counterRef = db.collection("counters").doc("alerts");
+
+    const alertCode = await db.runTransaction(async (transaction) => {
+      const counterDoc = await transaction.get(counterRef);
+      const currentCount = counterDoc.exists ? (counterDoc.data()?.count ?? 0) : 0;
+      const nextCount = currentCount + 1;
+      transaction.set(counterRef, { count: nextCount }, { merge: true });
+      return `ALT-${year}-${String(nextCount).padStart(4, "0")}`;
+    });
+
+    // Crear documento de alerta
+    const alertRef = db.collection("alerts").doc();
+    const alertData = {
+      type,
+      categoryName,
+      description,
+      urgency,
+      status: "pending",
+      location: {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        address,
+      },
+      address,
+      imageUrls: imageUrls || [],
+      createdBy: request.auth.uid,
+      alertCode,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    await alertRef.set(alertData);
+    console.log(`[Alerts] Alerta creada: ${alertCode} (${alertRef.id}) por ${request.auth.uid}`);
+
+    return {
+      success: true,
+      alertId: alertRef.id,
+      alertCode,
+    };
+  } catch (error) {
+    console.error("[Alerts] Error al crear alerta:", error);
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError("internal", "Error al crear la alerta");
+  }
+});
+
 // ============ FUNCIÓN: Obtener Estadísticas del Dashboard ============
 
 export const getDashboardStats = onCall(async (request) => {
