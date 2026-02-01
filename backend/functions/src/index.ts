@@ -6,12 +6,12 @@
 import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/v2/firestore";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
+import { sendPushToOne, sendPushToMany } from "./pushService";
 
 // Inicializar Firebase Admin
 admin.initializeApp();
 
 const db = admin.firestore();
-const messaging = admin.messaging();
 
 // ============ TIPOS ============
 
@@ -40,7 +40,7 @@ interface UserData {
   dni: string;
   role: "citizen" | "agent" | "admin";
   institutionId?: string;
-  fcmToken?: string;
+  expoPushToken?: string;
   isActive: boolean;
 }
 
@@ -75,23 +75,26 @@ export const onAlertCreated = onDocumentCreated("alerts/{alertId}", async (event
       return;
     }
 
-    // Recopilar tokens FCM de agentes
+    // Recopilar tokens Expo de agentes (excluir al creador de la alerta)
     const tokens: string[] = [];
+    const agentIds: string[] = [];
     agentsSnapshot.forEach((doc) => {
+      if (doc.id === alertData.createdBy) return;
       const userData = doc.data() as UserData;
-      if (userData.fcmToken) {
-        tokens.push(userData.fcmToken);
+      if (userData.expoPushToken) {
+        tokens.push(userData.expoPushToken);
+        agentIds.push(doc.id);
       }
     });
 
     if (tokens.length === 0) {
-      console.log("Ningún agente tiene token FCM registrado");
+      console.log("[Push] Ningun agente tiene token Expo registrado");
       return;
     }
 
-    // Preparar notificación
+    // Preparar notificacion
     const urgencyLabels = {
-      critical: "CRÍTICA",
+      critical: "CRITICA",
       high: "Alta",
       medium: "Media",
       low: "Baja",
@@ -102,44 +105,19 @@ export const onAlertCreated = onDocumentCreated("alerts/{alertId}", async (event
       body: `${alertData.type}: ${alertData.description.substring(0, 100)}...`,
     };
 
-    // Enviar notificación a todos los agentes
-    const message: admin.messaging.MulticastMessage = {
-      tokens,
-      notification,
-      data: {
-        alertId,
-        type: alertData.type,
-        urgency: alertData.urgency,
-        click_action: "OPEN_ALERT_DETAIL",
-      },
-      android: {
-        priority: alertData.urgency === "critical" ? "high" : "normal",
-        notification: {
-          channelId: "alerts",
-          priority: alertData.urgency === "critical" ? "max" : "high",
-        },
-      },
-      apns: {
-        payload: {
-          aps: {
-            sound: alertData.urgency === "critical" ? "critical.wav" : "default",
-            badge: 1,
-          },
-        },
-      },
-    };
-
-    const response = await messaging.sendEachForMulticast(message);
-    console.log(
-      `Notificaciones enviadas: ${response.successCount} exitosas, ${response.failureCount} fallidas`
-    );
+    // Enviar notificacion push a todos los agentes via Expo
+    await sendPushToMany(tokens, notification.title, notification.body, {
+      alertId,
+      type: alertData.type,
+      urgency: alertData.urgency,
+    });
 
     // Crear registro de notificación en Firestore para cada agente
     const batch = db.batch();
-    agentsSnapshot.forEach((doc) => {
+    agentIds.forEach((agentId) => {
       const notificationRef = db.collection("notifications").doc();
       batch.set(notificationRef, {
-        userId: doc.id,
+        userId: agentId,
         type: "new_alert",
         title: notification.title,
         body: notification.body,
@@ -178,8 +156,8 @@ export const onAlertUpdated = onDocumentUpdated("alerts/{alertId}", async (event
     }
 
     const citizenData = citizenDoc.data() as UserData;
-    if (!citizenData.fcmToken) {
-      console.log("Ciudadano no tiene token FCM");
+    if (!citizenData.expoPushToken) {
+      console.log("[Push] Ciudadano no tiene token Expo");
       return;
     }
 
@@ -208,19 +186,12 @@ export const onAlertUpdated = onDocumentUpdated("alerts/{alertId}", async (event
       return;
     }
 
-    // Enviar notificación al ciudadano
-    const message: admin.messaging.Message = {
-      token: citizenData.fcmToken,
-      notification: messageContent,
-      data: {
-        alertId,
-        newStatus: after.status,
-        click_action: "OPEN_ALERT_DETAIL",
-      },
-    };
-
-    await messaging.send(message);
-    console.log(`Notificación de cambio de estado enviada al ciudadano ${after.createdBy}`);
+    // Enviar notificacion push al ciudadano via Expo
+    await sendPushToOne(citizenData.expoPushToken, messageContent.title, messageContent.body, {
+      alertId,
+      newStatus: after.status,
+    });
+    console.log(`[Push] Notificacion de cambio de estado enviada al ciudadano ${after.createdBy}`);
 
     // Crear registro de notificación
     await db.collection("notifications").add({
@@ -417,7 +388,7 @@ export const createAlert = onCall<CreateAlertInput>(
       createdBy: request.auth.uid,
       alertCode,
       statusHistory: [
-        { status: "pending", timestamp: admin.firestore.FieldValue.serverTimestamp() },
+        { status: "pending", timestamp: admin.firestore.Timestamp.now() },
       ],
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -434,7 +405,8 @@ export const createAlert = onCall<CreateAlertInput>(
   } catch (error) {
     console.error("[Alerts] Error al crear alerta:", error);
     if (error instanceof HttpsError) throw error;
-    throw new HttpsError("internal", "Error al crear la alerta");
+    const msg = error instanceof Error ? error.message : "Error desconocido";
+    throw new HttpsError("internal", `Error al crear la alerta: ${msg}`);
   }
 });
 
@@ -620,7 +592,8 @@ export const takeAlert = onCall<TakeAlertInput>(
   } catch (error) {
     console.error(`[TakeAlert] Error al tomar alerta ${alertId}:`, error);
     if (error instanceof HttpsError) throw error;
-    throw new HttpsError("internal", "Error al tomar la alerta");
+    const msg = error instanceof Error ? error.message : "Error desconocido";
+    throw new HttpsError("internal", `Error al tomar la alerta: ${msg}`);
   }
 });
 
@@ -716,6 +689,7 @@ export const updateAlertStatus = onCall<UpdateAlertStatusInput>(
   } catch (error) {
     console.error(`[UpdateAlertStatus] Error al actualizar alerta ${alertId}:`, error);
     if (error instanceof HttpsError) throw error;
-    throw new HttpsError("internal", "Error al actualizar el estado de la alerta");
+    const msg = error instanceof Error ? error.message : "Error desconocido";
+    throw new HttpsError("internal", `Error al actualizar el estado de la alerta: ${msg}`);
   }
 });

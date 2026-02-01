@@ -11,7 +11,7 @@ import { EvidenceSection } from '@/features/alerts/components/EvidenceSection';
 import { AlertSummaryCard } from '@/features/alerts/components/AlertSummaryCard';
 import { WarningBanner } from '@/features/alerts/components/WarningBanner';
 import { useCreateAlertStore } from '@/features/alerts/store/createAlertStore';
-import { createAlert } from '@/features/alerts/services/alertService';
+import { createAlert, generateAlertId } from '@/features/alerts/services/alertService';
 import { uploadImage } from '@/features/alerts/services/imageService';
 import { pickImageFromCamera, pickImageFromGallery } from '@/features/alerts/services/imageService';
 import { colors } from '@/shared/theme/colors';
@@ -68,7 +68,19 @@ export function ConfirmAlertScreen() {
 
     setIsSubmitting(true);
     try {
-      // Crear alerta primero para obtener ID
+      // 1. Subir imágenes primero (si hay) usando un ID temporal para la ruta en Storage
+      let imageUrls: string[] = [];
+      if (imageUris.length > 0) {
+        const tempId = generateAlertId();
+        console.log('[Alerts] Subiendo', imageUris.length, 'imágenes con tempId:', tempId);
+        const uploadPromises = imageUris.map((uri, index) =>
+          uploadImage(uri, tempId, index),
+        );
+        imageUrls = await Promise.all(uploadPromises);
+        console.log('[Alerts] Imágenes subidas:', imageUrls.length);
+      }
+
+      // 2. Crear alerta con las URLs ya incluidas
       const result = await createAlert({
         type: selectedCategory.id,
         categoryName: selectedCategory.name,
@@ -76,17 +88,8 @@ export function ConfirmAlertScreen() {
         urgency,
         location,
         address,
-        imageUrls: [],
+        imageUrls,
       });
-
-      // Subir imágenes si hay
-      if (imageUris.length > 0) {
-        console.log('[Alerts] Subiendo', imageUris.length, 'imágenes...');
-        const uploadPromises = imageUris.map((uri, index) =>
-          uploadImage(uri, result.alertId, index),
-        );
-        await Promise.all(uploadPromises);
-      }
 
       console.log('[Alerts] Alerta enviada exitosamente:', result.alertCode);
       navigation.navigate('AlertSuccess', { alertCode: result.alertCode, alertId: result.alertId });

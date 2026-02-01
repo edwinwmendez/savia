@@ -4,6 +4,10 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/shared/config/firebase';
 import type { UserData, InstitutionData } from '@/shared/types/user';
 import { signOut } from '@/features/auth/services/authService';
+import {
+  setupNotificationHandler,
+  registerForPushNotifications,
+} from '@/features/notifications/services/notificationPushService';
 
 interface AuthState {
   user: User | null;
@@ -73,6 +77,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             inactiveAccountError: null,
             isLoading: false,
             isAuthenticated: true,
+          });
+
+          // Registrar push notifications (no bloquea el flujo de auth)
+          setupNotificationHandler();
+          registerForPushNotifications(firebaseUser.uid).catch((err) => {
+            console.warn('[Auth] Error registrando push notifications:', err);
           });
         } catch (error) {
           console.error('[Auth] Error al obtener datos del usuario:', error);

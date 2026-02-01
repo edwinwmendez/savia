@@ -11,7 +11,9 @@ import {
   subscribeToMyCases,
   subscribeToAgentHistory,
 } from '@/features/alerts/services/alertQueryService';
+import { subscribeToUnreadCount } from '@/features/notifications/services/notificationQueryService';
 import { useAgentAlertsStore } from '@/features/agent/store/agentAlertsStore';
+import { useNotificationsStore } from '@/features/notifications/store/notificationsStore';
 import { useAuthStore } from '@/shared/store/authStore';
 import { APP_NAME } from '@/shared/config/constants';
 import { colors } from '@/shared/theme/colors';
@@ -51,6 +53,9 @@ export function AgentHomeScreen() {
   const setMyCases = useAgentAlertsStore((s) => s.setMyCases);
   const setHistory = useAgentAlertsStore((s) => s.setHistory);
 
+  const unreadCount = useNotificationsStore((s) => s.unreadCount);
+  const setUnreadCount = useNotificationsStore((s) => s.setUnreadCount);
+
   const firstName = userData?.firstName ?? 'Agente';
   const initials = `${userData?.firstName?.[0] ?? ''}${userData?.lastName?.[0] ?? ''}`.toUpperCase();
   const institutionName = institutionData?.name ?? '';
@@ -71,6 +76,16 @@ export function AgentHomeScreen() {
       (error) => console.error('[AgentHome] Error mis casos:', error),
     );
     return unsubCases;
+  }, [user?.uid]);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    const unsubCount = subscribeToUnreadCount(
+      user.uid,
+      (count) => setUnreadCount(count),
+      (error) => console.error('[AgentHome] Error conteo notificaciones:', error),
+    );
+    return unsubCount;
   }, [user?.uid]);
 
   useEffect(() => {
@@ -106,7 +121,7 @@ export function AgentHomeScreen() {
   }, [history]);
 
   const handleViewAlerts = () => {
-    navigation.navigate('AgentTabs');
+    navigation.navigate('AgentTabs', { screen: 'Alerts' } as any);
   };
 
   const handleCasePress = useCallback(
@@ -132,11 +147,13 @@ export function AgentHomeScreen() {
           </View>
         </View>
         <View style={styles.headerRight}>
-          <Pressable hitSlop={8} style={styles.bellContainer}>
+          <Pressable hitSlop={8} style={styles.bellContainer} onPress={() => navigation.navigate('AgentNotifications')}>
             <Bell size={24} color={colors.textPrimary} />
-            <View style={styles.bellBadge}>
-              <Text style={styles.bellBadgeText}>5</Text>
-            </View>
+            {unreadCount > 0 && (
+              <View style={styles.bellBadge}>
+                <Text style={styles.bellBadgeText}>{unreadCount}</Text>
+              </View>
+            )}
           </Pressable>
           <View style={styles.avatarCircle}>
             <Text style={styles.avatarText}>{initials}</Text>
@@ -177,14 +194,20 @@ export function AgentHomeScreen() {
 
         {/* Stats */}
         <View style={styles.statsRow}>
-          <View style={styles.statCard}>
+          <Pressable
+            style={({ pressed }) => [styles.statCard, pressed && styles.statCardPressed]}
+            onPress={() => navigation.navigate('AgentTabs', { screen: 'History' } as any)}
+          >
             <Text style={styles.statNumber}>{todayCount}</Text>
             <Text style={styles.statLabel}>Atendidas hoy</Text>
-          </View>
-          <View style={styles.statCard}>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.statCard, pressed && styles.statCardPressed]}
+            onPress={() => navigation.navigate('AgentTabs', { screen: 'History' } as any)}
+          >
             <Text style={styles.statNumber}>{monthCount}</Text>
             <Text style={styles.statLabel}>Este mes</Text>
-          </View>
+          </Pressable>
         </View>
 
         {/* Mis casos activos */}
@@ -430,6 +453,9 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     alignItems: 'center',
     ...shadows.sm,
+  },
+  statCardPressed: {
+    opacity: 0.7,
   },
   statNumber: {
     fontSize: fontSize.h2,

@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { Alert } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '@/shared/store/authStore';
+import { addNotificationResponseListener } from '@/features/notifications/services/notificationPushService';
 import { SelectAlertTypeScreen } from '@/features/alerts/screens/SelectAlertTypeScreen';
 import { DescribeAlertScreen } from '@/features/alerts/screens/DescribeAlertScreen';
 import { LocateAlertScreen } from '@/features/alerts/screens/LocateAlertScreen';
@@ -26,6 +28,31 @@ export function RootNavigator() {
       Alert.alert('Cuenta desactivada', inactiveAccountError);
     }
   }, [inactiveAccountError]);
+
+  // Deep linking: al tocar una notificación, navegar al detalle
+  const navigation = useNavigation();
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const subscription = addNotificationResponseListener((response) => {
+      const data = response.notification.request.content.data as Record<string, string> | undefined;
+      const alertId = data?.alertId;
+      if (!alertId) return;
+
+      console.log('[Navigation] Notificación tocada, navegando a alerta:', alertId);
+      try {
+        if (userData?.role === 'agent') {
+          (navigation as any).navigate('AgentAlertDetail', { alertId });
+        } else {
+          (navigation as any).navigate('AlertDetail', { alertId });
+        }
+      } catch (err) {
+        console.warn('[Navigation] Error navegando desde notificación:', err);
+      }
+    });
+
+    return () => subscription.remove();
+  }, [isAuthenticated, userData?.role, navigation]);
 
   if (isLoading || !isAuthenticated) {
     return <AuthNavigator />;

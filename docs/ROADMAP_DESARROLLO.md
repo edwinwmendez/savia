@@ -70,7 +70,7 @@ git flow feature start s2-alerta-confirmacion
 - [*] Ciudadano puede escribir descripción y adjuntar fotos/videos
 - [*] Ciudadano puede seleccionar nivel de urgencia
 - [*] Ubicación se obtiene automáticamente por GPS
-- [ ] Ciudadano puede ajustar ubicación en el mapa
+- [*] Ciudadano puede ajustar ubicación en el mapa
 - [*] Al enviar, se muestra confirmación con número de alerta
 
 ---
@@ -105,8 +105,8 @@ git flow feature start s3-agente-actualizar-estado
 
 | Feature | Historias | Descripción |
 |---------|-----------|-------------|
-| `feature/s4-notificaciones-push` | HU-SEG-003 | Notificaciones push con FCM |
-| `feature/s4-timeline-estados` | - | Timeline visual de cambios de estado |
+| `feature/s4-notificaciones-push` | HU-SEG-003 | Notificaciones push con Expo Push Service |
+| `feature/s4-timeline-estados` | - | Timeline visual de cambios de estado (completado en Sprint 3) |
 | `feature/s4-testing-e2e` | - | Tests end-to-end |
 
 **Comandos:**
@@ -124,9 +124,9 @@ git flow release finish v1.0.0
 ```
 
 **Criterios de aceptación:**
-- [ ] Ciudadano recibe notificación cuando agente toma su caso
-- [ ] Ciudadano recibe notificación en cada cambio de estado
-- [ ] Timeline muestra historial de estados con fecha/hora
+- [*] Ciudadano recibe notificación cuando agente toma su caso
+- [*] Ciudadano recibe notificación en cada cambio de estado
+- [*] Timeline muestra historial de estados con fecha/hora
 - [ ] App desplegada en TestFlight/Play Console interno
 
 ---

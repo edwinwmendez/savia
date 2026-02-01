@@ -9,7 +9,7 @@ export interface UserData {
   role: 'citizen' | 'agent' | 'admin';
   institutionId?: string;
   isActive: boolean;
-  fcmToken?: string;
+  expoPushToken?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   lastLoginAt?: Timestamp;

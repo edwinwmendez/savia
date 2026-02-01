@@ -64,8 +64,19 @@ export async function fetchUserData(uid: string): Promise<UserData | null> {
   }
 }
 
-export async function signOut() {
+export async function signOut(userId?: string) {
   console.log('[Auth] Cerrando sesión');
+  // Limpiar token de push para no recibir notificaciones de esta cuenta
+  if (userId) {
+    try {
+      const { unregisterPushToken } = await import(
+        '@/features/notifications/services/notificationPushService'
+      );
+      await unregisterPushToken(userId);
+    } catch (error) {
+      console.error('[Auth] Error limpiando push token:', error);
+    }
+  }
   await firebaseSignOut(auth);
 }
 

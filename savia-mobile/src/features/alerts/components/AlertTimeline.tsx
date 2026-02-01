@@ -49,7 +49,6 @@ export function AlertTimeline({ statusHistory, currentStatus }: AlertTimelinePro
       {statusHistory.map((entry, index) => {
         const isLast = index === statusHistory.length - 1;
         const title = STATUS_TITLES[entry.status] ?? entry.status;
-        const subtitle = entry.agentName ?? entry.note ?? null;
         const timeText = formatTimestamp(entry.timestamp);
 
         // Un entry en el historial ya ocurrió, por lo tanto su dot está completado
@@ -80,9 +79,14 @@ export function AlertTimeline({ statusHistory, currentStatus }: AlertTimelinePro
             {/* Contenido del entry */}
             <View style={styles.entryContent}>
               <Text style={styles.entryTitle}>{title}</Text>
-              {subtitle && (
-                <Text style={styles.entrySubtitle} numberOfLines={2}>
-                  {subtitle}
+              {entry.agentName && (
+                <Text style={styles.entrySubtitle} numberOfLines={1}>
+                  {entry.agentName}
+                </Text>
+              )}
+              {entry.note && (
+                <Text style={styles.entryNote} numberOfLines={3}>
+                  {entry.note}
                 </Text>
               )}
               <Text style={styles.entryTime}>{timeText}</Text>
@@ -144,6 +148,13 @@ const styles = StyleSheet.create({
     fontSize: fontSize.caption,
     fontFamily: fontFamily.regular,
     color: colors.textSecondary,
+    marginTop: 2,
+  },
+  entryNote: {
+    fontSize: fontSize.caption,
+    fontFamily: fontFamily.regular,
+    fontStyle: 'italic',
+    color: colors.textPrimary,
     marginTop: 2,
   },
   entryTime: {

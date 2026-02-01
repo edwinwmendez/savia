@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "savia-mobile",
+    "name": "SAVIA",
     "slug": "savia-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,8 +12,17 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#1976D2"
+        }
+      ]
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.savia.mobile"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,10 +30,18 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.savia.mobile",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6121b7e4-960c-41ea-83fc-57f06186367f"
+      }
+    },
+    "owner": "edwinwmendez"
   }
 }

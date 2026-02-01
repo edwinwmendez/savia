@@ -76,6 +76,14 @@ const URGENCY_LABEL_MAP: Record<string, string> = {
   low: 'BAJA',
 };
 
+const STATUS_CONFIG: Record<string, { color: string; label: string }> = {
+  pending: { color: '#FF9800', label: 'Pendiente' },
+  assigned: { color: '#2196F3', label: 'Asignada' },
+  in_progress: { color: '#1976D2', label: 'En progreso' },
+  resolved: { color: '#4CAF50', label: 'Resuelta' },
+  cancelled: { color: '#757575', label: 'Cancelada' },
+};
+
 // ── Component ──────────────────────────────────────────────────────────
 
 export function AgentAlertDetailScreen() {
@@ -199,6 +207,7 @@ export function AgentAlertDetailScreen() {
 
   const urgencyColor = URGENCY_COLOR_MAP[alert.urgency] ?? colors.textSecondary;
   const urgencyLabel = URGENCY_LABEL_MAP[alert.urgency] ?? '';
+  const statusConfig = STATUS_CONFIG[alert.status];
   const timeAgo = formatRelativeTime(alert.createdAt);
   const showActionBar = alert.status !== 'resolved' && alert.status !== 'cancelled';
   const isPending = alert.status === 'pending';
@@ -238,9 +247,19 @@ export function AgentAlertDetailScreen() {
             <Text style={[styles.bannerType, { color: urgencyColor }]}>
               {alert.categoryName.toUpperCase()}
             </Text>
-            <Text style={styles.bannerTime}>
-              Reportado {timeAgo.toLowerCase()}
-            </Text>
+            <View style={styles.bannerRow}>
+              <Text style={styles.bannerTime}>
+                Reportado {timeAgo.toLowerCase()}
+              </Text>
+              {statusConfig && (
+                <View style={[styles.statusBadge, { backgroundColor: `${statusConfig.color}1A` }]}>
+                  <View style={[styles.statusDot, { backgroundColor: statusConfig.color }]} />
+                  <Text style={[styles.statusLabel, { color: statusConfig.color }]}>
+                    {statusConfig.label}
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
         </View>
 
@@ -455,10 +474,34 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.bold,
     fontWeight: fontWeight.bold,
   },
+  bannerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: 2,
+  },
   bannerTime: {
     fontSize: fontSize.bodySmall,
     fontFamily: fontFamily.regular,
     color: colors.textSecondary,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 2,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.sm,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  statusLabel: {
+    fontSize: fontSize.caption,
+    fontFamily: fontFamily.semibold,
+    fontWeight: fontWeight.semibold,
   },
 
   // Cards (shared)

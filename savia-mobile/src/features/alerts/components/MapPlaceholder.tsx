@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Platform, StyleSheet } from 'react-native';
 import { MapPin, Plus, Minus } from 'lucide-react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { colors } from '@/shared/theme/colors';
 import { fontSize, fontFamily } from '@/shared/theme/typography';
 import { spacing, radius, iconSize } from '@/shared/theme/spacing';
@@ -11,41 +11,84 @@ interface MapPlaceholderProps {
   longitude?: number;
   /** Controla la altura del mapa (default 220) */
   height?: number;
+  /** Cuando se provee, el mapa es interactivo y reporta la nueva ubicación al soltar */
+  onLocationChange?: (latitude: number, longitude: number) => void;
+  /** Callbacks para resolver conflicto con ScrollView padre */
+  onTouchStart?: () => void;
+  onTouchEnd?: () => void;
 }
-
-const GOOGLE_MAPS_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
-const hasGoogleMaps = !!GOOGLE_MAPS_KEY;
 
 export function MapPlaceholder({
   hasLocation,
   latitude,
   longitude,
   height = 220,
+  onLocationChange,
+  onTouchStart,
+  onTouchEnd,
 }: MapPlaceholderProps) {
-  // Si hay coordenadas y API key, mostrar mapa real
-  if (hasLocation && latitude && longitude && hasGoogleMaps) {
-    return (
-      <View style={[styles.container, { height }]}>
-        <MapView
-          provider={PROVIDER_GOOGLE}
-          style={StyleSheet.absoluteFillObject}
-          initialRegion={{
-            latitude,
-            longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          }}
-          scrollEnabled={false}
-          zoomEnabled={false}
-          pitchEnabled={false}
-          rotateEnabled={false}
-        >
+  const isInteractive = !!onLocationChange;
+
+  // Si hay coordenadas, mostrar mapa real
+  if (hasLocation && latitude && longitude) {
+    const mapView = (
+      <MapView
+        style={{ flex: 1 }}
+        initialRegion={{
+          latitude,
+          longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        }}
+        scrollEnabled={isInteractive}
+        zoomEnabled={isInteractive}
+        pitchEnabled={false}
+        rotateEnabled={false}
+        showsMyLocationButton={false}
+        toolbarEnabled={false}
+        {...(Platform.OS === 'android' && isInteractive && { zoomControlsEnabled: true })}
+        onRegionChangeComplete={
+          isInteractive
+            ? (region) => onLocationChange(region.latitude, region.longitude)
+            : undefined
+        }
+      >
+        {!isInteractive && (
           <Marker coordinate={{ latitude, longitude }}>
             <MapPin size={32} color={colors.error} fill={colors.error} />
           </Marker>
-        </MapView>
+        )}
+      </MapView>
+    );
+
+    // Contenedor del mapa SIN borderRadius/overflow (causa tiles en blanco en Android)
+    const mapContent = (
+      <View style={[styles.mapContainer, { height }]}>
+        {mapView}
+        {isInteractive && (
+          <View style={styles.centerPin} pointerEvents="none">
+            <MapPin size={36} color={colors.error} fill={colors.error} />
+          </View>
+        )}
       </View>
     );
+
+    // En modo interactivo: wrapper con responder system para bloquear ScrollView
+    if (isInteractive) {
+      return (
+        <View
+          onStartShouldSetResponder={() => true}
+          onMoveShouldSetResponder={() => true}
+          onResponderGrant={onTouchStart}
+          onResponderRelease={onTouchEnd}
+          onResponderTerminate={onTouchEnd}
+        >
+          {mapContent}
+        </View>
+      );
+    }
+
+    return mapContent;
   }
 
   // Fallback: placeholder visual
@@ -77,12 +120,23 @@ export function MapPlaceholder({
 }
 
 const styles = StyleSheet.create({
+  // Para el mapa real: SIN borderRadius ni overflow hidden
+  mapContainer: {
+    borderRadius: radius.lg,
+  },
   container: {
     backgroundColor: '#E8E8E8',
     borderRadius: radius.lg,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  centerPin: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginLeft: -18,
+    marginTop: -36,
   },
   pinContainer: {
     position: 'absolute',

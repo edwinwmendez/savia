@@ -35,13 +35,20 @@ jest.mock('firebase/firestore', () => ({
   getDoc: jest.fn(),
   getDocs: jest.fn(() => Promise.resolve({ docs: [] })),
   setDoc: jest.fn(),
-  updateDoc: jest.fn(),
+  updateDoc: jest.fn(() => Promise.resolve()),
+  deleteDoc: jest.fn(() => Promise.resolve()),
   collection: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
   orderBy: jest.fn(),
   limit: jest.fn(),
   onSnapshot: jest.fn(() => jest.fn()),
+  writeBatch: jest.fn(() => ({
+    update: jest.fn(),
+    delete: jest.fn(),
+    commit: jest.fn(() => Promise.resolve()),
+  })),
+  serverTimestamp: jest.fn(() => ({ _serverTimestamp: true })),
   Timestamp: {
     now: jest.fn(() => ({ seconds: 0, nanoseconds: 0, toDate: () => new Date() })),
     fromDate: jest.fn((d) => ({ seconds: Math.floor(d.getTime() / 1000), nanoseconds: 0, toDate: () => d })),
@@ -161,6 +168,34 @@ jest.mock('firebase/storage', () => ({
   ref: jest.fn(),
   uploadBytesResumable: jest.fn(),
   getDownloadURL: jest.fn(() => Promise.resolve('https://mock-url.com/image.jpg')),
+}));
+
+jest.mock('@/features/notifications/services/notificationPushService', () => ({
+  setupNotificationHandler: jest.fn(),
+  setupAndroidChannel: jest.fn(() => Promise.resolve()),
+  registerForPushNotifications: jest.fn(() => Promise.resolve('ExponentPushToken[test]')),
+  addNotificationReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  addNotificationResponseListener: jest.fn(() => ({ remove: jest.fn() })),
+}));
+
+jest.mock('expo-notifications', () => ({
+  getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  getExpoPushTokenAsync: jest.fn(() => Promise.resolve({ data: 'ExponentPushToken[test-token-123]' })),
+  setNotificationHandler: jest.fn(),
+  setNotificationChannelAsync: jest.fn(() => Promise.resolve()),
+  addNotificationReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  removeNotificationSubscription: jest.fn(),
+  AndroidImportance: { MAX: 5, HIGH: 4, DEFAULT: 3, LOW: 2, MIN: 1 },
+}));
+
+jest.mock('expo-device', () => ({
+  isDevice: true,
+}));
+
+jest.mock('expo-constants', () => ({
+  expoConfig: { extra: { eas: { projectId: 'test-project-id' } } },
 }));
 
 jest.mock('expo-linear-gradient', () => {

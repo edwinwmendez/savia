@@ -1,5 +1,6 @@
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '@/shared/config/firebase';
+import { collection, doc } from 'firebase/firestore';
+import { functions, db } from '@/shared/config/firebase';
 import type { CreateAlertPayload } from '@/shared/types/alert';
 
 interface CreateAlertResponse {
@@ -23,3 +24,9 @@ export async function createAlert(payload: CreateAlertPayload): Promise<CreateAl
     throw error;
   }
 }
+
+/** Genera un ID único para usar como prefijo de Storage antes de crear la alerta */
+export function generateAlertId(): string {
+  return doc(collection(db, 'alerts')).id;
+}
+

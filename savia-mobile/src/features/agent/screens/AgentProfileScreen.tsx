@@ -9,6 +9,7 @@ import { useAuthStore } from '@/shared/store/authStore';
 import { signOut } from '@/features/auth/services/authService';
 
 export function AgentProfileScreen() {
+  const user = useAuthStore((s) => s.user);
   const userData = useAuthStore((s) => s.userData);
   const institutionData = useAuthStore((s) => s.institutionData);
 
@@ -20,7 +21,7 @@ export function AgentProfileScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
-            await signOut();
+            await signOut(user?.uid);
           } catch (error) {
             console.error('[Agent] Error al cerrar sesión:', error);
           }

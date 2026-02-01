@@ -51,17 +51,8 @@ const ALL_STATUS_OPTIONS: StatusOption[] = [
     status: 'in_progress',
     emoji: '\u{1F4CD}',
     title: 'En el lugar',
-    subtitle: 'He llegado al sitio',
+    subtitle: 'He llegado y estoy atendiendo',
     color: '#1976D2',
-  },
-  {
-    status: 'in_progress' as AlertStatus,
-    emoji: '\u{1F527}',
-    title: 'Atendiendo',
-    subtitle: 'Resolviendo la situacion',
-    color: '#9C27B0',
-    // Nota: este estado intermedio se mapea visualmente pero
-    // la transicion real es assigned -> in_progress -> resolved
   },
   {
     status: 'resolved',
@@ -75,14 +66,14 @@ const ALL_STATUS_OPTIONS: StatusOption[] = [
 /**
  * Indice canonico del status actual en el flujo visual.
  * assigned = ya paso "En camino" (indice 0)
- * in_progress = ya paso "En el lugar" y "Atendiendo" (indices 0-2)
+ * in_progress = ya paso "En camino" y "En el lugar" (indices 0-1)
  */
 function getCompletedIndex(currentStatus: AlertStatus): number {
   switch (currentStatus) {
     case 'assigned':
       return 0; // "En camino" completado
     case 'in_progress':
-      return 2; // "En camino", "En el lugar", "Atendiendo" completados
+      return 1; // "En camino" y "En el lugar" completados
     default:
       return -1;
   }
@@ -90,15 +81,15 @@ function getCompletedIndex(currentStatus: AlertStatus): number {
 
 /**
  * Determina la unica opcion seleccionable segun el estado actual.
- * assigned -> puede seleccionar indice 1 ("En el lugar" -> mapea a in_progress)
- * in_progress -> puede seleccionar indice 3 ("Resuelto" -> mapea a resolved)
+ * assigned -> puede seleccionar indice 1 ("En el lugar" -> in_progress)
+ * in_progress -> puede seleccionar indice 2 ("Resuelto" -> resolved)
  */
 function getSelectableIndex(currentStatus: AlertStatus): number {
   switch (currentStatus) {
     case 'assigned':
       return 1;
     case 'in_progress':
-      return 3;
+      return 2;
     default:
       return -1;
   }

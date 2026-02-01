@@ -14,6 +14,7 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 import { useAuthStore } from '@/shared/store/authStore';
+import { useNotificationsStore } from '@/features/notifications/store/notificationsStore';
 import { db } from '@/shared/config/firebase';
 import { HomeHeader } from '@/features/home/components/HomeHeader';
 import { EmergencyButton } from '@/features/home/components/EmergencyButton';
@@ -37,6 +38,8 @@ export function CitizenHomeScreen() {
   const [alerts, setAlerts] = useState<AlertData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const unreadCount = useNotificationsStore((s) => s.unreadCount);
 
   const firstName = userData?.firstName ?? '';
   const initials = `${userData?.firstName?.[0] ?? ''}${userData?.lastName?.[0] ?? ''}`.toUpperCase();
@@ -111,7 +114,8 @@ export function CitizenHomeScreen() {
       <StatusBar style="dark" />
       <HomeHeader
         initials={initials}
-        notificationCount={0}
+        notificationCount={unreadCount}
+        onPressBell={() => navigation.navigate('CitizenTabs', { screen: 'Notifications' } as any)}
       />
       <ScrollView
         style={styles.scrollView}
@@ -146,6 +150,7 @@ export function CitizenHomeScreen() {
             badgeCount={activeAlertCount}
             badgeColor={colors.primary}
             badgeBgColor={colors.primaryLight}
+            onPress={() => navigation.navigate('CitizenTabs', { screen: 'Alerts' } as any)}
           />
           <QuickActionCard
             title="Alertas Cercanas"
@@ -154,6 +159,7 @@ export function CitizenHomeScreen() {
             badgeCount={0}
             badgeColor={colors.success}
             badgeBgColor="#E8F5E9"
+            onPress={() => navigation.navigate('CitizenTabs', { screen: 'Map' } as any)}
           />
         </View>
 

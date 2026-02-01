@@ -34,4 +34,5 @@ export type AgentStackParamList = {
   AgentTabs: undefined;
   AgentAlertDetail: { alertId: string };
   UpdateAlertStatus: { alertId: string };
+  AgentNotifications: undefined;
 };

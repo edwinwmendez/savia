@@ -1,0 +1,8 @@
+# Archivos que no deben subirse a EAS Build
+CLAUDE.md
+claude.md
+*.pen
+docs/
+
+# Firebase Service Account Keys (nunca incluir en builds)
+*-firebase-adminsdk-*.json

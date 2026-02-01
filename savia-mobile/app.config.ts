@@ -5,8 +5,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
   return {
     ...config,
-    name: 'savia-mobile',
+    name: 'SAVIA',
     slug: 'savia-mobile',
+    plugins: [
+      ...(config.plugins || []),
+    ],
     ios: {
       ...config.ios,
       config: {

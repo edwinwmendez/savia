@@ -85,6 +85,9 @@ pnpm-debug.log*
 .cache/
 *.cache
 
+# ============ FIREBASE SERVICE ACCOUNT KEYS ============
+*-firebase-adminsdk-*.json
+
 # ============ MISC ============
 *.local
 .temp/

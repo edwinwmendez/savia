@@ -18,17 +18,17 @@ import { useAuthStore } from '@/shared/store/authStore';
 import { colors } from '@/shared/theme/colors';
 import { fontSize, fontFamily, fontWeight } from '@/shared/theme/typography';
 import { spacing } from '@/shared/theme/spacing';
-import type { CitizenStackParamList } from '@/navigation/types';
+import type { AgentStackParamList } from '@/navigation/types';
 import type { NotificationData } from '@/shared/types/notification';
 
-type NavigationProp = NativeStackNavigationProp<CitizenStackParamList>;
+type NavigationProp = NativeStackNavigationProp<AgentStackParamList>;
 
 const TABS = [
   { key: 'all', label: 'Todas' },
   { key: 'unread', label: 'No leídas' },
 ];
 
-export function CitizenNotificationsScreen() {
+export function AgentNotificationsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const user = useAuthStore((s) => s.user);
 
@@ -42,7 +42,6 @@ export function CitizenNotificationsScreen() {
   const setLoading = useNotificationsStore((s) => s.setLoading);
   const setError = useNotificationsStore((s) => s.setError);
 
-  // Suscripción a notificaciones
   useEffect(() => {
     if (!user?.uid) return;
 
@@ -54,7 +53,7 @@ export function CitizenNotificationsScreen() {
         setLoading(false);
       },
       (error) => {
-        console.error('[Notifications] Error:', error);
+        console.error('[AgentNotifications] Error:', error);
         setError(error.message);
         setLoading(false);
       },
@@ -63,7 +62,7 @@ export function CitizenNotificationsScreen() {
     const unsubCount = subscribeToUnreadCount(
       user.uid,
       (count) => setUnreadCount(count),
-      (error) => console.error('[Notifications] Error conteo:', error),
+      (error) => console.error('[AgentNotifications] Error conteo:', error),
     );
 
     return () => {
@@ -76,12 +75,12 @@ export function CitizenNotificationsScreen() {
     (notification: NotificationData) => {
       // Navegar inmediatamente
       if (notification.alertId) {
-        navigation.navigate('AlertDetail', { alertId: notification.alertId });
+        navigation.navigate('AgentAlertDetail', { alertId: notification.alertId });
       }
       // Marcar como leída en background (sin bloquear la navegación)
       if (!notification.read) {
         markAsRead(notification.id).catch((error) =>
-          console.error('[Notifications] Error marcando como leída:', error),
+          console.error('[AgentNotifications] Error marcando como leída:', error),
         );
       }
     },
@@ -103,7 +102,7 @@ export function CitizenNotificationsScreen() {
             try {
               await clearAllNotifications(user.uid);
             } catch (error) {
-              console.error('[Notifications] Error limpiando:', error);
+              console.error('[AgentNotifications] Error limpiando:', error);
             }
           },
         },
@@ -143,7 +142,7 @@ export function CitizenNotificationsScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <HeaderMobile
         title="Notificaciones"
-        leftSlot="none"
+        onBack={() => navigation.goBack()}
         rightText="Limpiar"
         onRightTextPress={handleClearAll}
       />

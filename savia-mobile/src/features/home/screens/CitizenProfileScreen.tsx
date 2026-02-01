@@ -9,6 +9,7 @@ import { useAuthStore } from '@/shared/store/authStore';
 import { signOut } from '@/features/auth/services/authService';
 
 export function CitizenProfileScreen() {
+  const user = useAuthStore((s) => s.user);
   const userData = useAuthStore((s) => s.userData);
 
   const handleLogout = () => {
@@ -19,7 +20,7 @@ export function CitizenProfileScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
-            await signOut();
+            await signOut(user?.uid);
           } catch (error) {
             console.error('[Citizen] Error al cerrar sesión:', error);
           }

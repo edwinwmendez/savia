@@ -59,7 +59,7 @@ service cloud.firestore {
       allow delete: if isAdmin();
 
       function onlyUpdatingAllowedFields() {
-        let allowedFields = ['phone', 'address', 'fcmToken', 'updatedAt'];
+        let allowedFields = ['phone', 'address', 'expoPushToken', 'updatedAt'];
         return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
       }
     }
