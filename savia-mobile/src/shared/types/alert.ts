@@ -22,6 +22,14 @@ export interface AlertLocation {
   longitude: number;
 }
 
+export interface StatusHistoryEntry {
+  status: AlertStatus;
+  timestamp: Timestamp;
+  agentId?: string;
+  agentName?: string;
+  note?: string;
+}
+
 export interface AlertData {
   id?: string;
   type: string;
@@ -34,9 +42,13 @@ export interface AlertData {
   geohash?: string;
   imageUrls: string[];
   createdBy: string;
-  agentId: string | null;
+  assignedTo: string | null;
+  assignedAgentName?: string;
   assignedInstitution: string | null;
+  assignedInstitutionName?: string;
   alertCode?: string;
+  statusHistory?: StatusHistoryEntry[];
+  agentNote?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   resolvedAt?: Timestamp;

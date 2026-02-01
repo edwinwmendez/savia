@@ -89,7 +89,7 @@ export function ConfirmAlertScreen() {
       }
 
       console.log('[Alerts] Alerta enviada exitosamente:', result.alertCode);
-      navigation.navigate('AlertSuccess', { alertCode: result.alertCode });
+      navigation.navigate('AlertSuccess', { alertCode: result.alertCode, alertId: result.alertId });
     } catch (error) {
       console.error('[Alerts] Error al enviar alerta:', error);
       Alert.alert(

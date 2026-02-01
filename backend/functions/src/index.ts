@@ -416,6 +416,9 @@ export const createAlert = onCall<CreateAlertInput>(
       imageUrls: imageUrls || [],
       createdBy: request.auth.uid,
       alertCode,
+      statusHistory: [
+        { status: "pending", timestamp: admin.firestore.FieldValue.serverTimestamp() },
+      ],
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
@@ -518,5 +521,201 @@ export const getDashboardStats = onCall(async (request) => {
       "internal",
       "Error al obtener estadísticas"
     );
+  }
+});
+
+// ============ FUNCIÓN: Agente Toma una Alerta ============
+
+interface TakeAlertInput {
+  alertId: string;
+}
+
+export const takeAlert = onCall<TakeAlertInput>(
+  { invoker: "public" },
+  async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debe estar autenticado");
+  }
+
+  const uid = request.auth.uid;
+  const { alertId } = request.data;
+
+  if (!alertId) {
+    throw new HttpsError("invalid-argument", "El ID de la alerta es requerido");
+  }
+
+  console.log(`[TakeAlert] Agente ${uid} intentando tomar alerta ${alertId}`);
+
+  try {
+    await db.runTransaction(async (transaction) => {
+      // 1. Leer el documento de la alerta
+      const alertRef = db.collection("alerts").doc(alertId);
+      const alertDoc = await transaction.get(alertRef);
+
+      if (!alertDoc.exists) {
+        throw new HttpsError("not-found", "La alerta no existe");
+      }
+
+      const alertData = alertDoc.data() as AlertData;
+
+      // 2. Validar que la alerta está pendiente
+      if (alertData.status !== "pending") {
+        throw new HttpsError(
+          "failed-precondition",
+          "Esta alerta ya fue tomada por otro agente"
+        );
+      }
+
+      // 3. Leer el documento del agente
+      const agentRef = db.collection("users").doc(uid);
+      const agentDoc = await transaction.get(agentRef);
+
+      if (!agentDoc.exists) {
+        throw new HttpsError("not-found", "Usuario agente no encontrado");
+      }
+
+      const agentData = agentDoc.data() as UserData;
+
+      if (agentData.role !== "agent") {
+        throw new HttpsError("permission-denied", "Solo agentes pueden tomar alertas");
+      }
+
+      if (!agentData.isActive) {
+        throw new HttpsError("permission-denied", "La cuenta del agente no está activa");
+      }
+
+      // 4. Obtener nombre de la institución
+      const agentName = `${agentData.firstName} ${agentData.lastName}`;
+      let institutionName: string | null = null;
+      if (agentData.institutionId) {
+        const instDoc = await transaction.get(
+          db.collection("institutions").doc(agentData.institutionId)
+        );
+        institutionName = instDoc.exists
+          ? (instDoc.data() as { name?: string }).name || agentData.institutionId
+          : agentData.institutionId;
+      }
+
+      console.log(`[TakeAlert] Agente ${agentName} (${uid}) asignado a alerta ${alertId}`);
+
+      // 5. Actualizar la alerta
+      transaction.update(alertRef, {
+        status: "assigned",
+        assignedTo: uid,
+        assignedAgentName: agentName,
+        assignedInstitution: agentData.institutionId || null,
+        assignedInstitutionName: institutionName,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        statusHistory: admin.firestore.FieldValue.arrayUnion({
+          status: "assigned",
+          timestamp: admin.firestore.Timestamp.now(),
+          agentId: uid,
+          agentName,
+        }),
+      });
+    });
+
+    console.log(`[TakeAlert] Alerta ${alertId} tomada exitosamente por ${uid}`);
+    return { success: true };
+  } catch (error) {
+    console.error(`[TakeAlert] Error al tomar alerta ${alertId}:`, error);
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError("internal", "Error al tomar la alerta");
+  }
+});
+
+// ============ FUNCIÓN: Actualizar Estado de Alerta ============
+
+interface UpdateAlertStatusInput {
+  alertId: string;
+  newStatus: string;
+  note?: string;
+}
+
+const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
+  assigned: ["in_progress"],
+  in_progress: ["resolved"],
+};
+
+export const updateAlertStatus = onCall<UpdateAlertStatusInput>(
+  { invoker: "public" },
+  async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debe estar autenticado");
+  }
+
+  const uid = request.auth.uid;
+  const { alertId, newStatus, note } = request.data;
+
+  if (!alertId || !newStatus) {
+    throw new HttpsError("invalid-argument", "El ID de la alerta y el nuevo estado son requeridos");
+  }
+
+  console.log(`[UpdateAlertStatus] Agente ${uid} actualizando alerta ${alertId} a estado ${newStatus}`);
+
+  try {
+    // Obtener datos de la alerta
+    const alertRef = db.collection("alerts").doc(alertId);
+    const alertDoc = await alertRef.get();
+
+    if (!alertDoc.exists) {
+      throw new HttpsError("not-found", "La alerta no existe");
+    }
+
+    const alertData = alertDoc.data() as AlertData;
+
+    // Verificar que el agente es el asignado
+    if (alertData.assignedTo !== uid) {
+      throw new HttpsError(
+        "permission-denied",
+        "Solo el agente asignado puede actualizar el estado de esta alerta"
+      );
+    }
+
+    // Validar transición de estado
+    const allowedTransitions = VALID_STATUS_TRANSITIONS[alertData.status];
+    if (!allowedTransitions || !allowedTransitions.includes(newStatus)) {
+      throw new HttpsError(
+        "failed-precondition",
+        `No se puede cambiar de "${alertData.status}" a "${newStatus}". Transiciones permitidas: ${allowedTransitions ? allowedTransitions.join(", ") : "ninguna"}`
+      );
+    }
+
+    // Obtener datos del agente para el historial
+    const agentDoc = await db.collection("users").doc(uid).get();
+    const agentData = agentDoc.data() as UserData;
+    const agentName = `${agentData.firstName} ${agentData.lastName}`;
+
+    // Construir historial entry
+    const historyEntry: Record<string, unknown> = {
+      status: newStatus,
+      timestamp: admin.firestore.Timestamp.now(),
+      agentId: uid,
+      agentName,
+    };
+
+    if (note) {
+      historyEntry.note = note;
+    }
+
+    // Construir datos de actualización
+    const updateData: Record<string, unknown> = {
+      status: newStatus,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      statusHistory: admin.firestore.FieldValue.arrayUnion(historyEntry),
+    };
+
+    if (newStatus === "resolved") {
+      updateData.resolvedAt = admin.firestore.FieldValue.serverTimestamp();
+    }
+
+    await alertRef.update(updateData);
+
+    console.log(`[UpdateAlertStatus] Alerta ${alertId} actualizada a ${newStatus} por agente ${uid}`);
+    return { success: true };
+  } catch (error) {
+    console.error(`[UpdateAlertStatus] Error al actualizar alerta ${alertId}:`, error);
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError("internal", "Error al actualizar el estado de la alerta");
   }
 });

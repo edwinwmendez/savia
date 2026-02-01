@@ -130,7 +130,11 @@ export function LocateAlertScreen() {
         <Text style={styles.question}>¿Dónde ocurre la emergencia?</Text>
 
         <View style={styles.section}>
-          <MapPlaceholder hasLocation={!!location} />
+          <MapPlaceholder
+            hasLocation={!!location}
+            latitude={location?.latitude}
+            longitude={location?.longitude}
+          />
         </View>
 
         {location && (

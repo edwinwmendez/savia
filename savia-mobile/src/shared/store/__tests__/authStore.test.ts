@@ -27,8 +27,11 @@ function mockFirestoreDoc(data: Record<string, unknown> | null) {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.useRealTimers();
   mockOnAuthStateChanged.mockReturnValue(jest.fn()); // unsubscribe
   useAuthStore.getState().reset();
+  // reset() pone isLoading en false; initialize() espera que empiece en true
+  useAuthStore.setState({ isLoading: true });
 });
 
 describe('authStore', () => {
@@ -116,8 +119,44 @@ describe('authStore', () => {
     expect(state.institutionData).toEqual(institutionData);
   });
 
+  it('maneja error en getDoc de userData sin colgar', async () => {
+    const mockUser = { uid: 'user-error' };
+    mockGetDoc.mockRejectedValueOnce(new Error('Firestore error'));
+
+    useAuthStore.getState().initialize();
+
+    await triggerAuthChange(mockUser);
+
+    const state = useAuthStore.getState();
+    expect(state.isLoading).toBe(false);
+    expect(state.isAuthenticated).toBe(true);
+    expect(state.userData).toBeNull();
+  });
+
+  it('maneja error en getDoc de institución sin afectar el flujo', async () => {
+    const mockUser = { uid: 'agent-inst-error' };
+    const agentData = {
+      role: 'agent',
+      isActive: true,
+      institutionId: 'inst-broken',
+    };
+
+    mockGetDoc
+      .mockResolvedValueOnce({ exists: () => true, data: () => agentData })
+      .mockRejectedValueOnce(new Error('Institution fetch failed'));
+
+    useAuthStore.getState().initialize();
+
+    await triggerAuthChange(mockUser);
+
+    const state = useAuthStore.getState();
+    expect(state.isLoading).toBe(false);
+    expect(state.isAuthenticated).toBe(true);
+    expect(state.userData).toEqual(agentData);
+    expect(state.institutionData).toBeNull();
+  });
+
   it('reset() limpia todo el estado', () => {
-    // Simular un estado con datos
     useAuthStore.setState({
       user: { uid: 'test' } as never,
       userData: { role: 'citizen' } as never,
@@ -136,5 +175,77 @@ describe('authStore', () => {
     expect(state.inactiveAccountError).toBeNull();
     expect(state.isLoading).toBe(false);
     expect(state.isAuthenticated).toBe(false);
+  });
+});
+
+describe('authStore - safety timeout (hot reload)', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('safety timeout fuerza isLoading=false si onAuthStateChanged no dispara en 10s', () => {
+    useAuthStore.getState().initialize();
+
+    // onAuthStateChanged registrado pero nunca llamado (simula hot reload roto)
+    expect(useAuthStore.getState().isLoading).toBe(true);
+
+    // Avanzar 9 segundos: todavía cargando
+    jest.advanceTimersByTime(9000);
+    expect(useAuthStore.getState().isLoading).toBe(true);
+
+    // Avanzar al segundo 10: safety timeout dispara
+    jest.advanceTimersByTime(1000);
+    expect(useAuthStore.getState().isLoading).toBe(false);
+  });
+
+  it('safety timeout se cancela cuando onAuthStateChanged dispara normalmente', async () => {
+    mockFirestoreDoc({ role: 'citizen', isActive: true });
+    useAuthStore.getState().initialize();
+
+    // Auth callback dispara antes del timeout
+    await triggerAuthChange({ uid: 'user-1' });
+
+    expect(useAuthStore.getState().isLoading).toBe(false);
+    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+
+    // Avanzar más de 10s: no debería causar ningún cambio adicional
+    jest.advanceTimersByTime(15000);
+    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+  });
+
+  it('cleanup de initialize() limpia timeout y unsubscribe', () => {
+    const mockUnsubscribe = jest.fn();
+    mockOnAuthStateChanged.mockReturnValue(mockUnsubscribe);
+
+    const cleanup = useAuthStore.getState().initialize();
+
+    expect(useAuthStore.getState().isLoading).toBe(true);
+
+    // Ejecutar cleanup (simula unmount de App.tsx)
+    cleanup();
+
+    expect(mockUnsubscribe).toHaveBeenCalled();
+
+    // Avanzar el timer: no debería forzar isLoading=false porque se limpió
+    jest.advanceTimersByTime(15000);
+    expect(useAuthStore.getState().isLoading).toBe(true); // no cambió
+  });
+
+  it('safety timeout no cambia estado si auth ya resolvió (isLoading=false)', async () => {
+    useAuthStore.getState().initialize();
+
+    // Auth resuelve con null (no autenticado)
+    await triggerAuthChange(null);
+    expect(useAuthStore.getState().isLoading).toBe(false);
+    expect(useAuthStore.getState().isAuthenticated).toBe(false);
+
+    // Avanzar 15s: timeout ya fue cancelado por clearTimeout
+    jest.advanceTimersByTime(15000);
+    expect(useAuthStore.getState().isLoading).toBe(false);
+    expect(useAuthStore.getState().isAuthenticated).toBe(false);
   });
 });

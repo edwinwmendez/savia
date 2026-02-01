@@ -17,7 +17,7 @@ interface AuthState {
   reset: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   userData: null,
   institutionData: null,
@@ -26,7 +26,18 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
 
   initialize: () => {
+    // Safety timeout: si onAuthStateChanged no dispara en 10s (ej. hot reload),
+    // forzar isLoading=false para evitar spinner infinito
+    const safetyTimeout = setTimeout(() => {
+      if (get().isLoading) {
+        console.warn('[Auth] Safety timeout: auth no resolvió en 10s, forzando isLoading=false');
+        set({ isLoading: false });
+      }
+    }, 10000);
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      clearTimeout(safetyTimeout);
+
       if (firebaseUser) {
         try {
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
@@ -78,7 +89,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     });
 
-    return unsubscribe;
+    return () => {
+      clearTimeout(safetyTimeout);
+      unsubscribe();
+    };
   },
 
   setUserData: (data) => set({ userData: data }),

@@ -6,8 +6,8 @@ import { spacing, radius } from '@/shared/theme/spacing';
 import { shadows } from '@/shared/theme/shadows';
 import { UrgencyBadge } from '@/features/alerts/components/UrgencyBadge';
 import { ALERT_CATEGORIES } from '@/features/alerts/data/categories';
+import { formatRelativeTime, getShortAddress } from '@/shared/utils/formatters';
 import type { AlertData, AlertStatus } from '@/shared/types/alert';
-import type { Timestamp } from 'firebase/firestore';
 
 // Mapa rápido de categoryId → color para evitar .find() en cada render
 const CATEGORY_COLOR_MAP = Object.fromEntries(
@@ -34,31 +34,6 @@ const STATUS_LABELS: Record<AlertStatus, string> = {
   resolved: 'Resuelta',
   cancelled: 'Cancelada',
 };
-
-function formatRelativeTime(timestamp: Timestamp): string {
-  const now = Date.now();
-  const date = timestamp.toDate().getTime();
-  const diffMs = now - date;
-  const diffMin = Math.floor(diffMs / 60000);
-
-  if (diffMin < 1) return 'Ahora';
-  if (diffMin < 60) return `Hace ${diffMin} min`;
-  const diffHours = Math.floor(diffMin / 60);
-  if (diffHours < 24) return `Hace ${diffHours}h`;
-  const diffDays = Math.floor(diffHours / 24);
-  if (diffDays === 1) return 'Ayer';
-  return `Hace ${diffDays} días`;
-}
-
-function getShortAddress(address: string): string {
-  const parts = address.split(',');
-  const street = parts[0]?.trim() ?? address;
-  const words = street.split(' ');
-  if (words.length > 3) {
-    return words.slice(0, 3).join(' ');
-  }
-  return street;
-}
 
 export function RecentAlertItem({ alert, onPress }: RecentAlertItemProps) {
   const categoryColor = CATEGORY_COLOR_MAP[alert.type] ?? colors.textSecondary;
