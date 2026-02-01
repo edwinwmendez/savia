@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import {
@@ -18,6 +19,8 @@ interface AlertsTableProps {
 }
 
 export function AlertsTable({ alerts, loading = false }: AlertsTableProps) {
+  const router = useRouter();
+
   return (
     <div className="bg-surface rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
       {/* Header */}
@@ -25,9 +28,12 @@ export function AlertsTable({ alerts, loading = false }: AlertsTableProps) {
         <span className="text-xs font-semibold text-text-primary tracking-wide uppercase">
           Alertas Activas
         </span>
-        <span className="text-sm font-medium text-primary cursor-default">
+        <button
+          onClick={() => router.push('/alertas')}
+          className="text-sm font-medium text-primary hover:underline"
+        >
           Ver todas &rarr;
-        </span>
+        </button>
       </div>
 
       {/* Table */}
@@ -104,8 +110,8 @@ export function AlertsTable({ alerts, loading = false }: AlertsTableProps) {
                   </td>
                   <td className="px-6 py-4">
                     <button
-                      disabled
-                      className="p-1.5 rounded-md text-text-secondary hover:bg-bg transition-colors disabled:opacity-50"
+                      onClick={() => router.push(`/alertas/${alert.id}`)}
+                      className="p-1.5 rounded-md text-text-secondary hover:bg-bg hover:text-primary transition-colors"
                       title="Ver detalle"
                     >
                       <Eye className="w-4 h-4" />

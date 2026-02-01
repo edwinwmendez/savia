@@ -51,6 +51,24 @@ export interface AlertData {
   resolvedAt?: unknown;
 }
 
+// Institution types
+export type InstitutionType = 'pnp' | 'serenazgo' | 'bomberos' | 'salud' | 'otro';
+
+export interface InstitutionData {
+  id?: string;
+  name: string;
+  type: InstitutionType;
+  phone: string;
+  email: string;
+  address: string;
+  schedule: string;
+  alertTypes: string[];
+  isActive: boolean;
+  agentCount?: number;
+  createdAt: unknown;
+  updatedAt: unknown;
+}
+
 export interface DashboardStats {
   alerts: {
     total: number;

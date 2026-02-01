@@ -46,7 +46,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Total Alertas"
-            value={stats?.alerts.today ?? 0}
+            value={stats?.alerts.total ?? 0}
             icon={ClipboardList}
             iconBgClass="bg-primary/15"
             iconColorClass="text-primary"
