@@ -16,7 +16,7 @@ node_modules/
 # ============ BUILD / COMPILADOS ============
 dist/
 build/
-lib/
+**/functions/lib/
 out/
 .next/
 web-build/
