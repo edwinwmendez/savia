@@ -66,12 +66,12 @@ git flow feature start s2-alerta-confirmacion
 ```
 
 **Criterios de aceptación:**
-- [ ] Ciudadano puede seleccionar tipo de emergencia (8 categorías)
-- [ ] Ciudadano puede escribir descripción y adjuntar fotos/videos
-- [ ] Ciudadano puede seleccionar nivel de urgencia
-- [ ] Ubicación se obtiene automáticamente por GPS
+- [*] Ciudadano puede seleccionar tipo de emergencia (8 categorías)
+- [*] Ciudadano puede escribir descripción y adjuntar fotos/videos
+- [*] Ciudadano puede seleccionar nivel de urgencia
+- [*] Ubicación se obtiene automáticamente por GPS
 - [ ] Ciudadano puede ajustar ubicación en el mapa
-- [ ] Al enviar, se muestra confirmación con número de alerta
+- [*] Al enviar, se muestra confirmación con número de alerta
 
 ---
 
@@ -93,11 +93,11 @@ git flow feature start s3-agente-actualizar-estado
 ```
 
 **Criterios de aceptación:**
-- [ ] Ciudadano ve lista de sus alertas con estados
-- [ ] Ciudadano puede ver detalle de cada alerta
-- [ ] Agente ve alertas pendientes ordenadas por urgencia
-- [ ] Agente puede tomar un caso
-- [ ] Agente puede cambiar estado: En camino → En el lugar → Resuelto
+- [*] Ciudadano ve lista de sus alertas con estados
+- [*] Ciudadano puede ver detalle de cada alerta
+- [*] Agente ve alertas pendientes ordenadas por urgencia
+- [*] Agente puede tomar un caso
+- [*] Agente puede cambiar estado: En camino → En el lugar → Resuelto
 
 ---
 

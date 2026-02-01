@@ -185,6 +185,22 @@ jest.mock('@expo-google-fonts/inter', () => ({
   Inter_700Bold: 'Inter_700Bold',
 }));
 
+// ─── react-native-maps ──────────────────────────────────────────────────────
+jest.mock('react-native-maps', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const MockMapView = ({ children, ...props }) =>
+    React.createElement(View, { ...props, testID: 'map-view' }, children);
+  MockMapView.Marker = ({ children, ...props }) =>
+    React.createElement(View, { ...props, testID: 'map-marker' }, children);
+  return {
+    __esModule: true,
+    default: MockMapView,
+    Marker: MockMapView.Marker,
+    PROVIDER_GOOGLE: 'google',
+  };
+});
+
 // ─── lucide-react-native (generic icon proxy) ───────────────────────────────
 jest.mock('lucide-react-native', () => {
   const React = require('react');

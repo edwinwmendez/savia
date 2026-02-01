@@ -7,9 +7,10 @@ import { DescribeAlertScreen } from '@/features/alerts/screens/DescribeAlertScre
 import { LocateAlertScreen } from '@/features/alerts/screens/LocateAlertScreen';
 import { ConfirmAlertScreen } from '@/features/alerts/screens/ConfirmAlertScreen';
 import { AlertSuccessScreen } from '@/features/alerts/screens/AlertSuccessScreen';
+import { CitizenAlertDetailScreen } from '@/features/home/screens/CitizenAlertDetailScreen';
 import { AuthNavigator } from './AuthNavigator';
 import { CitizenTabNavigator } from './CitizenTabNavigator';
-import { AgentTabNavigator } from './AgentTabNavigator';
+import { AgentStackNavigator } from './AgentStackNavigator';
 import type { CitizenStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<CitizenStackParamList>();
@@ -31,7 +32,7 @@ export function RootNavigator() {
   }
 
   if (userData?.role === 'agent') {
-    return <AgentTabNavigator />;
+    return <AgentStackNavigator />;
   }
 
   return (
@@ -42,6 +43,7 @@ export function RootNavigator() {
       <Stack.Screen name="LocateAlert" component={LocateAlertScreen} />
       <Stack.Screen name="ConfirmAlert" component={ConfirmAlertScreen} />
       <Stack.Screen name="AlertSuccess" component={AlertSuccessScreen} options={{ gestureEnabled: false }} />
+      <Stack.Screen name="AlertDetail" component={CitizenAlertDetailScreen} />
     </Stack.Navigator>
   );
 }

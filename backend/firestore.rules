@@ -46,8 +46,8 @@ service cloud.firestore {
 
     // ============ COLECCIÓN: users ============
     match /users/{userId} {
-      // Lectura: usuario propio, agentes y admins
-      allow read: if isOwner(userId) || isAgentOrAdmin();
+      // Lectura: usuario propio, agentes, admins, o cualquier autenticado leyendo perfil de agente
+      allow read: if isOwner(userId) || isAgentOrAdmin() || (isAuthenticated() && resource.data.role == 'agent');
 
       // Creación: solo mediante Cloud Functions (registro)
       allow create: if false;

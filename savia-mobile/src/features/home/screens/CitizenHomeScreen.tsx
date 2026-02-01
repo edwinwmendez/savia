@@ -177,6 +177,7 @@ export function CitizenHomeScreen() {
               <RecentAlertItem
                 key={alert.id}
                 alert={alert}
+                onPress={() => alert.id && navigation.navigate('AlertDetail', { alertId: alert.id })}
               />
             ))}
           </View>

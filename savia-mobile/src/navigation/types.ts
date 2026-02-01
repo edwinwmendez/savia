@@ -19,7 +19,8 @@ export type CitizenStackParamList = {
   DescribeAlert: undefined;
   LocateAlert: undefined;
   ConfirmAlert: undefined;
-  AlertSuccess: { alertCode: string };
+  AlertSuccess: { alertCode: string; alertId: string };
+  AlertDetail: { alertId: string };
 };
 
 export type AgentTabParamList = {
@@ -27,4 +28,10 @@ export type AgentTabParamList = {
   Alerts: undefined;
   History: undefined;
   Profile: undefined;
+};
+
+export type AgentStackParamList = {
+  AgentTabs: undefined;
+  AgentAlertDetail: { alertId: string };
+  UpdateAlertStatus: { alertId: string };
 };

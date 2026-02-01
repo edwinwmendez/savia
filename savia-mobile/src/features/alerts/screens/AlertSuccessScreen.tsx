@@ -24,7 +24,7 @@ export function AlertSuccessScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RouteProps>();
   const reset = useCreateAlertStore((s) => s.reset);
-  const alertCode = route.params.alertCode;
+  const { alertCode } = route.params;
 
   const handleGoHome = () => {
     reset();
@@ -32,8 +32,19 @@ export function AlertSuccessScreen() {
   };
 
   const handleViewAlert = () => {
-    // Pantalla de detalle se implementará en sprint futuro
-    handleGoHome();
+    const alertId = route.params.alertId;
+    if (alertId) {
+      reset();
+      navigation.reset({
+        index: 1,
+        routes: [
+          { name: 'CitizenTabs' },
+          { name: 'AlertDetail', params: { alertId } },
+        ],
+      });
+    } else {
+      handleGoHome();
+    }
   };
 
   return (

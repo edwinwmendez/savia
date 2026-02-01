@@ -1,5 +1,5 @@
-import { initializeApp } from 'firebase/app';
-import { initializeAuth } from 'firebase/auth';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeAuth, getAuth } from 'firebase/auth';
 //@ts-expect-error - getReactNativePersistence is exported under react-native condition
 import { getReactNativePersistence } from '@firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -16,12 +16,20 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+// Safe initialization: handle JS reloads where Firebase is already initialized
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+let authInstance;
+try {
+  authInstance = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch {
+  // On hot reload, initializeAuth may throw; fall back to existing instance
+  authInstance = getAuth(app);
+}
 
+export const auth = authInstance;
 export const db = getFirestore(app);
 export const functions = getFunctions(app);
 export const storage = getStorage(app);
