@@ -1,9 +1,14 @@
 import { useEffect } from 'react';
 import { Alert } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '@/shared/store/authStore';
+import { SelectAlertTypeScreen } from '@/features/alerts/screens/SelectAlertTypeScreen';
 import { AuthNavigator } from './AuthNavigator';
 import { CitizenTabNavigator } from './CitizenTabNavigator';
 import { AgentTabNavigator } from './AgentTabNavigator';
+import type { CitizenStackParamList } from './types';
+
+const Stack = createNativeStackNavigator<CitizenStackParamList>();
 
 export function RootNavigator() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -17,7 +22,6 @@ export function RootNavigator() {
     }
   }, [inactiveAccountError]);
 
-  // Mientras carga, AuthNavigator muestra el SplashScreen
   if (isLoading || !isAuthenticated) {
     return <AuthNavigator />;
   }
@@ -26,5 +30,10 @@ export function RootNavigator() {
     return <AgentTabNavigator />;
   }
 
-  return <CitizenTabNavigator />;
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="CitizenTabs" component={CitizenTabNavigator} />
+      <Stack.Screen name="SelectAlertType" component={SelectAlertTypeScreen} />
+    </Stack.Navigator>
+  );
 }
