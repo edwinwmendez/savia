@@ -496,6 +496,124 @@ export const getDashboardStats = onCall(async (request) => {
   }
 });
 
+// ============ FUNCIÓN: Crear Usuario (Admin) ============
+
+interface CreateUserData {
+  dni: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  role: "citizen" | "agent" | "admin";
+  institutionId?: string;
+  sendCredentials?: boolean;
+}
+
+export const createUser = onCall<CreateUserData>(
+  { invoker: "public" },
+  async (request) => {
+  // Verificar autenticación
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debe estar autenticado");
+  }
+
+  // Verificar rol admin
+  const adminDoc = await db.collection("users").doc(request.auth.uid).get();
+  const adminData = adminDoc.data() as UserData;
+
+  if (adminData?.role !== "admin") {
+    throw new HttpsError("permission-denied", "Solo administradores pueden crear usuarios");
+  }
+
+  const { dni, firstName, lastName, phone, email, role, institutionId } = request.data;
+
+  // Validar datos requeridos
+  if (!dni || !firstName || !lastName || !phone || !email || !role) {
+    throw new HttpsError("invalid-argument", "Todos los campos son requeridos");
+  }
+
+  // Validar formato de DNI (8 dígitos)
+  if (!/^\d{8}$/.test(dni)) {
+    throw new HttpsError("invalid-argument", "El DNI debe tener 8 dígitos");
+  }
+
+  // Validar formato de email
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new HttpsError("invalid-argument", "El email no es válido");
+  }
+
+  // Validar rol
+  const validRoles = ["citizen", "agent", "admin"];
+  if (!validRoles.includes(role)) {
+    throw new HttpsError("invalid-argument", "Rol inválido");
+  }
+
+  try {
+    // Verificar si el DNI ya está registrado
+    const existingUser = await db
+      .collection("users")
+      .where("dni", "==", dni)
+      .get();
+
+    if (!existingUser.empty) {
+      throw new HttpsError("already-exists", "Este DNI ya está registrado");
+    }
+
+    // Generar contraseña temporal
+    const tempPassword = `Savia${dni.slice(-4)}!`;
+
+    // Crear usuario en Firebase Auth
+    const userRecord = await admin.auth().createUser({
+      email,
+      password: tempPassword,
+      displayName: `${firstName} ${lastName}`,
+    });
+
+    // Crear documento en Firestore
+    const userData: Record<string, unknown> = {
+      dni,
+      firstName,
+      lastName,
+      phone,
+      email,
+      role,
+      isActive: true,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (institutionId) {
+      userData.institutionId = institutionId;
+    }
+
+    await db.collection("users").doc(userRecord.uid).set(userData);
+
+    // Asignar custom claims
+    await admin.auth().setCustomUserClaims(userRecord.uid, { role });
+
+    console.log(`[CreateUser] Usuario creado: ${userRecord.uid} (${role}) por admin ${request.auth.uid}`);
+
+    return {
+      success: true,
+      uid: userRecord.uid,
+      message: "Usuario creado exitosamente",
+    };
+  } catch (error) {
+    console.error("[CreateUser] Error:", error);
+
+    if (error instanceof HttpsError) {
+      throw error;
+    }
+
+    const firebaseError = error as { code?: string };
+    if (firebaseError.code === "auth/email-already-exists") {
+      throw new HttpsError("already-exists", "Este email ya está registrado");
+    }
+
+    throw new HttpsError("internal", "Error al crear usuario");
+  }
+});
+
 // ============ FUNCIÓN: Agente Toma una Alerta ============
 
 interface TakeAlertInput {

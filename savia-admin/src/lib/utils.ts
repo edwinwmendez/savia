@@ -78,3 +78,45 @@ export const urgencyColors: Record<UrgencyLevel, string> = {
   medium: 'warning',
   low: 'success',
 };
+
+// Institution helpers
+import type { InstitutionType, UserRole } from '@/types';
+
+export const institutionTypeLabels: Record<InstitutionType, string> = {
+  pnp: 'PNP',
+  serenazgo: 'Serenazgo',
+  bomberos: 'Bomberos',
+  salud: 'Salud',
+  otro: 'Otro',
+};
+
+export const institutionTypeEmojis: Record<InstitutionType, string> = {
+  pnp: '👮',
+  serenazgo: '🛡️',
+  bomberos: '🚒',
+  salud: '🏥',
+  otro: '🏢',
+};
+
+export const roleLabels: Record<UserRole, string> = {
+  citizen: 'Ciudadano',
+  agent: 'Agente',
+  admin: 'Administrador',
+};
+
+export const roleColors: Record<UserRole, string> = {
+  citizen: 'default',
+  agent: 'primary',
+  admin: 'warning',
+};
+
+export const alertTypeEmojis: Record<string, string> = {
+  robbery: '🚨',
+  accident: '🚗',
+  medical: '🚑',
+  fire: '🔥',
+  electrical: '⚡',
+  water: '💧',
+  lost: '🔍',
+  other: '📋',
+};
