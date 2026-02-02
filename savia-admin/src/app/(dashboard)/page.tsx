@@ -9,7 +9,7 @@ import { useDashboard } from '@/hooks/useDashboard';
 import { formatDate } from '@/lib/utils';
 
 export default function DashboardPage() {
-  const { stats, criticalCount, alerts, loading, error, refresh } = useDashboard();
+  const { stats, criticalCount, alerts, heatMapAlerts, loading, error, refresh } = useDashboard();
 
   const today = formatDate(new Date());
 
@@ -79,7 +79,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Map */}
-        <MapSection />
+        <MapSection alerts={heatMapAlerts} onRefresh={refresh} loading={loading} />
 
         {/* Alerts table */}
         <AlertsTable alerts={alerts} loading={loading} />
