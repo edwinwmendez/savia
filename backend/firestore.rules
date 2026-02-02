@@ -66,8 +66,8 @@ service cloud.firestore {
 
     // ============ COLECCIÓN: alerts ============
     match /alerts/{alertId} {
-      // Lectura: creador de la alerta, agentes y admins
-      allow read: if isOwner(resource.data.createdBy) || isAgentOrAdmin();
+      // Lectura: cualquier usuario autenticado (alertas son info de seguridad pública)
+      allow read: if isAuthenticated();
 
       // Creación: solo ciudadanos autenticados
       allow create: if isCitizen() && validAlertData();

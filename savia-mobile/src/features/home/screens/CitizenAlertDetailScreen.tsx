@@ -107,6 +107,9 @@ export function CitizenAlertDetailScreen() {
     }
   }, [alert?.assignedTo, alert?.assignedAgentName]);
 
+  // Hooks deben ejecutarse antes de cualquier early return
+  const categoryColorMap = useCategoryColorMap();
+
   // ── Loading / Error ──────────────────────────────────────────────────
 
   if (isLoading) {
@@ -145,7 +148,6 @@ export function CitizenAlertDetailScreen() {
 
   // ── Derived data ─────────────────────────────────────────────────────
 
-  const categoryColorMap = useCategoryColorMap();
   const categoryColor = categoryColorMap[alert.type] ?? colors.textSecondary;
   const urgency = URGENCY_BADGE[alert.urgency] ?? URGENCY_BADGE.low;
   const status = STATUS_BADGE[alert.status] ?? STATUS_BADGE.pending;
