@@ -40,11 +40,11 @@ git flow feature start s1-recuperar-password
 ```
 
 **Criterios de aceptación:**
-- [*] Firebase Auth conectado
-- [*] Ciudadano puede registrarse con DNI, email y contraseña
-- [*] Ciudadano puede iniciar sesión
-- [*] Agente puede iniciar sesión
-- [*] Usuario puede recuperar contraseña por email
+- [x] Firebase Auth conectado
+- [x] Ciudadano puede registrarse con DNI, email y contraseña
+- [x] Ciudadano puede iniciar sesión
+- [x] Agente puede iniciar sesión
+- [x] Usuario puede recuperar contraseña por email
 
 ---
 
@@ -66,12 +66,12 @@ git flow feature start s2-alerta-confirmacion
 ```
 
 **Criterios de aceptación:**
-- [*] Ciudadano puede seleccionar tipo de emergencia (8 categorías)
-- [*] Ciudadano puede escribir descripción y adjuntar fotos/videos
-- [*] Ciudadano puede seleccionar nivel de urgencia
-- [*] Ubicación se obtiene automáticamente por GPS
-- [*] Ciudadano puede ajustar ubicación en el mapa
-- [*] Al enviar, se muestra confirmación con número de alerta
+- [x] Ciudadano puede seleccionar tipo de emergencia (8 categorías)
+- [x] Ciudadano puede escribir descripción y adjuntar fotos/videos
+- [x] Ciudadano puede seleccionar nivel de urgencia
+- [x] Ubicación se obtiene automáticamente por GPS
+- [x] Ciudadano puede ajustar ubicación en el mapa
+- [x] Al enviar, se muestra confirmación con número de alerta
 
 ---
 
@@ -93,11 +93,11 @@ git flow feature start s3-agente-actualizar-estado
 ```
 
 **Criterios de aceptación:**
-- [*] Ciudadano ve lista de sus alertas con estados
-- [*] Ciudadano puede ver detalle de cada alerta
-- [*] Agente ve alertas pendientes ordenadas por urgencia
-- [*] Agente puede tomar un caso
-- [*] Agente puede cambiar estado: En camino → En el lugar → Resuelto
+- [x] Ciudadano ve lista de sus alertas con estados
+- [x] Ciudadano puede ver detalle de cada alerta
+- [x] Agente ve alertas pendientes ordenadas por urgencia
+- [x] Agente puede tomar un caso
+- [x] Agente puede cambiar estado: En camino → En el lugar → Resuelto
 
 ---
 
@@ -124,9 +124,9 @@ git flow release finish v1.0.0
 ```
 
 **Criterios de aceptación:**
-- [*] Ciudadano recibe notificación cuando agente toma su caso
-- [*] Ciudadano recibe notificación en cada cambio de estado
-- [*] Timeline muestra historial de estados con fecha/hora
+- [x] Ciudadano recibe notificación cuando agente toma su caso
+- [x] Ciudadano recibe notificación en cada cambio de estado
+- [x] Timeline muestra historial de estados con fecha/hora
 - [ ] App desplegada en TestFlight/Play Console interno
 
 ---
@@ -153,9 +153,9 @@ git flow feature start s5-admin-dashboard
 ```
 
 **Criterios de aceptación:**
-- [ ] Panel web accesible en navegador
-- [ ] Admin puede iniciar sesión
-- [ ] Dashboard muestra: alertas hoy, pendientes, resueltas, agentes activos
+- [x] Panel web accesible en navegador
+- [x] Admin puede iniciar sesión
+- [x] Dashboard muestra: alertas hoy, pendientes, resueltas, agentes activos
 
 ---
 
@@ -175,10 +175,10 @@ git flow feature start s6-admin-alertas
 ```
 
 **Criterios de aceptación:**
-- [ ] Admin puede crear/editar/desactivar usuarios
-- [ ] Admin puede asignar roles y instituciones
-- [ ] Admin puede gestionar instituciones (PNP, Serenazgo, etc.)
-- [ ] Admin puede ver todas las alertas con filtros
+- [x] Admin puede crear/editar/desactivar usuarios
+- [x] Admin puede asignar roles y instituciones
+- [x] Admin puede gestionar instituciones (PNP, Serenazgo, etc.)
+- [x] Admin puede ver todas las alertas con filtros
 
 ---
 
@@ -190,6 +190,7 @@ git flow feature start s6-admin-alertas
 | `feature/s7-ciudadano-mapa` | - | Mapa de alertas cercanas |
 | `feature/s7-agente-derivar` | HU-OPE-006 | Derivar alerta a otra institución |
 | `feature/s7-agente-navegacion` | HU-OPE-005 | Navegación GPS a la ubicación |
+| `feature/integration-categories-institutions` | - | Integración categorías-instituciones + migración móvil a Firestore |
 
 **Comandos:**
 ```bash
@@ -206,10 +207,11 @@ git flow release finish v2.0.0
 ```
 
 **Criterios de aceptación:**
-- [ ] Ciudadano puede calificar atención recibida
+- [x] Ciudadano puede calificar atención recibida
 - [ ] Ciudadano ve mapa con alertas cercanas en tiempo real
-- [ ] Agente puede derivar alerta a otra institución
-- [ ] Agente puede abrir navegación GPS al lugar
+- [x] Agente puede derivar alerta a otra institución
+- [x] Agente puede abrir navegación GPS al lugar
+- [x] Categorías del admin conectadas con app móvil y backend (notificaciones dirigidas, derivación filtrada)
 
 ---
 
