@@ -20,6 +20,9 @@ importers:
       firebase-functions:
         specifier: ^6.3.0
         version: 6.6.0(firebase-admin@13.6.0)
+      ngeohash:
+        specifier: ^0.6.3
+        version: 0.6.3
     devDependencies:
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.0.0
@@ -1129,6 +1132,10 @@ packages:
   negotiator@1.0.0:
     resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
     engines: {node: '>= 0.6'}
+
+  ngeohash@0.6.3:
+    resolution: {integrity: sha512-kltF0cOxgx1AbmVzKxYZaoB0aj7mOxZeHaerEtQV0YaqnkXNq26WWqMmJ6lTqShYxVRWZ/mwvvTrNeOwdslWiw==}
+    engines: {node: '>=v0.2.0'}
 
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
@@ -2911,6 +2918,8 @@ snapshots:
   negotiator@0.6.3: {}
 
   negotiator@1.0.0: {}
+
+  ngeohash@0.6.3: {}
 
   node-fetch@2.7.0:
     dependencies:

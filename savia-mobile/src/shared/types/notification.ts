@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export type NotificationType = 'new_alert' | 'status_change';
+export type NotificationType = 'new_alert' | 'status_change' | 'alert_derived' | 'proximity_alert';
 
 export interface NotificationData {
   id: string;

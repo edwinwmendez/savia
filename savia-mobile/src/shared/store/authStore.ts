@@ -8,6 +8,10 @@ import {
   setupNotificationHandler,
   registerForPushNotifications,
 } from '@/features/notifications/services/notificationPushService';
+import {
+  startLocationTracking,
+  stopLocationTracking,
+} from '@/shared/services/locationTrackingService';
 
 interface AuthState {
   user: User | null;
@@ -84,11 +88,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           registerForPushNotifications(firebaseUser.uid).catch((err) => {
             console.warn('[Auth] Error registrando push notifications:', err);
           });
+
+          // Iniciar tracking de ubicación para ciudadanos (notificaciones de proximidad)
+          if (userData?.role === 'citizen') {
+            startLocationTracking(firebaseUser.uid);
+          }
         } catch (error) {
           console.error('[Auth] Error al obtener datos del usuario:', error);
-          set({ user: firebaseUser, userData: null, isLoading: false, isAuthenticated: true });
+          // No dejar isAuthenticated=true sin userData — causa navegación a pantalla de ciudadano sin datos
+          set({ user: null, userData: null, isLoading: false, isAuthenticated: false });
+          await signOut();
         }
       } else {
+        stopLocationTracking();
         set({
           user: null,
           userData: null,
@@ -107,12 +119,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setUserData: (data) => set({ userData: data }),
 
-  reset: () => set({
-    user: null,
-    userData: null,
-    institutionData: null,
-    inactiveAccountError: null,
-    isLoading: false,
-    isAuthenticated: false,
-  }),
+  reset: () => {
+    stopLocationTracking();
+    set({
+      user: null,
+      userData: null,
+      institutionData: null,
+      inactiveAccountError: null,
+      isLoading: false,
+      isAuthenticated: false,
+    });
+  },
 }));

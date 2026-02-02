@@ -54,18 +54,19 @@ export function ReassignModal({
     label: `${a.firstName} ${a.lastName}`,
   }));
 
-  const institutionOptions: SelectOption[] = institutions.map((i) => ({
-    value: i.id!,
-    label: i.name,
-  }));
 
-  // Auto-select institution when agent is selected
+  const isReassign = !!currentAgentId;
+
+  // Auto-set institution from agent (institution is tied to agent, not editable separately)
+  const selectedAgentData = agents.find((a) => a.id === selectedAgent);
+  const agentInstitution = selectedAgentData?.institutionId || '';
+  const agentInstitutionName = institutions.find((i) => i.id === agentInstitution)?.name || '';
+
   useEffect(() => {
-    if (selectedAgent) {
-      const agent = agents.find((a) => a.id === selectedAgent);
-      if (agent?.institutionId) {
-        setSelectedInstitution(agent.institutionId);
-      }
+    if (selectedAgent && selectedAgentData?.institutionId) {
+      setSelectedInstitution(selectedAgentData.institutionId);
+    } else {
+      setSelectedInstitution('');
     }
   }, [selectedAgent, agents]);
 
@@ -93,8 +94,8 @@ export function ReassignModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Reasignar Alerta"
-      subtitle="Seleccionar nuevo agente responsable"
+      title={isReassign ? 'Reasignar Alerta' : 'Asignar Alerta'}
+      subtitle={isReassign ? 'Seleccionar nuevo agente responsable' : 'Seleccionar agente para atender esta alerta'}
       icon={UserCheck}
       width={520}
       footer={
@@ -108,7 +109,7 @@ export function ReassignModal({
             loading={saving}
             disabled={!selectedAgent}
           >
-            Reasignar
+            {isReassign ? 'Reasignar' : 'Asignar'}
           </Button>
         </>
       }
@@ -127,18 +128,17 @@ export function ReassignModal({
               onChange={setSelectedAgent}
               placeholder="Seleccionar agente..."
             />
-            <Select
+            <Input
               label="Institución"
-              options={institutionOptions}
-              value={selectedInstitution}
-              onChange={setSelectedInstitution}
-              placeholder="Seleccionar institución..."
+              value={agentInstitutionName || 'Sin institución'}
+              onChange={() => {}}
+              disabled
             />
             <Input
               label="Nota (opcional)"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Motivo de la reasignación..."
+              placeholder={isReassign ? 'Motivo de la reasignación...' : 'Nota adicional...'}
             />
           </>
         )}

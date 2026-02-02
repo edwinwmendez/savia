@@ -119,7 +119,7 @@ describe('authStore', () => {
     expect(state.institutionData).toEqual(institutionData);
   });
 
-  it('maneja error en getDoc de userData sin colgar', async () => {
+  it('maneja error en getDoc de userData haciendo sign out', async () => {
     const mockUser = { uid: 'user-error' };
     mockGetDoc.mockRejectedValueOnce(new Error('Firestore error'));
 
@@ -129,8 +129,9 @@ describe('authStore', () => {
 
     const state = useAuthStore.getState();
     expect(state.isLoading).toBe(false);
-    expect(state.isAuthenticated).toBe(true);
+    expect(state.isAuthenticated).toBe(false);
     expect(state.userData).toBeNull();
+    expect(state.user).toBeNull();
   });
 
   it('maneja error en getDoc de institución sin afectar el flujo', async () => {

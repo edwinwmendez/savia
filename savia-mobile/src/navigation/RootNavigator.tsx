@@ -55,7 +55,7 @@ export function RootNavigator() {
     return () => subscription.remove();
   }, [isAuthenticated, userData?.role, navigation]);
 
-  if (isLoading || !isAuthenticated) {
+  if (isLoading || !isAuthenticated || !userData) {
     return <AuthNavigator />;
   }
 
