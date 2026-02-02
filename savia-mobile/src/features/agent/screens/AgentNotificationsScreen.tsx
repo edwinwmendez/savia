@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo } from 'react';
+import { useEffect, useCallback } from 'react';
 import { View, Text, SectionList, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -117,10 +117,7 @@ export function AgentNotificationsScreen() {
     badgeTextColor: tab.key === 'unread' ? colors.surface : undefined,
   }));
 
-  const sections = useMemo(
-    () => groupNotificationsByDate(notifications, selectedTab),
-    [notifications, selectedTab],
-  );
+  const sections = groupNotificationsByDate(notifications, selectedTab);
 
   const renderItem = useCallback(
     ({ item }: { item: NotificationData }) => (
@@ -171,6 +168,7 @@ export function AgentNotificationsScreen() {
       ) : (
         <SectionList
           sections={sections}
+          extraData={notifications}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           renderSectionHeader={renderSectionHeader}
