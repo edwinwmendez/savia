@@ -63,22 +63,47 @@ export const onAlertCreated = onDocumentCreated("alerts/{alertId}", async (event
   const alertId = event.params.alertId;
 
   try {
-    // Obtener agentes activos de la institución correspondiente
-    const agentsSnapshot = await db
-      .collection("users")
-      .where("role", "==", "agent")
+    // Buscar instituciones que atienden este tipo de alerta
+    const alertType = alertData.type;
+    const institutionsSnap = await db.collection("institutions")
       .where("isActive", "==", true)
+      .where("alertTypes", "array-contains", alertType)
       .get();
 
-    if (agentsSnapshot.empty) {
-      console.log("No hay agentes activos disponibles");
+    let agentDocs: admin.firestore.QueryDocumentSnapshot[] = [];
+
+    if (institutionsSnap.empty) {
+      // FALLBACK: Si ninguna institución configurada, notificar a todos los agentes
+      console.warn(`[Push] No hay instituciones para tipo "${alertType}", notificando a todos los agentes`);
+      const allAgentsSnap = await db.collection("users")
+        .where("role", "==", "agent")
+        .where("isActive", "==", true)
+        .get();
+      agentDocs = allAgentsSnap.docs;
+    } else {
+      // Obtener agentes de esas instituciones (Firestore 'in' acepta max 10)
+      const instIds = institutionsSnap.docs.map(d => d.id);
+      for (let i = 0; i < instIds.length; i += 10) {
+        const batch = instIds.slice(i, i + 10);
+        const snap = await db.collection("users")
+          .where("role", "==", "agent")
+          .where("isActive", "==", true)
+          .where("institutionId", "in", batch)
+          .get();
+        agentDocs.push(...snap.docs);
+      }
+      console.log(`[Push] Tipo "${alertType}": ${institutionsSnap.size} instituciones, ${agentDocs.length} agentes encontrados`);
+    }
+
+    if (agentDocs.length === 0) {
+      console.log("[Push] No hay agentes activos disponibles");
       return;
     }
 
     // Recopilar tokens Expo de agentes (excluir al creador de la alerta)
     const tokens: string[] = [];
     const agentIds: string[] = [];
-    agentsSnapshot.forEach((doc) => {
+    agentDocs.forEach((doc) => {
       if (doc.id === alertData.createdBy) return;
       const userData = doc.data() as UserData;
       if (userData.expoPushToken) {
@@ -876,10 +901,18 @@ export const deriveAlert = onCall<DeriveAlertInput>(
     if (!instDoc.exists) {
       throw new HttpsError("not-found", "Institución destino no encontrada");
     }
-    const instData = instDoc.data() as { name: string; isActive: boolean };
+    const instData = instDoc.data() as { name: string; isActive: boolean; alertTypes?: string[] };
 
     if (!instData.isActive) {
       throw new HttpsError("failed-precondition", "La institución destino no está activa");
+    }
+
+    // Validar que la institución atiende este tipo de alerta
+    if (instData.alertTypes && instData.alertTypes.length > 0 && !instData.alertTypes.includes(alertData.type)) {
+      throw new HttpsError(
+        "failed-precondition",
+        `La institución ${instData.name} no atiende alertas de tipo "${alertData.type}"`
+      );
     }
 
     const agentName = `${agentData.firstName} ${agentData.lastName}`;

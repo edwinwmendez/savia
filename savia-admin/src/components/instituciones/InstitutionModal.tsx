@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { RadioGroup } from '@/components/ui/RadioGroup';
 import { Checkbox } from '@/components/ui/Checkbox';
-import type { InstitutionData, InstitutionType } from '@/types';
+import { fetchCategories } from '@/lib/categories';
+import type { InstitutionData, InstitutionType, CategoryData } from '@/types';
 
 const typeOptions = [
   { value: 'pnp', label: 'PNP' },
@@ -18,7 +19,7 @@ const typeOptions = [
   { value: 'otro', label: 'Otro' },
 ];
 
-const alertTypeOptions = [
+const FALLBACK_ALERT_TYPE_OPTIONS = [
   { value: 'robbery', label: 'Robo / Asalto' },
   { value: 'accident', label: 'Accidente' },
   { value: 'medical', label: 'Emergencia Médica' },
@@ -43,6 +44,25 @@ export function InstitutionModal({
   institution,
 }: InstitutionModalProps) {
   const isEditing = !!institution?.id;
+
+  const [alertTypeOptions, setAlertTypeOptions] = useState(FALLBACK_ALERT_TYPE_OPTIONS);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  useEffect(() => {
+    fetchCategories()
+      .then((cats: CategoryData[]) => {
+        const active = cats.filter((c) => c.isActive);
+        if (active.length > 0) {
+          setAlertTypeOptions(
+            active.map((c) => ({ value: c.code, label: `${c.emoji} ${c.name}` })),
+          );
+        }
+      })
+      .catch((err) => {
+        console.error('[InstitutionModal] Error cargando categorias:', err);
+      })
+      .finally(() => setLoadingCategories(false));
+  }, []);
 
   const [name, setName] = useState('');
   const [type, setType] = useState<InstitutionType | ''>('');
@@ -185,16 +205,20 @@ export function InstitutionModal({
           <span className="text-sm font-medium text-text-primary">
             Tipos de Alerta que Atiende
           </span>
-          <div className="grid grid-cols-2 gap-2">
-            {alertTypeOptions.map((opt) => (
-              <Checkbox
-                key={opt.value}
-                label={opt.label}
-                checked={alertTypes.includes(opt.value)}
-                onChange={() => toggleAlertType(opt.value)}
-              />
-            ))}
-          </div>
+          {loadingCategories ? (
+            <p className="text-sm text-text-secondary">Cargando categorias...</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {alertTypeOptions.map((opt) => (
+                <Checkbox
+                  key={opt.value}
+                  label={opt.label}
+                  checked={alertTypes.includes(opt.value)}
+                  onChange={() => toggleAlertType(opt.value)}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         <RadioGroup

@@ -17,7 +17,7 @@ import { AlertTimeline } from '@/features/alerts/components/AlertTimeline';
 import { MapPlaceholder } from '@/features/alerts/components/MapPlaceholder';
 import { ImageGallery } from '@/features/alerts/components/ImageGallery';
 import { subscribeToAlertDetail, getUserById } from '@/features/alerts/services/alertQueryService';
-import { ALERT_CATEGORIES } from '@/features/alerts/data/categories';
+import { useCategoryStore } from '@/features/alerts/store/categoryStore';
 import { colors } from '@/shared/theme/colors';
 import { fontSize, fontFamily, fontWeight } from '@/shared/theme/typography';
 import { spacing, radius } from '@/shared/theme/spacing';
@@ -47,9 +47,10 @@ const STATUS_BADGE: Record<string, { bg: string; color: string; label: string }>
   cancelled: { bg: '#F5F5F5', color: '#757575', label: 'Cancelada' },
 };
 
-const CATEGORY_COLOR_MAP = Object.fromEntries(
-  ALERT_CATEGORIES.map((c) => [c.id, c.color]),
-);
+function useCategoryColorMap(): Record<string, string> {
+  const categories = useCategoryStore((s) => s.categories);
+  return Object.fromEntries(categories.map((c) => [c.id, c.color]));
+}
 
 function getCategoryEmoji(type: string): string {
   const emojiMap: Record<string, string> = {
@@ -144,7 +145,8 @@ export function CitizenAlertDetailScreen() {
 
   // ── Derived data ─────────────────────────────────────────────────────
 
-  const categoryColor = CATEGORY_COLOR_MAP[alert.type] ?? colors.textSecondary;
+  const categoryColorMap = useCategoryColorMap();
+  const categoryColor = categoryColorMap[alert.type] ?? colors.textSecondary;
   const urgency = URGENCY_BADGE[alert.urgency] ?? URGENCY_BADGE.low;
   const status = STATUS_BADGE[alert.status] ?? STATUS_BADGE.pending;
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, Info, Save } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, Info, Save, Database } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -9,6 +9,7 @@ import { DataTable, type Column } from '@/components/ui/DataTable';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { CategoryModal } from '@/components/categorias/CategoryModal';
 import { useCategories } from '@/hooks/useCategories';
+import { seedCategories } from '@/lib/seedCategories';
 import type { CategoryData } from '@/types';
 
 const columns: Column<CategoryData>[] = [
@@ -33,6 +34,16 @@ const columns: Column<CategoryData>[] = [
         <p className="font-semibold text-text-primary">{cat.name}</p>
         <p className="text-xs text-text-secondary">{cat.shortName}</p>
       </div>
+    ),
+  },
+  {
+    key: 'code',
+    header: 'Codigo',
+    width: '120px',
+    render: (cat) => (
+      <span className="text-xs font-mono text-text-secondary bg-surface-secondary px-2 py-1 rounded">
+        {cat.code ?? '-'}
+      </span>
     ),
   },
   {
@@ -81,6 +92,7 @@ export default function CategoriasPage() {
     reorder,
     moveUp,
     moveDown,
+    refresh,
   } = useCategories();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -88,6 +100,7 @@ export default function CategoriasPage() {
   const [deleteTarget, setDeleteTarget] = useState<CategoryData | null>(null);
   const [orderChanged, setOrderChanged] = useState(false);
   const [savingOrder, setSavingOrder] = useState(false);
+  const [seeding, setSeeding] = useState(false);
 
   function handleCreate() {
     setEditingCategory(null);
@@ -128,6 +141,18 @@ export default function CategoriasPage() {
   function handleMoveDown(index: number) {
     moveDown(index);
     setOrderChanged(true);
+  }
+
+  async function handleSeed() {
+    setSeeding(true);
+    try {
+      await seedCategories();
+      await refresh();
+    } catch (err) {
+      console.error('[Categorias] Error en seed:', err);
+    } finally {
+      setSeeding(false);
+    }
   }
 
   async function handleSaveOrder() {
@@ -226,6 +251,19 @@ export default function CategoriasPage() {
         {error && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
             {error}
+          </div>
+        )}
+
+        {/* Seed Button — solo si la lista está vacía y ya cargó */}
+        {!loading && categories.length === 0 && (
+          <div className="flex flex-col items-center gap-3 p-6 bg-surface-secondary rounded-xl">
+            <p className="text-sm text-text-secondary text-center">
+              No hay categorias. Puedes inicializar las 8 categorias predeterminadas.
+            </p>
+            <Button onClick={handleSeed} loading={seeding} variant="secondary">
+              <Database className="w-4 h-4" />
+              Inicializar Categorias
+            </Button>
           </div>
         )}
 

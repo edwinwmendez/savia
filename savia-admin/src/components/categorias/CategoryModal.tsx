@@ -25,9 +25,11 @@ export function CategoryModal({
 }: CategoryModalProps) {
   const isEditing = !!category?.id;
 
+  const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [shortName, setShortName] = useState('');
   const [emoji, setEmoji] = useState('');
+  const [icon, setIcon] = useState('');
   const [color, setColor] = useState('#1976D2');
   const [order, setOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
@@ -36,16 +38,20 @@ export function CategoryModal({
 
   useEffect(() => {
     if (category) {
+      setCode(category.code ?? '');
       setName(category.name);
       setShortName(category.shortName);
       setEmoji(category.emoji);
+      setIcon(category.icon ?? '');
       setColor(category.color);
       setOrder(category.order);
       setIsActive(category.isActive);
     } else {
+      setCode('');
       setName('');
       setShortName('');
       setEmoji('');
+      setIcon('');
       setColor('#1976D2');
       setOrder(nextOrder);
       setIsActive(true);
@@ -55,9 +61,12 @@ export function CategoryModal({
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
+    if (!code.trim()) newErrors.code = 'El código es requerido';
+    else if (!/^[a-z_]+$/.test(code.trim())) newErrors.code = 'Solo minúsculas y guiones bajos';
     if (!name.trim()) newErrors.name = 'El nombre es requerido';
     if (!shortName.trim()) newErrors.shortName = 'El nombre corto es requerido';
     if (!emoji.trim()) newErrors.emoji = 'El emoji es requerido';
+    if (!icon.trim()) newErrors.icon = 'El icono es requerido';
     if (!color.trim()) newErrors.color = 'El color es requerido';
     if (!/^#[0-9A-Fa-f]{6}$/.test(color)) newErrors.color = 'Formato hex invalido (#RRGGBB)';
     setErrors(newErrors);
@@ -69,9 +78,11 @@ export function CategoryModal({
     setSaving(true);
     try {
       await onSave({
+        code: code.trim(),
         name: name.trim(),
         shortName: shortName.trim(),
         emoji: emoji.trim(),
+        icon: icon.trim(),
         color: color.trim(),
         order,
         isActive,
@@ -111,6 +122,20 @@ export function CategoryModal({
           />
         </div>
 
+        <div>
+          <Input
+            label="Código (slug)"
+            value={code}
+            onChange={(e) => setCode(e.target.value.toLowerCase().replace(/[^a-z_]/g, ''))}
+            placeholder="Ej: robbery"
+            error={errors.code}
+            disabled={isEditing}
+          />
+          <p className="text-xs text-text-secondary mt-1">
+            Identificador interno en minúsculas. Se usa para vincular con instituciones y alertas. No se puede cambiar después.
+          </p>
+        </div>
+
         <Input
           label="Nombre"
           value={name}
@@ -128,13 +153,33 @@ export function CategoryModal({
         />
 
         <div className="grid grid-cols-2 gap-4">
-          <Input
-            label="Emoji"
-            value={emoji}
-            onChange={(e) => setEmoji(e.target.value)}
-            placeholder="Ej: 🚨"
-            error={errors.emoji}
-          />
+          <div>
+            <Input
+              label="Emoji"
+              value={emoji}
+              onChange={(e) => setEmoji(e.target.value)}
+              placeholder="Ej: 🚨"
+              error={errors.emoji}
+            />
+            <p className="text-xs text-text-secondary mt-1">
+              Se muestra en el panel admin y en instituciones.
+            </p>
+          </div>
+          <div>
+            <Input
+              label="Icono Lucide"
+              value={icon}
+              onChange={(e) => setIcon(e.target.value)}
+              placeholder="Ej: Siren"
+              error={errors.icon}
+            />
+            <p className="text-xs text-text-secondary mt-1">
+              Nombre exacto del icono en inglés (<a href="https://lucide.dev/icons" target="_blank" rel="noopener noreferrer" className="text-primary underline">lucide.dev/icons</a>). Ej: Siren, Flame, Droplets, Car.
+            </p>
+          </div>
+        </div>
+
+        <div>
           <Input
             label="Color (hex)"
             value={color}
@@ -142,6 +187,9 @@ export function CategoryModal({
             placeholder="#1976D2"
             error={errors.color}
           />
+          <p className="text-xs text-text-secondary mt-1">
+            Color hexadecimal para el icono y fondo de la tarjeta en la app.
+          </p>
         </div>
 
         <Input

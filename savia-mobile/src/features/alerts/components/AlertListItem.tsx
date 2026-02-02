@@ -5,7 +5,7 @@ import { fontSize, fontFamily, fontWeight } from '@/shared/theme/typography';
 import { spacing, radius, iconSize } from '@/shared/theme/spacing';
 import { shadows } from '@/shared/theme/shadows';
 import { StatusBadge } from '@/features/alerts/components/StatusBadge';
-import { ALERT_CATEGORIES } from '@/features/alerts/data/categories';
+import { useCategoryStore } from '@/features/alerts/store/categoryStore';
 import { formatRelativeTime, getShortAddress } from '@/shared/utils/formatters';
 import type { AlertData, UrgencyLevel } from '@/shared/types/alert';
 import * as LucideIcons from 'lucide-react-native';
@@ -26,11 +26,6 @@ const URGENCY_COLORS: Record<UrgencyLevel, string> = {
   low: '#4CAF50',
 };
 
-// Mapa de categoryId a datos de categoría
-const CATEGORY_MAP = Object.fromEntries(
-  ALERT_CATEGORIES.map((c) => [c.id, c]),
-);
-
 function getCategoryIcon(iconName: string): LucideIcons.LucideIcon | null {
   const Icon = (LucideIcons as Record<string, LucideIcons.LucideIcon>)[iconName];
   return Icon ?? null;
@@ -44,7 +39,8 @@ export function AlertListItem({
   showStatusBadge = false,
   isTakingCase = false,
 }: AlertListItemProps) {
-  const category = CATEGORY_MAP[alert.type];
+  const categories = useCategoryStore((s) => s.categories);
+  const category = categories.find((c) => c.id === alert.type);
   const categoryIconName = category?.icon ?? 'HelpCircle';
   const CategoryIcon = getCategoryIcon(categoryIconName) ?? LucideIcons.HelpCircle;
 

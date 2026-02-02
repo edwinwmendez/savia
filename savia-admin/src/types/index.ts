@@ -72,9 +72,11 @@ export interface InstitutionData {
 // Category types
 export interface CategoryData {
   id?: string;
+  code: string;
   name: string;
   shortName: string;
   emoji: string;
+  icon: string;
   color: string;
   order: number;
   isActive: boolean;

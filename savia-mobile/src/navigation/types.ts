@@ -41,5 +41,5 @@ export type AgentStackParamList = {
   AgentAlertDetail: { alertId: string };
   UpdateAlertStatus: { alertId: string };
   AgentNotifications: undefined;
-  DeriveAlert: { alertId: string };
+  DeriveAlert: { alertId: string; alertType: string };
 };
