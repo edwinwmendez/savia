@@ -7,8 +7,6 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
-  Linking,
-  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -20,6 +18,7 @@ import {
   Navigation,
   CircleCheck,
   Share2,
+  ArrowRightLeft,
 } from 'lucide-react-native';
 import { ImageGallery } from '@/features/alerts/components/ImageGallery';
 import { MapPlaceholder } from '@/features/alerts/components/MapPlaceholder';
@@ -37,6 +36,7 @@ import type { AgentStackParamList } from '@/navigation/types';
 import type { AlertData, UrgencyLevel } from '@/shared/types/alert';
 import type { UserData } from '@/shared/types/user';
 import { formatRelativeTime } from '@/shared/utils/formatters';
+import { openNavigation } from '@/shared/utils/navigation';
 
 type NavigationProp = NativeStackNavigationProp<AgentStackParamList>;
 type RouteProps = RouteProp<AgentStackParamList, 'AgentAlertDetail'>;
@@ -148,19 +148,14 @@ export function AgentAlertDetailScreen() {
   const handleNavigate = useCallback(() => {
     if (!alert?.location) return;
     const { latitude, longitude } = alert.location;
-    const label = encodeURIComponent(alert.address || 'Ubicacion de alerta');
-    const url = Platform.select({
-      ios: `maps:0,0?q=${label}@${latitude},${longitude}`,
-      android: `geo:0,0?q=${latitude},${longitude}(${label})`,
-    });
-    if (url) {
-      Linking.openURL(url).catch(() => {
-        Linking.openURL(
-          `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`,
-        );
-      });
+    openNavigation(latitude, longitude);
+  }, [alert?.location]);
+
+  const handleDerive = useCallback(() => {
+    if (alert?.id) {
+      navigation.navigate('DeriveAlert', { alertId: alert.id });
     }
-  }, [alert?.location, alert?.address]);
+  }, [navigation, alert?.id]);
 
   const handleShare = useCallback(() => {
     // Placeholder: compartir alerta
@@ -369,6 +364,19 @@ export function AgentAlertDetailScreen() {
             >
               <CircleCheck size={20} color={colors.surface} />
               <Text style={styles.actionBtnText}>ACTUALIZAR ESTADO</Text>
+            </Pressable>
+          )}
+
+          {/* DERIVAR — solo cuando está asignada o en progreso */}
+          {!isPending && (
+            <Pressable
+              style={({ pressed }) => [
+                styles.actionBtnDerive,
+                pressed && styles.actionBtnPressed,
+              ]}
+              onPress={handleDerive}
+            >
+              <ArrowRightLeft size={20} color="#F57C00" />
             </Pressable>
           )}
 
@@ -632,6 +640,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
+  },
+  actionBtnDerive: {
+    width: 48,
+    height: 48,
+    backgroundColor: colors.surface,
+    borderWidth: 1.5,
+    borderColor: '#F57C00',
+    borderRadius: radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionBtnShare: {
     width: 48,

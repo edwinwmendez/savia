@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 export interface Column<T> {
   key: string;
   header: string;
-  render?: (item: T) => ReactNode;
+  render?: (item: T, index?: number) => ReactNode;
   width?: string;
 }
 
@@ -16,9 +16,10 @@ interface DataTableProps<T> {
   loading?: boolean;
   loadingRows?: number;
   emptyMessage?: string;
+  emptyDescription?: string;
   emptyIcon?: ReactNode;
   onRowClick?: (item: T) => void;
-  rowKey: (item: T) => string;
+  rowKey?: (item: T) => string;
 }
 
 export function DataTable<T>({
@@ -27,6 +28,7 @@ export function DataTable<T>({
   loading = false,
   loadingRows = 5,
   emptyMessage = 'No hay datos disponibles',
+  emptyDescription,
   emptyIcon,
   onRowClick,
   rowKey,
@@ -70,13 +72,16 @@ export function DataTable<T>({
                       <Inbox className="w-12 h-12 text-text-secondary/40" />
                     )}
                     <p className="text-sm text-text-secondary">{emptyMessage}</p>
+                    {emptyDescription && (
+                      <p className="text-xs text-text-secondary/70">{emptyDescription}</p>
+                    )}
                   </div>
                 </td>
               </tr>
             ) : (
-              data.map((item) => (
+              data.map((item, index) => (
                 <tr
-                  key={rowKey(item)}
+                  key={rowKey ? rowKey(item) : index}
                   onClick={() => onRowClick?.(item)}
                   className={`border-b border-border hover:bg-bg/50 transition-colors ${
                     onRowClick ? 'cursor-pointer' : ''
@@ -85,7 +90,7 @@ export function DataTable<T>({
                   {columns.map((col) => (
                     <td key={col.key} className="px-6 py-4 text-sm">
                       {col.render
-                        ? col.render(item)
+                        ? col.render(item, index)
                         : String((item as Record<string, unknown>)[col.key] ?? '')}
                     </td>
                   ))}

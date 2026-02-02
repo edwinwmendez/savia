@@ -21,6 +21,12 @@ export type CitizenStackParamList = {
   ConfirmAlert: undefined;
   AlertSuccess: { alertCode: string; alertId: string };
   AlertDetail: { alertId: string };
+  RateAlert: {
+    alertId: string;
+    alertCode?: string;
+    agentName?: string;
+    agentId?: string;
+  };
 };
 
 export type AgentTabParamList = {
@@ -35,4 +41,5 @@ export type AgentStackParamList = {
   AgentAlertDetail: { alertId: string };
   UpdateAlertStatus: { alertId: string };
   AgentNotifications: undefined;
+  DeriveAlert: { alertId: string };
 };

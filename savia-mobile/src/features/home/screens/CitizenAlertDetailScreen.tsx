@@ -7,14 +7,12 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert as RNAlert,
-  Linking,
-  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
-import { ArrowLeft, Share2, MapPin, Clock, Phone, Navigation } from 'lucide-react-native';
+import { ArrowLeft, Share2, MapPin, Clock, Phone, Navigation, Star } from 'lucide-react-native';
 import { AlertTimeline } from '@/features/alerts/components/AlertTimeline';
 import { MapPlaceholder } from '@/features/alerts/components/MapPlaceholder';
 import { ImageGallery } from '@/features/alerts/components/ImageGallery';
@@ -24,6 +22,7 @@ import { colors } from '@/shared/theme/colors';
 import { fontSize, fontFamily, fontWeight } from '@/shared/theme/typography';
 import { spacing, radius } from '@/shared/theme/spacing';
 import { formatTimestamp } from '@/shared/utils/formatters';
+import { openNavigation } from '@/shared/utils/navigation';
 import type { CitizenStackParamList } from '@/navigation/types';
 import type { AlertData, AlertStatus } from '@/shared/types/alert';
 import type { UserData } from '@/shared/types/user';
@@ -170,21 +169,7 @@ export function CitizenAlertDetailScreen() {
   const handleNavigate = () => {
     if (!alert.location) return;
     const { latitude, longitude } = alert.location;
-    const label = encodeURIComponent(alert.address || 'Ubicacion de alerta');
-
-    const url = Platform.select({
-      ios: `maps:0,0?q=${label}@${latitude},${longitude}`,
-      android: `geo:0,0?q=${latitude},${longitude}(${label})`,
-    });
-
-    if (url) {
-      Linking.openURL(url).catch(() => {
-        // Fallback a Google Maps web
-        Linking.openURL(
-          `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`
-        );
-      });
-    }
+    openNavigation(latitude, longitude);
   };
 
   const handleRate = () => {
@@ -192,7 +177,13 @@ export function CitizenAlertDetailScreen() {
       RNAlert.alert('No disponible', 'Podras calificar cuando tu alerta sea resuelta.');
       return;
     }
-    RNAlert.alert('Calificar', 'La calificacion se implementara proximamente.');
+    if (alert.ratingId) return; // Ya calificó
+    navigation.navigate('RateAlert', {
+      alertId: alert.id ?? alertId,
+      alertCode: alert.alertCode,
+      agentName: agentName ?? undefined,
+      agentId: alert.assignedTo ?? undefined,
+    });
   };
 
   // ── Render ───────────────────────────────────────────────────────────
@@ -328,18 +319,36 @@ export function CitizenAlertDetailScreen() {
         )}
       </ScrollView>
 
-      {/* ── Bottom: Rate button ─────────────────────────────────────── */}
-      <View style={styles.bottomSection}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.rateBtn,
-            pressed && styles.btnOpacity,
-          ]}
-          onPress={handleRate}
-        >
-          <Text style={styles.rateBtnText}>Calificar Atencion</Text>
-        </Pressable>
-      </View>
+      {/* ── Bottom: Rate section ────────────────────────────────────── */}
+      {alert.status === 'resolved' && (
+        <View style={styles.bottomSection}>
+          {alert.ratingId && alert.rating ? (
+            <View style={styles.ratingDisplay}>
+              <Text style={styles.ratingDisplayLabel}>Tu calificacion</Text>
+              <View style={styles.ratingStarsRow}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={28}
+                    color={star <= (alert.rating ?? 0) ? '#FFC107' : '#E0E0E0'}
+                    fill={star <= (alert.rating ?? 0) ? '#FFC107' : 'transparent'}
+                  />
+                ))}
+              </View>
+            </View>
+          ) : (
+            <Pressable
+              style={({ pressed }) => [
+                styles.rateBtn,
+                pressed && styles.btnOpacity,
+              ]}
+              onPress={handleRate}
+            >
+              <Text style={styles.rateBtnText}>Calificar Atencion</Text>
+            </Pressable>
+          )}
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -592,5 +601,21 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.bold,
     fontWeight: fontWeight.bold,
     color: colors.surface,
+  },
+
+  // Rating display (read-only)
+  ratingDisplay: {
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  ratingDisplayLabel: {
+    fontSize: fontSize.bodySmall,
+    fontFamily: fontFamily.semibold,
+    fontWeight: fontWeight.semibold,
+    color: colors.textSecondary,
+  },
+  ratingStarsRow: {
+    flexDirection: 'row',
+    gap: 4,
   },
 });

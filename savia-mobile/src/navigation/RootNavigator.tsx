@@ -10,6 +10,7 @@ import { LocateAlertScreen } from '@/features/alerts/screens/LocateAlertScreen';
 import { ConfirmAlertScreen } from '@/features/alerts/screens/ConfirmAlertScreen';
 import { AlertSuccessScreen } from '@/features/alerts/screens/AlertSuccessScreen';
 import { CitizenAlertDetailScreen } from '@/features/home/screens/CitizenAlertDetailScreen';
+import { RateAlertScreen } from '@/features/rating/screens/RateAlertScreen';
 import { AuthNavigator } from './AuthNavigator';
 import { CitizenTabNavigator } from './CitizenTabNavigator';
 import { AgentStackNavigator } from './AgentStackNavigator';
@@ -71,6 +72,7 @@ export function RootNavigator() {
       <Stack.Screen name="ConfirmAlert" component={ConfirmAlertScreen} />
       <Stack.Screen name="AlertSuccess" component={AlertSuccessScreen} options={{ gestureEnabled: false }} />
       <Stack.Screen name="AlertDetail" component={CitizenAlertDetailScreen} />
+      <Stack.Screen name="RateAlert" component={RateAlertScreen} />
     </Stack.Navigator>
   );
 }
