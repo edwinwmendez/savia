@@ -100,7 +100,10 @@ export default function AlertDetailPage({ params }: AlertDetailPageProps) {
         status: 'resolved',
         statusHistory: [...(alert.statusHistory || []), historyEntry],
       });
+      console.log('[AlertDetail] Alerta cerrada exitosamente:', alert.id);
       await loadAlert();
+    } catch (err) {
+      console.error('[AlertDetail] Error al cerrar alerta:', err);
     } finally {
       setClosing(false);
       setConfirmClose(false);
@@ -134,8 +137,10 @@ export default function AlertDetailPage({ params }: AlertDetailPageProps) {
     );
   }
 
-  const canReassign = alert.status !== 'resolved' && alert.status !== 'cancelled';
-  const canClose = alert.status !== 'resolved' && alert.status !== 'cancelled';
+  const isOpen = alert.status !== 'resolved' && alert.status !== 'cancelled';
+  const canAssign = isOpen;
+  const isAssigned = !!alert.assignedTo;
+  const canClose = isOpen;
 
   return (
     <>
@@ -144,10 +149,10 @@ export default function AlertDetailPage({ params }: AlertDetailPageProps) {
         title={`Alerta ${alert.alertCode || ''}`}
         actionButton={
           <div className="flex items-center gap-2">
-            {canReassign && (
+            {canAssign && (
               <Button variant="secondary" onClick={() => setReassignOpen(true)}>
                 <UserCheck className="w-4 h-4" />
-                Reasignar
+                {isAssigned ? 'Reasignar' : 'Asignar'}
               </Button>
             )}
             {canClose && (

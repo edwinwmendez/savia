@@ -10,6 +10,12 @@ export interface UserData {
   institutionId?: string;
   isActive: boolean;
   expoPushToken?: string;
+  lastLocation?: {
+    latitude: number;
+    longitude: number;
+    geohash: string;
+    updatedAt: Timestamp;
+  };
   createdAt: Timestamp;
   updatedAt: Timestamp;
   lastLoginAt?: Timestamp;

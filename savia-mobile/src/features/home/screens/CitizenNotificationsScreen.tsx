@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { View, Text, SectionList, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -7,7 +7,7 @@ import { BellOff } from 'lucide-react-native';
 import { HeaderMobile } from '@/shared/components/HeaderMobile';
 import { TabSelector } from '@/shared/components/TabSelector';
 import { NotificationItem } from '@/features/notifications/components/NotificationItem';
-import { useNotificationsStore, type NotificationSection } from '@/features/notifications/store/notificationsStore';
+import { useNotificationsStore, groupNotificationsByDate, type NotificationSection } from '@/features/notifications/store/notificationsStore';
 import {
   subscribeToNotifications,
   subscribeToUnreadCount,
@@ -32,10 +32,10 @@ export function CitizenNotificationsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const user = useAuthStore((s) => s.user);
 
+  const notifications = useNotificationsStore((s) => s.notifications);
   const selectedTab = useNotificationsStore((s) => s.selectedTab);
   const unreadCount = useNotificationsStore((s) => s.unreadCount);
   const isLoading = useNotificationsStore((s) => s.isLoading);
-  const groupedByDate = useNotificationsStore((s) => s.groupedByDate);
   const setNotifications = useNotificationsStore((s) => s.setNotifications);
   const setUnreadCount = useNotificationsStore((s) => s.setUnreadCount);
   const setSelectedTab = useNotificationsStore((s) => s.setSelectedTab);
@@ -118,7 +118,10 @@ export function CitizenNotificationsScreen() {
     badgeTextColor: tab.key === 'unread' ? colors.surface : undefined,
   }));
 
-  const sections = groupedByDate();
+  const sections = useMemo(
+    () => groupNotificationsByDate(notifications, selectedTab),
+    [notifications, selectedTab],
+  );
 
   const renderItem = useCallback(
     ({ item }: { item: NotificationData }) => (

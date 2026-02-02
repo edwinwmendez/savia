@@ -6,6 +6,7 @@ import {
   getDocs,
   getDoc,
   updateDoc,
+  deleteField,
   doc,
   serverTimestamp,
   type QueryConstraint,
@@ -73,8 +74,20 @@ export async function updateUser(
   data: Partial<Omit<UserData, 'createdAt' | 'updatedAt'>>,
 ): Promise<void> {
   const ref = doc(db, 'users', id);
+
+  // Firestore no acepta undefined — filtrar campos undefined
+  // y usar deleteField() para campos que se deben eliminar (ej. institutionId al cambiar de agente a ciudadano)
+  const cleanData: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined) {
+      cleanData[key] = deleteField();
+    } else {
+      cleanData[key] = value;
+    }
+  }
+
   await updateDoc(ref, {
-    ...data,
+    ...cleanData,
     updatedAt: serverTimestamp(),
   });
   console.log('[Users] Usuario actualizado:', id);

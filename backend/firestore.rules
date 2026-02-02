@@ -59,7 +59,7 @@ service cloud.firestore {
       allow delete: if isAdmin();
 
       function onlyUpdatingAllowedFields() {
-        let allowedFields = ['phone', 'address', 'expoPushToken', 'updatedAt'];
+        let allowedFields = ['phone', 'address', 'expoPushToken', 'lastLocation', 'updatedAt'];
         return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
       }
     }
@@ -72,8 +72,9 @@ service cloud.firestore {
       // Creación: solo ciudadanos autenticados
       allow create: if isCitizen() && validAlertData();
 
-      // Actualización: agentes (cambio de estado) o admin
-      allow update: if isAgentOrAdmin() && validAlertUpdate();
+      // Actualización: agentes (cambio de estado), admin, o ciudadano creador (solo rating)
+      allow update: if (isAgentOrAdmin() && validAlertUpdate())
+        || (isCitizen() && isOwner(resource.data.createdBy) && onlyUpdatingRating());
 
       // Eliminación: solo admin
       allow delete: if isAdmin();
@@ -88,6 +89,11 @@ service cloud.firestore {
       function validAlertUpdate() {
         let validStatuses = ['pending', 'assigned', 'in_progress', 'resolved', 'cancelled'];
         return request.resource.data.status in validStatuses;
+      }
+
+      function onlyUpdatingRating() {
+        let allowedFields = ['rating', 'ratingId', 'updatedAt'];
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
       }
     }
 
@@ -124,7 +130,8 @@ service cloud.firestore {
         let data = request.resource.data;
         return data.keys().hasAll(['alertId', 'rating', 'ratedBy'])
           && data.rating >= 1 && data.rating <= 5
-          && data.ratedBy == request.auth.uid;
+          && data.ratedBy == request.auth.uid
+          && data.keys().hasOnly(['alertId', 'rating', 'ratedBy', 'comment', 'agentId', 'createdAt']);
       }
     }
 

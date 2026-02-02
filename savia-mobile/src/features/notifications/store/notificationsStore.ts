@@ -16,10 +16,6 @@ interface NotificationsState {
   isLoading: boolean;
   error: string | null;
 
-  // Computed-like
-  filteredNotifications: () => NotificationData[];
-  groupedByDate: () => NotificationSection[];
-
   // Actions
   setNotifications: (notifications: NotificationData[]) => void;
   setUnreadCount: (count: number) => void;
@@ -37,6 +33,8 @@ const initialState = {
   error: null,
 };
 
+const SECTION_ORDER = ['HOY', 'AYER', 'ESTA SEMANA', 'ANTERIORES'];
+
 function getDateSection(timestamp: Timestamp): string {
   const now = new Date();
   const date = timestamp.toDate();
@@ -51,31 +49,28 @@ function getDateSection(timestamp: Timestamp): string {
   return 'ANTERIORES';
 }
 
-export const useNotificationsStore = create<NotificationsState>((set, get) => ({
+/** Agrupa notificaciones por fecha. Se usa desde los componentes con useMemo. */
+export function groupNotificationsByDate(
+  notifications: NotificationData[],
+  tab: NotificationTab,
+): NotificationSection[] {
+  const filtered = tab === 'all' ? notifications : notifications.filter((n) => !n.read);
+  const sections: Record<string, NotificationData[]> = {};
+
+  for (const notif of filtered) {
+    if (!notif.createdAt) continue;
+    const section = getDateSection(notif.createdAt);
+    if (!sections[section]) sections[section] = [];
+    sections[section].push(notif);
+  }
+
+  return SECTION_ORDER
+    .filter((title) => sections[title]?.length)
+    .map((title) => ({ title, data: sections[title] }));
+}
+
+export const useNotificationsStore = create<NotificationsState>((set) => ({
   ...initialState,
-
-  filteredNotifications: () => {
-    const { notifications, selectedTab } = get();
-    if (selectedTab === 'all') return notifications;
-    return notifications.filter((n) => !n.read);
-  },
-
-  groupedByDate: () => {
-    const filtered = get().filteredNotifications();
-    const sections: Record<string, NotificationData[]> = {};
-    const sectionOrder = ['HOY', 'AYER', 'ESTA SEMANA', 'ANTERIORES'];
-
-    for (const notif of filtered) {
-      if (!notif.createdAt) continue;
-      const section = getDateSection(notif.createdAt);
-      if (!sections[section]) sections[section] = [];
-      sections[section].push(notif);
-    }
-
-    return sectionOrder
-      .filter((title) => sections[title]?.length)
-      .map((title) => ({ title, data: sections[title] }));
-  },
 
   setNotifications: (notifications) => set({ notifications }),
   setUnreadCount: (count) => set({ unreadCount: count }),

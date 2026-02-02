@@ -7,11 +7,17 @@ import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/v2/fire
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { sendPushToOne, sendPushToMany } from "./pushService";
+import { getDistanceInMeters, getNeighborGeohashes } from "./geoUtils";
 
 // Inicializar Firebase Admin
 admin.initializeApp();
 
 const db = admin.firestore();
+
+// ============ CONSTANTES DE PROXIMIDAD ============
+
+const PROXIMITY_RADIUS_M = 500;
+const PROXIMITY_COOLDOWN_MS = 60 * 60 * 1000; // 1 hora
 
 // ============ TIPOS ============
 
@@ -51,6 +57,127 @@ interface RegisterCitizenData {
   phone: string;
   email: string;
   password: string;
+}
+
+// ============ HELPER: Notificaciones de Proximidad ============
+
+async function sendProximityNotifications(
+  alertData: AlertData,
+  alertId: string,
+): Promise<void> {
+  // Solo alertas críticas o altas
+  if (alertData.urgency !== "critical" && alertData.urgency !== "high") {
+    return;
+  }
+
+  const { latitude, longitude } = alertData.location;
+  if (!latitude || !longitude) {
+    return;
+  }
+
+  console.log(`[Proximity] Buscando ciudadanos cercanos a (${latitude}, ${longitude}) para alerta ${alertId}`);
+
+  // Obtener 9 celdas geohash (centro + vecinos)
+  const geohashCells = getNeighborGeohashes(latitude, longitude, 7);
+
+  // Buscar ciudadanos en cada celda geohash
+  const citizenMap = new Map<string, admin.firestore.DocumentSnapshot>();
+
+  for (const cell of geohashCells) {
+    const prefix = cell;
+    const snap = await db.collection("users")
+      .where("role", "==", "citizen")
+      .where("lastLocation.geohash", ">=", prefix)
+      .where("lastLocation.geohash", "<=", prefix + "\uf8ff")
+      .get();
+
+    snap.docs.forEach((doc) => {
+      if (!citizenMap.has(doc.id)) {
+        citizenMap.set(doc.id, doc);
+      }
+    });
+  }
+
+  if (citizenMap.size === 0) {
+    console.log("[Proximity] No se encontraron ciudadanos cercanos");
+    return;
+  }
+
+  const now = Date.now();
+  const tokens: string[] = [];
+  const eligibleCitizenIds: string[] = [];
+
+  for (const [docId, docSnap] of citizenMap) {
+    if (docId === alertData.createdBy) continue;
+
+    const data = docSnap.data() as UserData & {
+      lastLocation?: { latitude: number; longitude: number; geohash: string };
+      lastProximityNotifAt?: admin.firestore.Timestamp;
+      expoPushToken?: string;
+    };
+
+    if (!data.lastLocation?.latitude || !data.lastLocation?.longitude) continue;
+
+    const distance = getDistanceInMeters(
+      latitude,
+      longitude,
+      data.lastLocation.latitude,
+      data.lastLocation.longitude,
+    );
+
+    if (distance > PROXIMITY_RADIUS_M) continue;
+
+    // Rate limit (1 hora)
+    if (data.lastProximityNotifAt) {
+      const lastNotifTime = data.lastProximityNotifAt.toMillis();
+      if (now - lastNotifTime < PROXIMITY_COOLDOWN_MS) continue;
+    }
+
+    eligibleCitizenIds.push(docId);
+    if (data.expoPushToken) {
+      tokens.push(data.expoPushToken);
+    }
+  }
+
+  if (eligibleCitizenIds.length === 0) {
+    console.log("[Proximity] No hay ciudadanos elegibles para notificar");
+    return;
+  }
+
+  const urgencyLabels = { critical: "CRITICA", high: "Alta", medium: "Media", low: "Baja" };
+
+  // Push a ciudadanos con token
+  if (tokens.length > 0) {
+    await sendPushToMany(
+      tokens,
+      `Alerta ${urgencyLabels[alertData.urgency]} cerca de ti`,
+      `${alertData.type}: ${alertData.description.substring(0, 100)}`,
+      { alertId, type: "proximity", urgency: alertData.urgency },
+    );
+  }
+
+  // In-app + rate limit para TODOS los ciudadanos elegibles
+  const batch = db.batch();
+  eligibleCitizenIds.forEach((citizenId) => {
+    const notifRef = db.collection("notifications").doc();
+    batch.set(notifRef, {
+      userId: citizenId,
+      type: "proximity_alert",
+      title: `Alerta ${urgencyLabels[alertData.urgency]} cerca de ti`,
+      body: `${alertData.type}: ${alertData.description.substring(0, 100)}`,
+      alertId,
+      read: false,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    const userRef = db.collection("users").doc(citizenId);
+    batch.update(userRef, {
+      lastProximityNotifAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  });
+  await batch.commit();
+
+  console.log(`[Proximity] ${eligibleCitizenIds.length} ciudadanos notificados (${tokens.length} con push)`);
 }
 
 // ============ TRIGGER: Nueva Alerta Creada ============
@@ -100,58 +227,67 @@ export const onAlertCreated = onDocumentCreated("alerts/{alertId}", async (event
       return;
     }
 
-    // Recopilar tokens Expo de agentes (excluir al creador de la alerta)
+    // Recopilar agentes elegibles y sus tokens
     const tokens: string[] = [];
-    const agentIds: string[] = [];
+    const eligibleAgentIds: string[] = [];
     agentDocs.forEach((doc) => {
       if (doc.id === alertData.createdBy) return;
+      eligibleAgentIds.push(doc.id);
       const userData = doc.data() as UserData;
       if (userData.expoPushToken) {
         tokens.push(userData.expoPushToken);
-        agentIds.push(doc.id);
       }
     });
 
-    if (tokens.length === 0) {
-      console.log("[Push] Ningun agente tiene token Expo registrado");
-      return;
+    if (eligibleAgentIds.length === 0) {
+      console.log("[Push] No hay agentes elegibles para notificar");
+    } else {
+      // Preparar notificacion
+      const urgencyLabels = {
+        critical: "CRITICA",
+        high: "Alta",
+        medium: "Media",
+        low: "Baja",
+      };
+
+      const notification = {
+        title: `Nueva Alerta - ${urgencyLabels[alertData.urgency]}`,
+        body: `${alertData.type}: ${alertData.description.substring(0, 100)}...`,
+      };
+
+      // Enviar push a agentes con token
+      if (tokens.length > 0) {
+        await sendPushToMany(tokens, notification.title, notification.body, {
+          alertId,
+          type: alertData.type,
+          urgency: alertData.urgency,
+        });
+      }
+
+      // Crear notificación in-app para TODOS los agentes elegibles
+      const batch = db.batch();
+      eligibleAgentIds.forEach((agentId) => {
+        const notificationRef = db.collection("notifications").doc();
+        batch.set(notificationRef, {
+          userId: agentId,
+          type: "new_alert",
+          title: notification.title,
+          body: notification.body,
+          alertId,
+          read: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      });
+      await batch.commit();
+      console.log(`[Push] ${eligibleAgentIds.length} agentes notificados (${tokens.length} con push)`);
     }
 
-    // Preparar notificacion
-    const urgencyLabels = {
-      critical: "CRITICA",
-      high: "Alta",
-      medium: "Media",
-      low: "Baja",
-    };
-
-    const notification = {
-      title: `Nueva Alerta - ${urgencyLabels[alertData.urgency]}`,
-      body: `${alertData.type}: ${alertData.description.substring(0, 100)}...`,
-    };
-
-    // Enviar notificacion push a todos los agentes via Expo
-    await sendPushToMany(tokens, notification.title, notification.body, {
-      alertId,
-      type: alertData.type,
-      urgency: alertData.urgency,
-    });
-
-    // Crear registro de notificación en Firestore para cada agente
-    const batch = db.batch();
-    agentIds.forEach((agentId) => {
-      const notificationRef = db.collection("notifications").doc();
-      batch.set(notificationRef, {
-        userId: agentId,
-        type: "new_alert",
-        title: notification.title,
-        body: notification.body,
-        alertId,
-        read: false,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-    });
-    await batch.commit();
+    // Notificaciones de proximidad (no bloquea las de agentes si falla)
+    try {
+      await sendProximityNotifications(alertData, alertId);
+    } catch (proxError) {
+      console.error("[Proximity] Error en notificaciones de proximidad:", proxError);
+    }
   } catch (error) {
     console.error("Error al procesar nueva alerta:", error);
   }
@@ -167,24 +303,28 @@ export const onAlertUpdated = onDocumentUpdated("alerts/{alertId}", async (event
   const after = change.after.data() as AlertData;
   const alertId = event.params.alertId;
 
+  console.log(`[AlertUpdated] Alerta ${alertId}: ${before.status} → ${after.status}`);
+
   // Solo notificar si cambió el estado
   if (before.status === after.status) {
+    console.log(`[AlertUpdated] Estado no cambió (${after.status}), skip`);
     return;
   }
 
   try {
     // Obtener datos del ciudadano que creó la alerta
+    if (!after.createdBy) {
+      console.log("[AlertUpdated] Alerta sin createdBy, skip");
+      return;
+    }
+
     const citizenDoc = await db.collection("users").doc(after.createdBy).get();
     if (!citizenDoc.exists) {
-      console.log("Ciudadano no encontrado");
+      console.log(`[AlertUpdated] Ciudadano ${after.createdBy} no encontrado`);
       return;
     }
 
     const citizenData = citizenDoc.data() as UserData;
-    if (!citizenData.expoPushToken) {
-      console.log("[Push] Ciudadano no tiene token Expo");
-      return;
-    }
 
     // Preparar mensaje según el nuevo estado
     const statusMessages: Record<string, { title: string; body: string }> = {
@@ -208,17 +348,23 @@ export const onAlertUpdated = onDocumentUpdated("alerts/{alertId}", async (event
 
     const messageContent = statusMessages[after.status];
     if (!messageContent) {
+      console.log(`[AlertUpdated] Estado "${after.status}" sin mensaje configurado, skip`);
       return;
     }
 
-    // Enviar notificacion push al ciudadano via Expo
-    await sendPushToOne(citizenData.expoPushToken, messageContent.title, messageContent.body, {
-      alertId,
-      newStatus: after.status,
-    });
-    console.log(`[Push] Notificacion de cambio de estado enviada al ciudadano ${after.createdBy}`);
+    // Enviar push solo si el ciudadano tiene token Expo
+    if (citizenData.expoPushToken) {
+      console.log(`[AlertUpdated] Enviando push a ${after.createdBy} (token: ${citizenData.expoPushToken.substring(0, 20)}...)`);
+      await sendPushToOne(citizenData.expoPushToken, messageContent.title, messageContent.body, {
+        alertId,
+        newStatus: after.status,
+      });
+      console.log(`[AlertUpdated] Push enviado exitosamente a ${after.createdBy}`);
+    } else {
+      console.log(`[AlertUpdated] Ciudadano ${after.createdBy} sin token Expo, solo notificación in-app`);
+    }
 
-    // Crear registro de notificación
+    // Siempre crear registro de notificación in-app
     await db.collection("notifications").add({
       userId: after.createdBy,
       type: "status_change",
@@ -228,8 +374,9 @@ export const onAlertUpdated = onDocumentUpdated("alerts/{alertId}", async (event
       read: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+    console.log(`[AlertUpdated] Notificación in-app guardada para ${after.createdBy}`);
   } catch (error) {
-    console.error("Error al notificar cambio de estado:", error);
+    console.error(`[AlertUpdated] Error al notificar cambio de estado de alerta ${alertId}:`, error);
   }
 });
 
@@ -946,15 +1093,16 @@ export const deriveAlert = onCall<DeriveAlertInput>(
       .get();
 
     const tokens: string[] = [];
-    const agentIds: string[] = [];
+    const allAgentIds: string[] = [];
     targetAgents.forEach((doc) => {
+      allAgentIds.push(doc.id);
       const data = doc.data() as UserData;
       if (data.expoPushToken) {
         tokens.push(data.expoPushToken);
-        agentIds.push(doc.id);
       }
     });
 
+    // Push a agentes con token
     if (tokens.length > 0) {
       await sendPushToMany(
         tokens,
@@ -962,10 +1110,12 @@ export const deriveAlert = onCall<DeriveAlertInput>(
         `Se ha derivado una alerta a ${instData.name}. Motivo: ${reason.substring(0, 80)}`,
         { alertId, type: "derived" },
       );
+    }
 
-      // Crear notificaciones en Firestore
+    // In-app para TODOS los agentes destino
+    if (allAgentIds.length > 0) {
       const batch = db.batch();
-      agentIds.forEach((agentId) => {
+      allAgentIds.forEach((agentId) => {
         const notifRef = db.collection("notifications").doc();
         batch.set(notifRef, {
           userId: agentId,
