@@ -237,10 +237,10 @@ git flow feature start s8-exportar-pdf-excel
 ```
 
 **Criterios de aceptación:**
-- [ ] Admin puede filtrar por rango de fechas
-- [ ] Reportes: alertas por tipo, por urgencia, por estado, por institución
-- [ ] Gráficos interactivos con Recharts
-- [ ] Exportar a PDF y Excel
+- [x] Admin puede filtrar por rango de fechas
+- [x] Reportes: alertas por tipo, por urgencia, por estado, por institución
+- [x] Gráficos interactivos con Recharts
+- [x] Exportar a PDF y Excel
 
 ---
 
@@ -266,10 +266,10 @@ git flow release finish v3.0.0
 ```
 
 **Criterios de aceptación:**
-- [ ] Mapa de calor muestra zonas con más incidentes
-- [ ] Usuario recibe notificación si hay alerta cerca
-- [ ] App optimizada para Android 8+
-- [ ] App publicada en Play Store
+- [x] Mapa de calor muestra zonas con más incidentes
+- [x] Usuario recibe notificación si hay alerta cerca
+- [x] App optimizada para Android 8+
+- [x] App publicada en Play Store
 
 ---
 
