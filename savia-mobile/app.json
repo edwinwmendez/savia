@@ -2,7 +2,7 @@
   "expo": {
     "name": "SAVIA",
     "slug": "savia-mobile",
-    "version": "1.0.0",
+    "version": "3.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -17,6 +17,21 @@
         "expo-notifications",
         {
           "color": "#1976D2"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "SAVIA necesita acceder a tu ubicación para mostrar alertas cercanas y reportar emergencias.",
+          "locationWhenInUsePermission": "SAVIA necesita acceder a tu ubicación para mostrar alertas cercanas y reportar emergencias.",
+          "isAndroidForegroundServiceEnabled": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "SAVIA necesita acceder a tus fotos para adjuntar evidencia a las alertas.",
+          "cameraPermission": "SAVIA necesita acceder a la cámara para tomar fotos de evidencia."
         }
       ]
     ],

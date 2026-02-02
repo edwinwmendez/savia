@@ -24,7 +24,10 @@
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyAqWH1ffjhIzM2f9yKrRZynkUI07s3T4cU"
+      }
     }
   },
   "submit": {
