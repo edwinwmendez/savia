@@ -33,6 +33,14 @@
           "photosPermission": "SAVIA necesita acceder a tus fotos para adjuntar evidencia a las alertas.",
           "cameraPermission": "SAVIA necesita acceder a la cámara para tomar fotos de evidencia."
         }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "savia-mobile",
+          "organization": "edwinw"
+        }
       ]
     ],
     "ios": {
