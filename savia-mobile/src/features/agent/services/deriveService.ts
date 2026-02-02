@@ -17,14 +17,16 @@ export interface InstitutionItem {
 
 /**
  * Obtiene la lista de instituciones activas.
+ * Si se pasa alertType, filtra solo las que atienden ese tipo.
  */
-export async function fetchActiveInstitutions(): Promise<InstitutionItem[]> {
+export async function fetchActiveInstitutions(alertType?: string): Promise<InstitutionItem[]> {
   const ref = collection(db, 'institutions');
-  const q = query(
-    ref,
-    where('isActive', '==', true),
-    orderBy('name', 'asc'),
-  );
+  const constraints = [where('isActive', '==', true)];
+  if (alertType) {
+    constraints.push(where('alertTypes', 'array-contains', alertType));
+  }
+  constraints.push(orderBy('name', 'asc'));
+  const q = query(ref, ...constraints);
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({
     id: d.id,

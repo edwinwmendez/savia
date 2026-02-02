@@ -5,14 +5,9 @@ import { fontSize, fontFamily, fontWeight } from '@/shared/theme/typography';
 import { spacing, radius } from '@/shared/theme/spacing';
 import { shadows } from '@/shared/theme/shadows';
 import { UrgencyBadge } from '@/features/alerts/components/UrgencyBadge';
-import { ALERT_CATEGORIES } from '@/features/alerts/data/categories';
+import { useCategoryStore } from '@/features/alerts/store/categoryStore';
 import { formatRelativeTime, getShortAddress } from '@/shared/utils/formatters';
 import type { AlertData, AlertStatus } from '@/shared/types/alert';
-
-// Mapa rápido de categoryId → color para evitar .find() en cada render
-const CATEGORY_COLOR_MAP = Object.fromEntries(
-  ALERT_CATEGORIES.map((c) => [c.id, c.color]),
-);
 
 interface RecentAlertItemProps {
   alert: AlertData;
@@ -36,7 +31,8 @@ const STATUS_LABELS: Record<AlertStatus, string> = {
 };
 
 export function RecentAlertItem({ alert, onPress }: RecentAlertItemProps) {
-  const categoryColor = CATEGORY_COLOR_MAP[alert.type] ?? colors.textSecondary;
+  const categories = useCategoryStore((s) => s.categories);
+  const categoryColor = categories.find((c) => c.id === alert.type)?.color ?? colors.textSecondary;
   const statusColor = STATUS_DOT_COLORS[alert.status] ?? colors.textSecondary;
   const statusLabel = STATUS_LABELS[alert.status] ?? '';
   const shortAddress = getShortAddress(alert.address);

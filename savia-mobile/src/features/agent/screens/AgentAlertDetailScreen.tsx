@@ -27,7 +27,6 @@ import {
   getUserById,
   takeAlert,
 } from '@/features/alerts/services/alertQueryService';
-import { ALERT_CATEGORIES } from '@/features/alerts/data/categories';
 import { colors } from '@/shared/theme/colors';
 import { fontSize, fontFamily, fontWeight } from '@/shared/theme/typography';
 import { spacing, radius } from '@/shared/theme/spacing';
@@ -42,10 +41,6 @@ type NavigationProp = NativeStackNavigationProp<AgentStackParamList>;
 type RouteProps = RouteProp<AgentStackParamList, 'AgentAlertDetail'>;
 
 // ── Helpers ────────────────────────────────────────────────────────────
-
-const CATEGORY_COLOR_MAP = Object.fromEntries(
-  ALERT_CATEGORIES.map((c) => [c.id, c.color]),
-);
 
 function getCategoryEmoji(type: string): string {
   const emojiMap: Record<string, string> = {
@@ -153,9 +148,9 @@ export function AgentAlertDetailScreen() {
 
   const handleDerive = useCallback(() => {
     if (alert?.id) {
-      navigation.navigate('DeriveAlert', { alertId: alert.id });
+      navigation.navigate('DeriveAlert', { alertId: alert.id, alertType: alert.type });
     }
-  }, [navigation, alert?.id]);
+  }, [navigation, alert?.id, alert?.type]);
 
   const handleShare = useCallback(() => {
     // Placeholder: compartir alerta

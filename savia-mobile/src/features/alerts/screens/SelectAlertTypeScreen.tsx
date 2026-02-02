@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, Alert, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
+import { View, Text, ScrollView, Alert, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,7 +8,7 @@ import { HeaderMobile } from '@/shared/components/HeaderMobile';
 import { ProgressBar } from '@/shared/components/ProgressBar';
 import { ButtonPrimary } from '@/shared/components/ButtonPrimary';
 import { AlertTypeCard } from '@/features/alerts/components/AlertTypeCard';
-import { ALERT_CATEGORIES } from '@/features/alerts/data/categories';
+import { useCategoryStore } from '@/features/alerts/store/categoryStore';
 import { useCreateAlertStore } from '@/features/alerts/store/createAlertStore';
 import { colors } from '@/shared/theme/colors';
 import { fontSize, fontFamily, fontWeight } from '@/shared/theme/typography';
@@ -21,6 +22,12 @@ export function SelectAlertTypeScreen() {
   const selectedCategory = useCreateAlertStore((s) => s.selectedCategory);
   const setCategory = useCreateAlertStore((s) => s.setCategory);
   const reset = useCreateAlertStore((s) => s.reset);
+
+  const categories = useCategoryStore((s) => s.categories);
+  const loadCategories = useCategoryStore((s) => s.load);
+  const isCategoriesLoading = useCategoryStore((s) => s.isLoading);
+
+  useEffect(() => { loadCategories(); }, []);
 
   const handleClose = () => {
     reset();
@@ -44,8 +51,8 @@ export function SelectAlertTypeScreen() {
     navigation.navigate('DescribeAlert');
   };
 
-  const col1 = ALERT_CATEGORIES.filter((_, i) => i % 2 === 0);
-  const col2 = ALERT_CATEGORIES.filter((_, i) => i % 2 === 1);
+  const col1 = categories.filter((_, i) => i % 2 === 0);
+  const col2 = categories.filter((_, i) => i % 2 === 1);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -66,6 +73,10 @@ export function SelectAlertTypeScreen() {
         <Text style={styles.question}>
           ¿Qué tipo de emergencia quieres reportar?
         </Text>
+
+        {isCategoriesLoading && (
+          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: spacing.xl }} />
+        )}
 
         <View style={styles.grid}>
           <View style={styles.column}>

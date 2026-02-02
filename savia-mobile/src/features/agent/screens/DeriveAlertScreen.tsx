@@ -41,7 +41,7 @@ const INSTITUTION_EMOJIS: Record<string, string> = {
 export function DeriveAlertScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RouteProps>();
-  const { alertId } = route.params;
+  const { alertId, alertType } = route.params;
   const userData = useAuthStore((s) => s.userData);
 
   const [institutions, setInstitutions] = useState<InstitutionItem[]>([]);
@@ -51,14 +51,14 @@ export function DeriveAlertScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchActiveInstitutions()
+    fetchActiveInstitutions(alertType)
       .then(setInstitutions)
       .catch((err) => {
         console.error('[DeriveAlert] Error cargando instituciones:', err);
         Alert.alert('Error', 'No se pudieron cargar las instituciones.');
       })
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [alertType]);
 
   const selectedInstitution = institutions.find((i) => i.id === selectedId);
 
@@ -128,6 +128,13 @@ export function DeriveAlertScreen() {
 
           {isLoading ? (
             <ActivityIndicator size="large" color={colors.primary} style={{ marginVertical: 20 }} />
+          ) : institutions.length === 0 ? (
+            <View style={styles.warningBanner}>
+              <AlertTriangle size={20} color="#F57C00" />
+              <Text style={styles.warningText}>
+                No hay instituciones registradas que atiendan este tipo de alerta.
+              </Text>
+            </View>
           ) : (
             <View style={styles.institutionList}>
               {institutions.map((inst) => {

@@ -38,6 +38,7 @@ export function Input({
             ${Icon ? 'pl-12 pr-4' : 'px-4'}
             ${isPassword ? 'pr-12' : ''}
             ${error ? 'border-error focus:border-error focus:ring-error/20' : ''}
+            disabled:opacity-50 disabled:cursor-not-allowed
             ${className}
           `}
           {...props}
