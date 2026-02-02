@@ -208,7 +208,7 @@ git flow release finish v2.0.0
 
 **Criterios de aceptación:**
 - [x] Ciudadano puede calificar atención recibida
-- [ ] Ciudadano ve mapa con alertas cercanas en tiempo real
+- [x] Ciudadano ve mapa con alertas cercanas en tiempo real
 - [x] Agente puede derivar alerta a otra institución
 - [x] Agente puede abrir navegación GPS al lugar
 - [x] Categorías del admin conectadas con app móvil y backend (notificaciones dirigidas, derivación filtrada)
