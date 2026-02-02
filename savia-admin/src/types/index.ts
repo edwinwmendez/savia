@@ -98,3 +98,51 @@ export interface DashboardStats {
     activeAgents: number;
   };
 }
+
+// Report types
+export type DatePreset = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'all';
+
+export interface DateRange {
+  from: Date;
+  to: Date;
+}
+
+export interface ReportFilters {
+  preset: DatePreset;
+  customRange?: DateRange;
+}
+
+export interface ReportSummary {
+  totalAlerts: number;
+  resolutionRate: number;
+  avgResponseTimeMinutes: number;
+  alertsPerDay: number;
+}
+
+export interface ChartDataItem {
+  name: string;
+  value: number;
+  color?: string;
+}
+
+export interface TrendDataItem {
+  date: string;
+  count: number;
+}
+
+export interface ZoneData {
+  address: string;
+  count: number;
+  percentage: number;
+}
+
+export interface ReportData {
+  summary: ReportSummary;
+  alertsByType: ChartDataItem[];
+  alertsByStatus: ChartDataItem[];
+  alertsByUrgency: ChartDataItem[];
+  alertsByInstitution: ChartDataItem[];
+  trend: TrendDataItem[];
+  topZones: ZoneData[];
+  rawAlerts: AlertData[];
+}

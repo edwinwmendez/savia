@@ -11,6 +11,7 @@ interface StatCardProps {
     positive: boolean;
   };
   loading?: boolean;
+  formatValue?: (value: number) => string;
 }
 
 export function StatCard({
@@ -21,6 +22,7 @@ export function StatCard({
   iconColorClass,
   trend,
   loading = false,
+  formatValue,
 }: StatCardProps) {
   return (
     <div className="bg-surface rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
@@ -31,7 +33,7 @@ export function StatCard({
             <div className="h-9 w-16 bg-bg rounded-md animate-pulse mt-2" />
           ) : (
             <span className="text-4xl font-bold text-text-primary mt-2">
-              {value}
+              {formatValue ? formatValue(value) : value}
             </span>
           )}
           {trend && !loading && (
