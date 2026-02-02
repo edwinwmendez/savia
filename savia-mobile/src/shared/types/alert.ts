@@ -49,6 +49,8 @@ export interface AlertData {
   alertCode?: string;
   statusHistory?: StatusHistoryEntry[];
   agentNote?: string;
+  rating?: number;
+  ratingId?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   resolvedAt?: Timestamp;

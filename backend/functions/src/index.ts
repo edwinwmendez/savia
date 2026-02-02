@@ -811,3 +811,172 @@ export const updateAlertStatus = onCall<UpdateAlertStatusInput>(
     throw new HttpsError("internal", `Error al actualizar el estado de la alerta: ${msg}`);
   }
 });
+
+// ============ FUNCIÓN: Derivar Alerta a otra Institución ============
+
+interface DeriveAlertInput {
+  alertId: string;
+  institutionId: string;
+  reason: string;
+}
+
+export const deriveAlert = onCall<DeriveAlertInput>(
+  { invoker: "public" },
+  async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debe estar autenticado");
+  }
+
+  const uid = request.auth.uid;
+  const { alertId, institutionId, reason } = request.data;
+
+  if (!alertId || !institutionId || !reason) {
+    throw new HttpsError("invalid-argument", "alertId, institutionId y reason son requeridos");
+  }
+
+  console.log(`[DeriveAlert] Agente ${uid} derivando alerta ${alertId} a institución ${institutionId}`);
+
+  try {
+    // 1. Verificar que el usuario es agente activo
+    const agentDoc = await db.collection("users").doc(uid).get();
+    if (!agentDoc.exists) {
+      throw new HttpsError("not-found", "Agente no encontrado");
+    }
+    const agentData = agentDoc.data() as UserData;
+
+    if (agentData.role !== "agent" || !agentData.isActive) {
+      throw new HttpsError("permission-denied", "Solo agentes activos pueden derivar alertas");
+    }
+
+    // 2. Verificar que la alerta existe y está asignada al agente
+    const alertRef = db.collection("alerts").doc(alertId);
+    const alertDoc = await alertRef.get();
+
+    if (!alertDoc.exists) {
+      throw new HttpsError("not-found", "La alerta no existe");
+    }
+
+    const alertData = alertDoc.data() as AlertData;
+
+    if (alertData.assignedTo !== uid) {
+      throw new HttpsError("permission-denied", "Solo el agente asignado puede derivar esta alerta");
+    }
+
+    if (alertData.status !== "assigned" && alertData.status !== "in_progress") {
+      throw new HttpsError("failed-precondition", "Solo se pueden derivar alertas en estado asignada o en progreso");
+    }
+
+    // 3. Verificar que la institución destino es diferente
+    if (institutionId === agentData.institutionId) {
+      throw new HttpsError("invalid-argument", "No puedes derivar a tu propia institución");
+    }
+
+    // 4. Obtener datos de la institución destino
+    const instDoc = await db.collection("institutions").doc(institutionId).get();
+    if (!instDoc.exists) {
+      throw new HttpsError("not-found", "Institución destino no encontrada");
+    }
+    const instData = instDoc.data() as { name: string; isActive: boolean };
+
+    if (!instData.isActive) {
+      throw new HttpsError("failed-precondition", "La institución destino no está activa");
+    }
+
+    const agentName = `${agentData.firstName} ${agentData.lastName}`;
+
+    // 5. Actualizar la alerta
+    const historyEntry = {
+      status: "derived",
+      timestamp: admin.firestore.Timestamp.now(),
+      agentId: uid,
+      agentName,
+      note: reason,
+      derivedTo: instData.name,
+    };
+
+    await alertRef.update({
+      status: "pending",
+      assignedTo: null,
+      assignedAgentName: null,
+      assignedInstitution: null,
+      assignedInstitutionName: null,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      statusHistory: admin.firestore.FieldValue.arrayUnion(historyEntry),
+    });
+
+    // 6. Notificar agentes de la institución destino
+    const targetAgents = await db
+      .collection("users")
+      .where("role", "==", "agent")
+      .where("isActive", "==", true)
+      .where("institutionId", "==", institutionId)
+      .get();
+
+    const tokens: string[] = [];
+    const agentIds: string[] = [];
+    targetAgents.forEach((doc) => {
+      const data = doc.data() as UserData;
+      if (data.expoPushToken) {
+        tokens.push(data.expoPushToken);
+        agentIds.push(doc.id);
+      }
+    });
+
+    if (tokens.length > 0) {
+      await sendPushToMany(
+        tokens,
+        "Alerta Derivada",
+        `Se ha derivado una alerta a ${instData.name}. Motivo: ${reason.substring(0, 80)}`,
+        { alertId, type: "derived" },
+      );
+
+      // Crear notificaciones en Firestore
+      const batch = db.batch();
+      agentIds.forEach((agentId) => {
+        const notifRef = db.collection("notifications").doc();
+        batch.set(notifRef, {
+          userId: agentId,
+          type: "alert_derived",
+          title: "Alerta Derivada",
+          body: `Se ha derivado una alerta a ${instData.name}`,
+          alertId,
+          read: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      });
+      await batch.commit();
+    }
+
+    // 7. Notificar al ciudadano
+    const citizenDoc = await db.collection("users").doc(alertData.createdBy).get();
+    if (citizenDoc.exists) {
+      const citizenData = citizenDoc.data() as UserData;
+      if (citizenData.expoPushToken) {
+        await sendPushToOne(
+          citizenData.expoPushToken,
+          "Alerta Derivada",
+          `Tu alerta ha sido derivada a ${instData.name} para una mejor atención.`,
+          { alertId, type: "derived" },
+        );
+      }
+
+      await db.collection("notifications").add({
+        userId: alertData.createdBy,
+        type: "alert_derived",
+        title: "Alerta Derivada",
+        body: `Tu alerta ha sido derivada a ${instData.name} para una mejor atención.`,
+        alertId,
+        read: false,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    console.log(`[DeriveAlert] Alerta ${alertId} derivada a ${instData.name} por agente ${uid}`);
+    return { success: true };
+  } catch (error) {
+    console.error(`[DeriveAlert] Error al derivar alerta ${alertId}:`, error);
+    if (error instanceof HttpsError) throw error;
+    const msg = error instanceof Error ? error.message : "Error desconocido";
+    throw new HttpsError("internal", `Error al derivar la alerta: ${msg}`);
+  }
+});

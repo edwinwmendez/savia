@@ -69,6 +69,19 @@ export interface InstitutionData {
   updatedAt: unknown;
 }
 
+// Category types
+export interface CategoryData {
+  id?: string;
+  name: string;
+  shortName: string;
+  emoji: string;
+  color: string;
+  order: number;
+  isActive: boolean;
+  createdAt: unknown;
+  updatedAt: unknown;
+}
+
 export interface DashboardStats {
   alerts: {
     total: number;
