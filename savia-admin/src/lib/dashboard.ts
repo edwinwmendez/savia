@@ -66,6 +66,15 @@ export async function fetchActiveAlerts(limitCount = 10): Promise<AlertData[]> {
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as AlertData);
 }
 
+export async function fetchAlertsForHeatMap(maxAlerts = 500): Promise<AlertData[]> {
+  const alertsRef = collection(db, 'alerts');
+  const q = query(alertsRef, orderBy('createdAt', 'desc'), limit(maxAlerts));
+  const snapshot = await getDocs(q);
+  return snapshot.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }) as AlertData)
+    .filter((a) => a.location?.latitude && a.location?.longitude);
+}
+
 export async function fetchCriticalActiveCount(): Promise<number> {
   try {
     const alertsRef = collection(db, 'alerts');
