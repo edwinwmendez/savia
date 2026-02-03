@@ -41,7 +41,7 @@ export function UserModal({
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<UserRole | ''>('agent');
+  const [role, setRole] = useState<UserRole | ''>('citizen');
   const [institutionId, setInstitutionId] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [sendCredentials, setSendCredentials] = useState(true);
@@ -68,13 +68,17 @@ export function UserModal({
       setLastName('');
       setPhone('');
       setEmail('');
-      setRole('agent');
+      setRole('citizen');
       setInstitutionId('');
       setIsActive(true);
       setSendCredentials(true);
     }
     setErrors({});
   }, [user, open]);
+
+  // Determinar si el rol requiere institución
+  const requiresInstitution = role === 'agent';
+  const showInstitution = role === 'agent' || role === 'admin';
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
@@ -85,6 +89,10 @@ export function UserModal({
     if (!phone.trim()) newErrors.phone = 'El celular es requerido';
     if (!email.trim()) newErrors.email = 'El email es requerido';
     if (!role) newErrors.role = 'El rol es requerido';
+    // Institución requerida solo para agentes
+    if (requiresInstitution && !institutionId) {
+      newErrors.institutionId = 'La institución es requerida para agentes';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -206,20 +214,16 @@ export function UserModal({
           disabled={isEditing}
         />
 
-        <Select
-          label="Institución Asignada"
-          options={institutionOptions}
-          value={institutionId}
-          onChange={setInstitutionId}
-          placeholder="Sin institución"
-        />
-
         <div className="grid grid-cols-2 gap-4">
           <Select
             label="Rol *"
             options={roleOptions}
             value={role}
-            onChange={(v) => setRole(v as UserRole)}
+            onChange={(v) => {
+              setRole(v as UserRole);
+              // Limpiar institución si el rol no la requiere
+              if (v === 'citizen') setInstitutionId('');
+            }}
             placeholder="Seleccionar rol..."
             error={errors.role}
           />
@@ -233,6 +237,17 @@ export function UserModal({
             onChange={(v) => setIsActive(v === 'true')}
           />
         </div>
+
+        {showInstitution && (
+          <Select
+            label={requiresInstitution ? 'Institución Asignada *' : 'Institución Asignada'}
+            options={institutionOptions}
+            value={institutionId}
+            onChange={setInstitutionId}
+            placeholder={requiresInstitution ? 'Seleccionar institución...' : 'Sin institución (Super Admin)'}
+            error={errors.institutionId}
+          />
+        )}
 
         {!isEditing && (
           <Checkbox
