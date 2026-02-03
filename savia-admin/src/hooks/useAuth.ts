@@ -128,6 +128,10 @@ export const useAuth = create<AuthState>((set, get) => ({
         isAuthenticated: false,
         error: null,
       });
+      // Redirigir a login después de cerrar sesión
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
     } catch (err) {
       console.error('[Auth] Error en logout:', err);
     }
