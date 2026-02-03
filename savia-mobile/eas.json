@@ -11,6 +11,12 @@
         "buildType": "apk"
       },
       "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyCnsUdEKekJeCgI0JAEX90ZkhWxcxhVJXw",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "savia-27690.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "savia-27690",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "savia-27690.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "771336495235",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:771336495235:web:2b2f72a8fd96ff6f987bb6",
         "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyAqWH1ffjhIzM2f9yKrRZynkUI07s3T4cU"
       }
     },
@@ -20,12 +26,24 @@
         "buildType": "apk"
       },
       "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyCnsUdEKekJeCgI0JAEX90ZkhWxcxhVJXw",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "savia-27690.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "savia-27690",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "savia-27690.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "771336495235",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:771336495235:web:2b2f72a8fd96ff6f987bb6",
         "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyAqWH1ffjhIzM2f9yKrRZynkUI07s3T4cU"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyCnsUdEKekJeCgI0JAEX90ZkhWxcxhVJXw",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "savia-27690.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "savia-27690",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "savia-27690.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "771336495235",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:771336495235:web:2b2f72a8fd96ff6f987bb6",
         "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyAqWH1ffjhIzM2f9yKrRZynkUI07s3T4cU"
       }
     }

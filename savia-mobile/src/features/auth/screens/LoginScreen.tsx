@@ -59,10 +59,11 @@ export function LoginScreen({ navigation, route }: Props) {
     setIsSubmitting(true);
     try {
       await loginWithEmail(data.email, data.password);
+      // No quitamos el loading aquí - se mantiene hasta que la navegación ocurra
+      // automáticamente cuando authStore detecte el cambio de autenticación
     } catch (error) {
-      Alert.alert('Error al iniciar sesión', getFirebaseErrorMessage(error));
-    } finally {
       setIsSubmitting(false);
+      Alert.alert('Error al iniciar sesión', getFirebaseErrorMessage(error));
     }
   };
 
