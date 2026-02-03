@@ -1,2 +1,5 @@
 
 .env.local
+
+# Firebase config (contiene API keys)
+google-services.json
