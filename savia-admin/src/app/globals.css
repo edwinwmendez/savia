@@ -53,3 +53,20 @@ body {
   background: var(--color-bg);
   color: var(--color-text-primary);
 }
+
+/* Elementos interactivos deben mostrar cursor pointer */
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+select,
+summary {
+  cursor: pointer;
+}
+
+/* Elementos deshabilitados */
+button:disabled,
+[disabled] {
+  cursor: not-allowed;
+}
