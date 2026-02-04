@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert as RNAlert,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -16,7 +17,7 @@ import { ArrowLeft, Share2, MapPin, Clock, Phone, Navigation, Star } from 'lucid
 import { AlertTimeline } from '@/features/alerts/components/AlertTimeline';
 import { MapPlaceholder } from '@/features/alerts/components/MapPlaceholder';
 import { ImageGallery } from '@/features/alerts/components/ImageGallery';
-import { subscribeToAlertDetail, getUserById } from '@/features/alerts/services/alertQueryService';
+import { subscribeToAlertDetail, getUserById, getInstitutionById } from '@/features/alerts/services/alertQueryService';
 import { useCategoryStore } from '@/features/alerts/store/categoryStore';
 import { colors } from '@/shared/theme/colors';
 import { fontSize, fontFamily, fontWeight } from '@/shared/theme/typography';
@@ -25,7 +26,7 @@ import { formatTimestamp } from '@/shared/utils/formatters';
 import { openNavigation } from '@/shared/utils/navigation';
 import type { CitizenStackParamList } from '@/navigation/types';
 import type { AlertData, AlertStatus } from '@/shared/types/alert';
-import type { UserData } from '@/shared/types/user';
+import type { UserData, InstitutionData } from '@/shared/types/user';
 
 type NavigationProp = NativeStackNavigationProp<CitizenStackParamList>;
 type RouteProps = RouteProp<CitizenStackParamList, 'AlertDetail'>;
@@ -81,6 +82,7 @@ export function CitizenAlertDetailScreen() {
 
   const [alert, setAlert] = useState<AlertData | null>(null);
   const [agentData, setAgentData] = useState<UserData | null>(null);
+  const [institutionData, setInstitutionData] = useState<InstitutionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -106,6 +108,17 @@ export function CitizenAlertDetailScreen() {
         .catch((err) => console.error('[AlertDetail] Error obteniendo agente:', err));
     }
   }, [alert?.assignedTo, alert?.assignedAgentName]);
+
+  // Cargar datos de la institución para obtener el teléfono
+  // Primero usar assignedInstitution de la alerta, fallback a agentData.institutionId
+  useEffect(() => {
+    const institutionId = alert?.assignedInstitution ?? agentData?.institutionId;
+    if (institutionId) {
+      getInstitutionById(institutionId)
+        .then(setInstitutionData)
+        .catch((err) => console.error('[AlertDetail] Error obteniendo institución:', err));
+    }
+  }, [alert?.assignedInstitution, agentData?.institutionId]);
 
   // Hooks deben ejecutarse antes de cualquier early return
   const categoryColorMap = useCategoryColorMap();
@@ -168,6 +181,27 @@ export function CitizenAlertDetailScreen() {
 
   const handleShare = () => {
     RNAlert.alert('Compartir', 'La funcion de compartir se implementara proximamente.');
+  };
+
+  const handleCall = () => {
+    const phone = institutionData?.phone;
+    console.log('[AlertDetail] Intentando llamar. institutionData:', institutionData);
+    console.log('[AlertDetail] Teléfono obtenido:', phone);
+    if (!phone) {
+      RNAlert.alert('Sin teléfono', 'La institución no tiene un número de teléfono registrado.');
+      return;
+    }
+    const phoneUrl = `tel:${phone}`;
+    Linking.canOpenURL(phoneUrl)
+      .then((supported) => {
+        console.log('[AlertDetail] canOpenURL supported:', supported, 'URL:', phoneUrl);
+        if (supported) {
+          Linking.openURL(phoneUrl);
+        } else {
+          RNAlert.alert('Teléfono', `Número: ${phone}\n\n(No se puede llamar desde el emulador)`);
+        }
+      })
+      .catch((err) => console.error('[AlertDetail] Error al llamar:', err));
   };
 
   const handleNavigate = () => {
@@ -252,7 +286,7 @@ export function CitizenAlertDetailScreen() {
               hasLocation={!!alert.location}
               latitude={alert.location?.latitude}
               longitude={alert.location?.longitude}
-              height={120}
+              height={200}
             />
           </View>
 
@@ -305,7 +339,7 @@ export function CitizenAlertDetailScreen() {
                   {agentInstitution ?? 'Sin institucion'}
                 </Text>
               </View>
-              <Pressable style={styles.phoneBtn} onPress={() => {}}>
+              <Pressable style={styles.phoneBtn} onPress={handleCall}>
                 <Phone size={20} color={colors.surface} />
               </Pressable>
             </View>

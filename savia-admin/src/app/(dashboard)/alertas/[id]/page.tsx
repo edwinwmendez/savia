@@ -10,6 +10,7 @@ import { AlertHeaderCard, MapCard, EvidenceCard } from '@/components/alertas/Ale
 import { ReporterCard, ResponderCard, TimelineCard } from '@/components/alertas/AlertSideCards';
 import { ReassignModal } from '@/components/alertas/ReassignModal';
 import { fetchAlertById, updateAlertAdmin, fetchAlertUser, type AlertWithId } from '@/lib/alerts';
+import { useAuth } from '@/hooks/useAuth';
 import { Timestamp } from 'firebase/firestore';
 
 interface AlertDetailPageProps {
@@ -19,6 +20,7 @@ interface AlertDetailPageProps {
 export default function AlertDetailPage({ params }: AlertDetailPageProps) {
   const { id } = use(params);
   const router = useRouter();
+  const { userData: currentAdmin } = useAuth();
   const [alert, setAlert] = useState<AlertWithId | null>(null);
   const [reporter, setReporter] = useState<{ firstName: string; lastName: string; phone: string; dni: string; email: string } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,12 +69,24 @@ export default function AlertDetailPage({ params }: AlertDetailPageProps) {
     note?: string,
   ) {
     if (!alert) return;
+
+    // Determinar si es asignación o reasignación
+    const isReassign = !!alert.assignedTo;
+    const action = isReassign ? 'Reasignado' : 'Asignado';
+
+    // Construir nombre del admin con su rol
+    const adminName = currentAdmin
+      ? `${currentAdmin.firstName} - Administrador`
+      : 'Administrador';
+
+    const defaultNote = `${action} por ${adminName}`;
+
     const historyEntry = {
       status: 'assigned' as const,
       timestamp: Timestamp.now(),
       agentId,
       agentName,
-      note: note || 'Reasignado por administrador',
+      note: note || defaultNote,
     };
 
     await updateAlertAdmin(alert.id, {
@@ -90,10 +104,14 @@ export default function AlertDetailPage({ params }: AlertDetailPageProps) {
     if (!alert) return;
     setClosing(true);
     try {
+      const adminName = currentAdmin
+        ? `${currentAdmin.firstName} - Administrador`
+        : 'Administrador';
+
       const historyEntry = {
         status: 'resolved' as const,
         timestamp: Timestamp.now(),
-        note: 'Cerrada manualmente por administrador',
+        note: `Cerrada manualmente por ${adminName}`,
       };
 
       await updateAlertAdmin(alert.id, {

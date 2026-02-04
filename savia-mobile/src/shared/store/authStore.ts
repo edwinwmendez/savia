@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, type Unsubscribe } from 'firebase/firestore';
 import { auth, db } from '@/shared/config/firebase';
 import type { UserData, InstitutionData } from '@/shared/types/user';
 import { signOut } from '@/features/auth/services/authService';
@@ -12,6 +12,9 @@ import {
   startLocationTracking,
   stopLocationTracking,
 } from '@/shared/services/locationTrackingService';
+
+// Suscripción a cambios de institución (para agentes)
+let institutionUnsubscribe: Unsubscribe | null = null;
 
 interface AuthState {
   user: User | null;
@@ -62,32 +65,80 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             return;
           }
 
-          // Obtener datos de institución para agentes
-          let institutionData: InstitutionData | null = null;
+          // Suscribirse a cambios de institución para agentes (tiempo real)
           if (userData?.role === 'agent' && userData.institutionId) {
+            // Limpiar suscripción anterior si existe
+            if (institutionUnsubscribe) {
+              institutionUnsubscribe();
+            }
+
+            // Obtener datos iniciales
             try {
               const instDoc = await getDoc(doc(db, 'institutions', userData.institutionId));
-              institutionData = instDoc.exists() ? (instDoc.data() as InstitutionData) : null;
-              console.log('[Auth] Datos de institución cargados:', institutionData?.name);
+              const initialInstitutionData = instDoc.exists() ? (instDoc.data() as InstitutionData) : null;
+              console.log('[Auth] Datos de institución cargados:', initialInstitutionData?.name);
+
+              set({
+                user: firebaseUser,
+                userData,
+                institutionData: initialInstitutionData,
+                inactiveAccountError: null,
+                isLoading: false,
+                isAuthenticated: true,
+              });
             } catch (instError) {
               console.error('[Auth] Error al obtener institución:', instError);
+              set({
+                user: firebaseUser,
+                userData,
+                institutionData: null,
+                inactiveAccountError: null,
+                isLoading: false,
+                isAuthenticated: true,
+              });
             }
-          }
 
-          set({
-            user: firebaseUser,
-            userData,
-            institutionData,
-            inactiveAccountError: null,
-            isLoading: false,
-            isAuthenticated: true,
-          });
+            // Suscribirse a cambios futuros de la institución
+            institutionUnsubscribe = onSnapshot(
+              doc(db, 'institutions', userData.institutionId),
+              (snapshot) => {
+                if (snapshot.exists()) {
+                  const updatedInstitution = snapshot.data() as InstitutionData;
+                  console.log('[Auth] Institución actualizada en tiempo real:', updatedInstitution.name);
+                  set({ institutionData: updatedInstitution });
+                } else {
+                  console.warn('[Auth] Institución eliminada');
+                  set({ institutionData: null });
+                }
+              },
+              (error) => {
+                console.error('[Auth] Error en suscripción de institución:', error);
+              },
+            );
+          } else {
+            set({
+              user: firebaseUser,
+              userData,
+              institutionData: null,
+              inactiveAccountError: null,
+              isLoading: false,
+              isAuthenticated: true,
+            });
+          }
 
           // Registrar push notifications (no bloquea el flujo de auth)
           setupNotificationHandler();
-          registerForPushNotifications(firebaseUser.uid).catch((err) => {
-            console.warn('[Auth] Error registrando push notifications:', err);
-          });
+          registerForPushNotifications(firebaseUser.uid)
+            .then((token) => {
+              if (token) {
+                console.log('[Auth] ✅ Push notifications registradas exitosamente');
+              } else {
+                console.warn('[Auth] ⚠️ Push notifications no registradas (ver logs [Push] para detalles)');
+              }
+            })
+            .catch((err) => {
+              console.error('[Auth] ❌ Error registrando push notifications:', err);
+            });
 
           // Iniciar tracking de ubicación para ciudadanos (notificaciones de proximidad)
           if (userData?.role === 'citizen') {
@@ -100,6 +151,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           await signOut();
         }
       } else {
+        // Limpiar suscripción de institución al logout
+        if (institutionUnsubscribe) {
+          institutionUnsubscribe();
+          institutionUnsubscribe = null;
+        }
         stopLocationTracking();
         set({
           user: null,
@@ -114,12 +170,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     return () => {
       clearTimeout(safetyTimeout);
       unsubscribe();
+      // Limpiar suscripción de institución al desmontar
+      if (institutionUnsubscribe) {
+        institutionUnsubscribe();
+        institutionUnsubscribe = null;
+      }
     };
   },
 
   setUserData: (data) => set({ userData: data }),
 
   reset: () => {
+    // Limpiar suscripción de institución
+    if (institutionUnsubscribe) {
+      institutionUnsubscribe();
+      institutionUnsubscribe = null;
+    }
     stopLocationTracking();
     set({
       user: null,

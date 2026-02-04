@@ -116,6 +116,7 @@ export function CitizenHomeScreen() {
         initials={initials}
         notificationCount={unreadCount}
         onPressBell={() => navigation.navigate('CitizenTabs', { screen: 'Notifications' } as any)}
+        onPressAvatar={() => navigation.navigate('CitizenTabs', { screen: 'Profile' } as any)}
       />
       <ScrollView
         style={styles.scrollView}

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Menu, SlidersHorizontal, Star, Clock } from 'lucide-react-native';
+import { Star, Clock } from 'lucide-react-native';
 import { subscribeToAgentHistory } from '@/features/alerts/services/alertQueryService';
 import { useAgentAlertsStore } from '@/features/agent/store/agentAlertsStore';
 import { useAuthStore } from '@/shared/store/authStore';
@@ -155,13 +155,7 @@ export function AgentHistoryScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable hitSlop={8}>
-          <Menu size={24} color={colors.textPrimary} />
-        </Pressable>
         <Text style={styles.headerTitle}>Historial</Text>
-        <Pressable hitSlop={8}>
-          <SlidersHorizontal size={24} color={colors.textPrimary} />
-        </Pressable>
       </View>
 
       {isLoading ? (
@@ -271,7 +265,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,

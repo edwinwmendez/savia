@@ -27,7 +27,8 @@ export interface InstitutionData {
   phone?: string;
   email?: string;
   address?: string;
-  categoryIds?: string[];
+  alertTypes?: string[];  // Tipos de alerta que atiende esta institución
+  categoryIds?: string[]; // Alias legacy (usar alertTypes)
   isActive: boolean;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;

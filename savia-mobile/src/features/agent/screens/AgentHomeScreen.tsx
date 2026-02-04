@@ -46,12 +46,22 @@ export function AgentHomeScreen() {
   const institutionData = useAuthStore((s) => s.institutionData);
   const user = useAuthStore((s) => s.user);
 
-  const pendingAlerts = useAgentAlertsStore((s) => s.pendingAlerts);
+  const allPendingAlerts = useAgentAlertsStore((s) => s.pendingAlerts);
   const myCases = useAgentAlertsStore((s) => s.myCases);
   const history = useAgentAlertsStore((s) => s.history);
   const setPendingAlerts = useAgentAlertsStore((s) => s.setPendingAlerts);
   const setMyCases = useAgentAlertsStore((s) => s.setMyCases);
   const setHistory = useAgentAlertsStore((s) => s.setHistory);
+
+  // Filtrar alertas pendientes según los tipos que atiende la institución del agente
+  const pendingAlerts = useMemo(() => {
+    const alertTypes = institutionData?.alertTypes ?? institutionData?.categoryIds;
+    if (!alertTypes || alertTypes.length === 0) {
+      // Si no hay tipos configurados, mostrar todas (fallback)
+      return allPendingAlerts;
+    }
+    return allPendingAlerts.filter((alert) => alertTypes.includes(alert.type));
+  }, [allPendingAlerts, institutionData?.alertTypes, institutionData?.categoryIds]);
 
   const unreadCount = useNotificationsStore((s) => s.unreadCount);
   const setUnreadCount = useNotificationsStore((s) => s.setUnreadCount);
@@ -155,9 +165,12 @@ export function AgentHomeScreen() {
               </View>
             )}
           </Pressable>
-          <View style={styles.avatarCircle}>
+          <Pressable
+            style={styles.avatarCircle}
+            onPress={() => navigation.navigate('AgentTabs', { screen: 'Profile' } as any)}
+          >
             <Text style={styles.avatarText}>{initials}</Text>
-          </View>
+          </Pressable>
         </View>
       </View>
 

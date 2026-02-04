@@ -11,7 +11,7 @@ import {
 import { httpsCallable } from 'firebase/functions';
 import { db, functions } from '@/shared/config/firebase';
 import type { AlertData, AlertStatus } from '@/shared/types/alert';
-import type { UserData } from '@/shared/types/user';
+import type { UserData, InstitutionData } from '@/shared/types/user';
 
 // ── Subscriptions ──────────────────────────────────────────────────────
 
@@ -177,6 +177,25 @@ export async function getUserById(userId: string): Promise<UserData | null> {
     return null;
   } catch (error) {
     console.error('[AlertQuery] Error al obtener usuario:', error);
+    throw error;
+  }
+}
+
+export async function getInstitutionById(institutionId: string): Promise<InstitutionData | null> {
+  console.log('[AlertQuery] Obteniendo institución:', institutionId);
+  try {
+    const docRef = doc(db, 'institutions', institutionId);
+    const snapshot = await getDoc(docRef);
+
+    if (snapshot.exists()) {
+      console.log('[AlertQuery] Institución encontrada:', institutionId);
+      return snapshot.data() as InstitutionData;
+    }
+
+    console.log('[AlertQuery] Institución no encontrada:', institutionId);
+    return null;
+  } catch (error) {
+    console.error('[AlertQuery] Error al obtener institución:', error);
     throw error;
   }
 }

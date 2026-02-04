@@ -37,7 +37,7 @@ describe('agentAlertsStore', () => {
     expect(state.history).toEqual([]);
     expect(state.selectedTab).toBe('pending');
     expect(state.isLoading).toBe(false);
-    expect(state.isTakingCase).toBe(false);
+    expect(state.takingCaseId).toBeNull();
     expect(state.isUpdatingStatus).toBe(false);
     expect(state.error).toBeNull();
   });
@@ -77,22 +77,24 @@ describe('agentAlertsStore', () => {
     expect(useAgentAlertsStore.getState().selectedTab).toBe('myCases');
   });
 
-  it('setTakingCase actualiza el estado de carga', () => {
-    useAgentAlertsStore.getState().setTakingCase(true);
-    expect(useAgentAlertsStore.getState().isTakingCase).toBe(true);
+  it('setTakingCaseId actualiza el ID de caso en proceso', () => {
+    useAgentAlertsStore.getState().setTakingCaseId('alert-123');
+    expect(useAgentAlertsStore.getState().takingCaseId).toBe('alert-123');
+    useAgentAlertsStore.getState().setTakingCaseId(null);
+    expect(useAgentAlertsStore.getState().takingCaseId).toBeNull();
   });
 
   it('reset restaura el estado inicial', () => {
     useAgentAlertsStore.getState().setPendingAlerts([makeAlert()]);
     useAgentAlertsStore.getState().setMyCases([makeAlert()]);
     useAgentAlertsStore.getState().setSelectedTab('myCases');
-    useAgentAlertsStore.getState().setTakingCase(true);
+    useAgentAlertsStore.getState().setTakingCaseId('alert-123');
     useAgentAlertsStore.getState().reset();
 
     const state = useAgentAlertsStore.getState();
     expect(state.pendingAlerts).toEqual([]);
     expect(state.myCases).toEqual([]);
     expect(state.selectedTab).toBe('pending');
-    expect(state.isTakingCase).toBe(false);
+    expect(state.takingCaseId).toBeNull();
   });
 });

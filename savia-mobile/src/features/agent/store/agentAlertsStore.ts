@@ -9,7 +9,7 @@ interface AgentAlertsState {
   history: AlertData[];
   selectedTab: AgentTab;
   isLoading: boolean;
-  isTakingCase: boolean;
+  takingCaseId: string | null;  // ID de la alerta que se está tomando (null = ninguna)
   isUpdatingStatus: boolean;
   error: string | null;
 
@@ -23,7 +23,7 @@ interface AgentAlertsState {
   setHistory: (alerts: AlertData[]) => void;
   setSelectedTab: (tab: AgentTab) => void;
   setLoading: (loading: boolean) => void;
-  setTakingCase: (taking: boolean) => void;
+  setTakingCaseId: (id: string | null) => void;
   setUpdatingStatus: (updating: boolean) => void;
   setError: (error: string | null) => void;
   reset: () => void;
@@ -35,9 +35,9 @@ const initialState = {
   history: [] as AlertData[],
   selectedTab: 'pending' as AgentTab,
   isLoading: false,
-  isTakingCase: false,
+  takingCaseId: null as string | null,
   isUpdatingStatus: false,
-  error: null,
+  error: null as string | null,
 };
 
 export const useAgentAlertsStore = create<AgentAlertsState>((set, get) => ({
@@ -51,7 +51,7 @@ export const useAgentAlertsStore = create<AgentAlertsState>((set, get) => ({
   setHistory: (alerts) => set({ history: alerts }),
   setSelectedTab: (tab) => set({ selectedTab: tab }),
   setLoading: (loading) => set({ isLoading: loading }),
-  setTakingCase: (taking) => set({ isTakingCase: taking }),
+  setTakingCaseId: (id) => set({ takingCaseId: id }),
   setUpdatingStatus: (updating) => set({ isUpdatingStatus: updating }),
   setError: (error) => set({ error }),
   reset: () => set(initialState),

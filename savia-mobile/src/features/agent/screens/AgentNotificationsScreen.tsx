@@ -142,7 +142,7 @@ export function AgentNotificationsScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <HeaderMobile
         title="Notificaciones"
-        onBack={() => navigation.goBack()}
+        onLeftPress={() => navigation.goBack()}
         rightText="Limpiar"
         onRightTextPress={handleClearAll}
       />

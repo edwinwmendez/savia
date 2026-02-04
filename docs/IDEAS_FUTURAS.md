@@ -37,3 +37,30 @@ Registro de ideas y mejoras para implementar en futuros sprints.
 **Diferencia con el mapa de calor**: El mapa de calor muestra datos historicos agregados (densidad de incidentes por zona). El mapa operativo muestra el estado actual de la operacion: quien esta donde, que alertas estan activas, y que agentes estan respondiendo. Son complementarios.
 
 **Contexto tecnico**: Los agentes ya tienen el campo `lastLocation` en Firestore (`users/{id}/lastLocation` con lat, lng, geohash, updatedAt). Solo falta activar el tracking desde la app movil y construir la vista en el admin.
+
+---
+
+## 3. Ubicacion de Instituciones en Mapa
+
+**Problema**: Al crear o editar una institucion en el admin, no se puede especificar su ubicacion fisica. Esto limita funcionalidades como mostrar las instituciones en un mapa o calcular distancias.
+
+**Solucion propuesta**: Agregar un selector de ubicacion en el modal de crear/editar institucion:
+- **Mapa interactivo** donde el admin pueda hacer clic para colocar un marcador.
+- **Campos de latitud/longitud** que se autocompleten al seleccionar en el mapa (o se puedan editar manualmente).
+- **Direccion opcional** con texto libre o autocompletado via Google Places.
+
+**Beneficios**:
+- Mostrar instituciones en el Mapa Operativo con marcadores diferenciados por tipo (comisaria, estacion de bomberos, base de serenazgo, etc.).
+- Calcular que institucion esta mas cerca de una alerta para asignacion inteligente.
+- Visualizar cobertura geografica de cada institucion.
+
+**Modelo de datos**: Agregar a la coleccion `institutions`:
+```typescript
+location?: {
+  lat: number;
+  lng: number;
+  address?: string;
+}
+```
+
+**Contexto**: Actualmente las instituciones solo tienen nombre, tipo y categorias que atienden. No tienen ubicacion geografica.

@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Menu, SlidersHorizontal, ClipboardList } from 'lucide-react-native';
+import { ClipboardList } from 'lucide-react-native';
 import { TabSelector } from '@/shared/components/TabSelector';
 import { AlertListItem } from '@/features/alerts/components/AlertListItem';
 import { useAgentAlertsStore } from '@/features/agent/store/agentAlertsStore';
@@ -24,7 +24,7 @@ import {
 import { useAuthStore } from '@/shared/store/authStore';
 import { colors } from '@/shared/theme/colors';
 import { fontSize, fontFamily, fontWeight } from '@/shared/theme/typography';
-import { spacing, iconSize, componentHeight } from '@/shared/theme/spacing';
+import { spacing, componentHeight } from '@/shared/theme/spacing';
 import type { AgentStackParamList } from '@/navigation/types';
 import type { AlertData, UrgencyLevel } from '@/shared/types/alert';
 
@@ -86,20 +86,32 @@ function groupAlertsByUrgency(alerts: AlertData[]): UrgencySection[] {
 export function AgentAlertsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const user = useAuthStore((s) => s.user);
+  const institutionData = useAuthStore((s) => s.institutionData);
 
-  const pendingAlerts = useAgentAlertsStore((s) => s.pendingAlerts);
+  const allPendingAlerts = useAgentAlertsStore((s) => s.pendingAlerts);
   const myCases = useAgentAlertsStore((s) => s.myCases);
   const selectedTab = useAgentAlertsStore((s) => s.selectedTab);
   const isLoading = useAgentAlertsStore((s) => s.isLoading);
-  const isTakingCase = useAgentAlertsStore((s) => s.isTakingCase);
-  const pendingCount = useAgentAlertsStore((s) => s.pendingCount);
+  const takingCaseId = useAgentAlertsStore((s) => s.takingCaseId);
   const myCasesCount = useAgentAlertsStore((s) => s.myCasesCount);
   const setPendingAlerts = useAgentAlertsStore((s) => s.setPendingAlerts);
   const setMyCases = useAgentAlertsStore((s) => s.setMyCases);
   const setSelectedTab = useAgentAlertsStore((s) => s.setSelectedTab);
   const setLoading = useAgentAlertsStore((s) => s.setLoading);
-  const setTakingCase = useAgentAlertsStore((s) => s.setTakingCase);
+  const setTakingCaseId = useAgentAlertsStore((s) => s.setTakingCaseId);
   const setError = useAgentAlertsStore((s) => s.setError);
+
+  // Filtrar alertas pendientes según los tipos que atiende la institución del agente
+  const pendingAlerts = useMemo(() => {
+    const alertTypes = institutionData?.alertTypes ?? institutionData?.categoryIds;
+    if (!alertTypes || alertTypes.length === 0) {
+      // Si no hay tipos configurados, mostrar todas (fallback)
+      return allPendingAlerts;
+    }
+    return allPendingAlerts.filter((alert) => alertTypes.includes(alert.type));
+  }, [allPendingAlerts, institutionData?.alertTypes, institutionData?.categoryIds]);
+
+  const pendingCount = useCallback(() => pendingAlerts.length, [pendingAlerts]);
 
   // ── Subscripciones ──────────────────────────────────────────────────
 
@@ -136,7 +148,7 @@ export function AgentAlertsScreen() {
 
   const handleTakeCase = useCallback(
     async (alertId: string) => {
-      setTakingCase(true);
+      setTakingCaseId(alertId);
       try {
         await takeAlert(alertId);
         console.log('[AgentAlerts] Caso tomado:', alertId);
@@ -148,7 +160,7 @@ export function AgentAlertsScreen() {
             : 'No se pudo tomar el caso. Intenta de nuevo.';
         Alert.alert('Error', message);
       } finally {
-        setTakingCase(false);
+        setTakingCaseId(null);
       }
     },
     [],
@@ -220,10 +232,10 @@ export function AgentAlertsScreen() {
         onPress={() => handleAlertPress(item)}
         onTakeCase={() => item.id && handleTakeCase(item.id)}
         showTakeCaseButton
-        isTakingCase={isTakingCase}
+        isTakingCase={takingCaseId === item.id}
       />
     ),
-    [handleAlertPress, handleTakeCase, isTakingCase],
+    [handleAlertPress, handleTakeCase, takingCaseId],
   );
 
   const renderFlatItem = useCallback(
@@ -297,15 +309,9 @@ export function AgentAlertsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      {/* Header inline según diseño O02 */}
+      {/* Header */}
       <View style={styles.header}>
-        <Pressable hitSlop={8}>
-          <Menu size={iconSize.lg} color={colors.textPrimary} />
-        </Pressable>
         <Text style={styles.headerTitle}>Alertas</Text>
-        <Pressable hitSlop={8}>
-          <SlidersHorizontal size={iconSize.lg} color={colors.textPrimary} />
-        </Pressable>
       </View>
 
       <TabSelector
@@ -333,7 +339,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,

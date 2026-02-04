@@ -30,56 +30,86 @@ export async function setupAndroidChannel(): Promise<void> {
   }
 }
 
+// ProjectId de EAS (fallback hardcodeado para builds donde Constants no lo expone)
+const EAS_PROJECT_ID = '6121b7e4-960c-41ea-83fc-57f06186367f';
+
 // Solicita permisos, obtiene Expo Push Token y lo guarda en Firestore
 export async function registerForPushNotifications(userId: string): Promise<string | null> {
+  console.log('[Push] ========== INICIO REGISTRO PUSH ==========');
+  console.log('[Push] userId:', userId);
+  console.log('[Push] Device.isDevice:', Device.isDevice);
+  console.log('[Push] Device.modelName:', Device.modelName);
+  console.log('[Push] Platform.OS:', Platform.OS);
+
   if (!Device.isDevice) {
-    console.warn('[Notifications] Push notifications requieren dispositivo físico');
+    console.warn('[Push] ❌ FALLA: No es dispositivo físico (emulador/simulador)');
+    console.log('[Push] ========== FIN REGISTRO PUSH (NO DEVICE) ==========');
     return null;
   }
 
-  const projectId =
+  // Intentar obtener projectId de Constants, con fallback hardcodeado
+  console.log('[Push] Constants.expoConfig:', JSON.stringify(Constants.expoConfig, null, 2));
+
+  let projectId =
     Constants?.expoConfig?.extra?.eas?.projectId ??
     (Constants as Record<string, unknown>)?.easConfig?.projectId;
 
+  console.log('[Push] projectId desde Constants:', projectId);
+
+  // FALLBACK: Si no se encuentra en Constants, usar el hardcodeado
   if (!projectId) {
-    console.warn('[Notifications] No se encontró projectId de EAS. Ejecuta: eas init');
-    return null;
+    console.warn('[Push] ⚠️ projectId no encontrado en Constants, usando fallback hardcodeado');
+    projectId = EAS_PROJECT_ID;
   }
 
+  console.log('[Push] projectId final a usar:', projectId);
+
   try {
-    // Solicitar permisos
+    // Verificar permisos existentes
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    console.log('[Push] Permisos existentes:', existingStatus);
+
     let finalStatus = existingStatus;
 
     if (existingStatus !== 'granted') {
+      console.log('[Push] Solicitando permisos al usuario...');
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
+      console.log('[Push] Respuesta del usuario a permisos:', finalStatus);
     }
 
     if (finalStatus !== 'granted') {
-      console.warn('[Notifications] Permisos de notificaciones denegados');
+      console.warn('[Push] ❌ FALLA: Permisos de notificaciones DENEGADOS por el usuario');
+      console.log('[Push] ========== FIN REGISTRO PUSH (PERMISOS DENEGADOS) ==========');
       return null;
     }
+
+    console.log('[Push] ✅ Permisos concedidos');
 
     // Configurar canal Android
     await setupAndroidChannel();
 
-    // Obtener token
+    // Obtener token de Expo
+    console.log('[Push] Solicitando Expo Push Token con projectId:', projectId);
     const tokenData = await Notifications.getExpoPushTokenAsync({
       projectId: projectId as string,
     });
     const token = tokenData.data;
-    console.log('[Notifications] Expo Push Token obtenido:', token.substring(0, 30) + '...');
+    console.log('[Push] ✅ Token generado:', token);
 
     // Guardar en Firestore
+    console.log('[Push] Guardando token en Firestore para usuario:', userId);
     await updateDoc(doc(db, 'users', userId), {
       expoPushToken: token,
     });
-    console.log('[Notifications] Token guardado en Firestore para usuario:', userId);
+    console.log('[Push] ✅ Token guardado exitosamente en Firestore');
+    console.log('[Push] ========== FIN REGISTRO PUSH (ÉXITO) ==========');
 
     return token;
   } catch (error) {
-    console.error('[Notifications] Error registrando push notifications:', error);
+    console.error('[Push] ❌ ERROR en registro:', error);
+    console.error('[Push] Error stack:', (error as Error).stack);
+    console.log('[Push] ========== FIN REGISTRO PUSH (ERROR) ==========');
     return null;
   }
 }

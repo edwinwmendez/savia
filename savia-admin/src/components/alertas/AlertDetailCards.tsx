@@ -83,13 +83,13 @@ export function MapCard({ alert }: MapCardProps) {
         {embedUrl ? (
           <iframe
             src={embedUrl}
-            className="w-full h-[250px] rounded-lg border-0 mb-4"
+            className="w-full h-[350px] rounded-lg border-0 mb-4"
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
         ) : (
-          <div className="h-[200px] bg-bg rounded-lg flex items-center justify-center mb-4">
+          <div className="h-[350px] bg-bg rounded-lg flex items-center justify-center mb-4">
             <div className="text-center">
               <MapPin className="w-8 h-8 text-text-secondary/40 mx-auto mb-2" />
               <p className="text-xs text-text-secondary">
